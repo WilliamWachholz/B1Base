@@ -1,0 +1,11 @@
+E:\Desenvolvimento\B1Base\B1Base\obj\Debug\B1Base.csprojResolveAssemblyReference.cache
+E:\Desenvolvimento\B1Base\B1Base\obj\Debug\Interop.SAPbobsCOM.dll
+E:\Desenvolvimento\B1Base\B1Base\obj\Debug\Interop.SAPbouiCOM.dll
+E:\Desenvolvimento\B1Base\B1Base\obj\Debug\B1Base.csproj.ResolveComReference.cache
+E:\Desenvolvimento\B1Base\B1Base\obj\Debug\B1Base.Properties.Resources.resources
+E:\Desenvolvimento\B1Base\B1Base\obj\Debug\B1Base.csproj.GenerateResource.Cache
+E:\Desenvolvimento\B1Base\B1Base\bin\Debug\B1Base.dll.config
+E:\Desenvolvimento\B1Base\B1Base\bin\Debug\B1Base.dll
+E:\Desenvolvimento\B1Base\B1Base\bin\Debug\B1Base.pdb
+E:\Desenvolvimento\B1Base\B1Base\obj\Debug\B1Base.dll
+E:\Desenvolvimento\B1Base\B1Base\obj\Debug\B1Base.pdb
