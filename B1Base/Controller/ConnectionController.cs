@@ -473,21 +473,21 @@ namespace B1Base.Controller
                     fieldMetadata.FieldType = FieldTypeEnum.Alphanumeric;
                     fieldMetadata.Size = 1;
                     fieldMetadata.ValidValues.Add("Y", "Sim");
-                    fieldMetadata.ValidValues.Add("Y", "Não");
+                    fieldMetadata.ValidValues.Add("N", "Não");
                 }
                 else if (prop.PropertyType == typeof(String))
                 {
                     Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
 
-                    if (specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Phone)
+                    if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Phone)
                     {
                         fieldMetadata.FieldType = FieldTypeEnum.Phone;
                     }
-                    else if (specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Memo)
+                    else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Memo)
                     {
                         fieldMetadata.FieldType = FieldTypeEnum.Memo;
                     }
-                    else if (specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Image)
+                    else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Image)
                     {
                         fieldMetadata.FieldType = FieldTypeEnum.Image;
                     }
@@ -495,9 +495,12 @@ namespace B1Base.Controller
                     {
                         fieldMetadata.FieldType = FieldTypeEnum.Alphanumeric;
 
-                        Model.BaseModel.Size length = prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size;
+                        Model.BaseModel.Size size = prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size;
 
-                        fieldMetadata.Size = length.Value;
+                        if (size != null)
+                            fieldMetadata.Size = size.Value;
+                        else
+                            fieldMetadata.Size = 1;
                     }
                 }
                 else if (prop.PropertyType == typeof(Int32))
@@ -519,7 +522,7 @@ namespace B1Base.Controller
                 {
                     Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
 
-                    if (specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
+                    if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
                     {
                         fieldMetadata.FieldType = FieldTypeEnum.Time;
                     }
@@ -531,24 +534,24 @@ namespace B1Base.Controller
                 else if (prop.PropertyType == typeof(Double))
                 {
                     Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
-   
-                    if (specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Quantity)
+
+                    if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Quantity)
                     {
                         fieldMetadata.FieldType = FieldTypeEnum.Quantity;
                     }
-                    else if (specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Percent)
+                    else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Percent)
                     {
                         fieldMetadata.FieldType = FieldTypeEnum.Percentage;
                     }
-                    else if (specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Price)
+                    else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Price)
                     {
                         fieldMetadata.FieldType = FieldTypeEnum.Price;
                     }
-                    else if (specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Rate)
+                    else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Rate)
                     {
                         fieldMetadata.FieldType = FieldTypeEnum.Rate;
                     }
-                    else if (specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Measurement)
+                    else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Measurement)
                     {
                         fieldMetadata.FieldType = FieldTypeEnum.Measurement;
                     }
@@ -581,6 +584,16 @@ namespace B1Base.Controller
         public int Size { get; set; }
         public Dictionary<string, string> ValidValues { get; set; }
         public string DefaultValue { get; set; }
+
+        public FieldMetadata()
+        {
+            Table = string.Empty;
+            Field = string.Empty;
+            FieldType = FieldTypeEnum.Alphanumeric;
+            Size = 1;
+            ValidValues = new Dictionary<string, string>();
+            DefaultValue = string.Empty;
+        }
     }
 
     public enum FieldTypeEnum
