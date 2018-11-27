@@ -25,6 +25,7 @@ namespace B1Base.View
         public delegate void FolderSelectEventHandler();
         public delegate void ChooseFromEventHandler(params string[] values);
         public delegate void MatixRowClickEventHandler(int row, string column);
+        public delegate void EditValidateEventHandler();
 
         protected Form SAPForm
         {
@@ -43,6 +44,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, MatixRowClickEventHandler> MatrixRowClickEvents { get { return new Dictionary<string, MatixRowClickEventHandler>(); } }
 
         protected virtual Dictionary<string, FolderSelectEventHandler> FolderSelectEvents { get { return new Dictionary<string, FolderSelectEventHandler>(); } }
+
+        protected virtual Dictionary<string, EditValidateEventHandler> EditValidateEvents { get { return new Dictionary<string, EditValidateEventHandler>(); } }
 
         protected virtual void CreateControls() { }
 
@@ -65,8 +68,6 @@ namespace B1Base.View
         public virtual void MenuSearch() { }
 
         public virtual void MenuDuplicate() { }
-
-        public virtual void Validate() { }
 
         public virtual void Resize() { }
 
@@ -133,6 +134,14 @@ namespace B1Base.View
             if (MatrixRowClickEvents.ContainsKey(matrix))
             {
                 MatrixRowClickEvents[matrix](row, column);
+            }
+        }
+
+        public void EditValidate(string edit)
+        {
+            if (EditValidateEvents.ContainsKey(edit))
+            {
+                EditValidateEvents[edit]();
             }
         }
     }

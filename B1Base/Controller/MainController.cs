@@ -318,7 +318,7 @@ namespace B1Base.Controller
 
                     if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Validate(); ;
+                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditValidate(pVal.ItemUID); ;
                     }
                 }
                 catch (Exception e)
