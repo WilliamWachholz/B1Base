@@ -13,7 +13,7 @@ namespace B1Base.View
         public string FormUID { get; private set; }
         public string FormType { get; private set; }
 
-        Timer m_timerInitialize = new Timer(500);
+        Timer m_timerInitialize = new Timer(1000);
 
         public BaseView(string formUID, string formType)
         {
@@ -22,6 +22,8 @@ namespace B1Base.View
 
             m_timerInitialize.Elapsed += Initialize;
             m_timerInitialize.Enabled = true;
+
+            SAPForm.Freeze(true);
         }
 
         
@@ -42,14 +44,22 @@ namespace B1Base.View
 
         private void Initialize(object sender, ElapsedEventArgs e)
         {
-            CreateControls();
+            
+            try
+            {
+                CreateControls();
 
-            Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
+                Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
 
-            SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
-            SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
+                SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
+                SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
 
-            m_timerInitialize.Enabled = false;
+                m_timerInitialize.Enabled = false;
+            }
+            finally
+            {
+                SAPForm.Freeze(false);
+            }
         }
 
         protected virtual Dictionary<string, ButtonClickEventHandler> ButtonClickEvents { get { return new Dictionary<string, ButtonClickEventHandler>(); } }

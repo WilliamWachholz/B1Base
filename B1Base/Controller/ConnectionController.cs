@@ -206,6 +206,7 @@ namespace B1Base.Controller
                             break;
                         case FieldTypeEnum.Integer:
                             userField.Type = BoFieldTypes.db_Numeric;
+                            userField.Size = 11;;
 
                             if (validValues != null)
                             {
