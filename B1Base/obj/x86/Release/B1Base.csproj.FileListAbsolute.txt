@@ -38,4 +38,3 @@ C:\AddOn\B1Base\B1Base\obj\x86\Release\B1Base.Properties.Resources.resources
 C:\AddOn\B1Base\B1Base\obj\x86\Release\B1Base.csproj.GenerateResource.Cache
 C:\AddOn\B1Base\B1Base\obj\x86\Release\B1Base.dll
 C:\AddOn\B1Base\B1Base\obj\x86\Release\B1Base.pdb
-C:\AddOn\B1Base\B1Base\obj\x86\Release\B1Base.csprojResolveAssemblyReference.cache

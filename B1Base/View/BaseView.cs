@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SAPbouiCOM;
+using System.Timers;
 
 namespace B1Base.View
 {
@@ -12,14 +13,18 @@ namespace B1Base.View
         public string FormUID { get; private set; }
         public string FormType { get; private set; }
 
+        Timer m_timerInitialize = new Timer(500);
+
         public BaseView(string formUID, string formType)
         {
             FormUID = formUID;
             FormType = formType;
+
+            m_timerInitialize.Elapsed += Initialize;
+            m_timerInitialize.Enabled = true;
         }
 
-        bool m_FirstGotFocus = true;
-
+        
         public delegate void ButtonClickEventHandler();
         public delegate void ButtonPressEventHandler();
         public delegate void FolderSelectEventHandler();
@@ -33,6 +38,18 @@ namespace B1Base.View
             {
                 return Controller.ConnectionController.Instance.Application.Forms.Item(FormUID);
             }
+        }
+
+        private void Initialize(object sender, ElapsedEventArgs e)
+        {
+            CreateControls();
+
+            Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
+
+            SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
+            SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
+
+            m_timerInitialize.Enabled = false;
         }
 
         protected virtual Dictionary<string, ButtonClickEventHandler> ButtonClickEvents { get { return new Dictionary<string, ButtonClickEventHandler>(); } }
@@ -71,31 +88,9 @@ namespace B1Base.View
 
         public virtual void Resize() { }
 
-        public void GotFocus()
-        {
-            if (m_FirstGotFocus)
-            {
-                try
-                {
-                    CreateControls();
+        public virtual void GotFocus() { }
 
-                    Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
-
-                    SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
-                    SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
-                }
-                catch { }
-                finally
-                {
-                    m_FirstGotFocus = false;
-                }
-            }
-        }
-
-        public void Close()
-        {
-            m_FirstGotFocus = true;
-        }
+        public virtual void Close() { }
 
         public void ButtonClick(string button)
         {
