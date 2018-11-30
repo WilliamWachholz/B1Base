@@ -47,14 +47,14 @@ namespace B1Base.View
             
             try
             {
+                m_timerInitialize.Enabled = false;
+
                 CreateControls();
 
                 Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
 
                 SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
-                SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
-
-                m_timerInitialize.Enabled = false;
+                SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;                
             }
             finally
             {
