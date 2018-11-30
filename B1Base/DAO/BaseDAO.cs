@@ -14,7 +14,7 @@ namespace B1Base.DAO
         {
             get
             {
-                return this.GetType().Name.Replace("Model", "");
+                return this.GetType().Name.Replace("DAO", "").ToUpper();
             }
         }
 
@@ -44,7 +44,7 @@ namespace B1Base.DAO
                         else
                         {
                             prop.SetValue(model, userTable.UserFields.Fields.Item("U_" + prop.Name).Value);
-                        }
+                        }                    
                     }
 
                     return model as T;
