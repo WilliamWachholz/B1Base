@@ -205,7 +205,7 @@ namespace B1Base.Controller
                             break;
                         case FieldTypeEnum.Alphanumeric:
                             userField.Type = BoFieldTypes.db_Alpha;
-                            userField.Size = size;
+                            userField.EditSize = size;
                             break;
                         case FieldTypeEnum.Date:
                             userField.Type = BoFieldTypes.db_Date;
@@ -216,7 +216,7 @@ namespace B1Base.Controller
                             break;
                         case FieldTypeEnum.Integer:
                             userField.Type = BoFieldTypes.db_Numeric;
-                            userField.Size = 10;
+                            userField.EditSize = 11;
 
                             if (validValues != null)
                             {
