@@ -161,6 +161,8 @@ namespace B1Base.Controller
 
             if (!tableExists)
             {
+                Application.StatusBar.SetText("Criando tabela " + table, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Warning);
+
                 UserTablesMD userTable = Company.GetBusinessObject(BoObjectTypes.oUserTables);
                 try
                 {
@@ -169,6 +171,12 @@ namespace B1Base.Controller
                     userTable.TableType = BoUTBTableType.bott_NoObject;
 
                     userTable.Add();
+
+                    VerifyBussinesObjectSuccess();
+                }
+                catch (Exception e)
+                {
+                    Application.StatusBar.SetText("Erro ao criar tabela: " + e.Message, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
                 }
                 finally
                 {
@@ -181,6 +189,8 @@ namespace B1Base.Controller
 
             if (!fieldExists)
             {
+                Application.StatusBar.SetText("Criando campo " + table + "." + field, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Warning);
+
                 UserFieldsMD userField = Company.GetBusinessObject(BoObjectTypes.oUserFields);
                 try
                 {
@@ -206,7 +216,7 @@ namespace B1Base.Controller
                             break;
                         case FieldTypeEnum.Integer:
                             userField.Type = BoFieldTypes.db_Numeric;
-                            userField.Size = 11;;
+                            userField.Size = 10;
 
                             if (validValues != null)
                             {
@@ -262,6 +272,12 @@ namespace B1Base.Controller
                         userField.DefaultValue = defaultValue;
 
                     userField.Add();
+
+                    VerifyBussinesObjectSuccess();
+                }
+                catch (Exception e)
+                {
+                    Application.StatusBar.SetText("Erro ao criar campo: " + e.Message, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
                 }
                 finally
                 {
