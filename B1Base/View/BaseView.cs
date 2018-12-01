@@ -86,6 +86,21 @@ namespace B1Base.View
             SAPForm.EnableMenu("1286", enableNavigation);
         }
 
+        protected void LoadCombo(ComboBox combo, string sqlScript)
+        {
+            Dictionary<int, string> validValues = AddOn.Instance.ConnectionController.ExecuteSqlForObject<Dictionary<int, string>>(sqlScript);
+
+            foreach (KeyValuePair<int, string> validValue in validValues)
+            {
+                combo.ValidValues.Add(validValue.Key.ToString(), validValue.Value);
+            }
+        }
+
+        protected void LoadCombo(ComboBox combo, Enum valuesEnum)
+        {
+
+        }
+
         public virtual void GotFormData() { }
 
         public virtual void AddFormData() { }
