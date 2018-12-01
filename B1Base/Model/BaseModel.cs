@@ -8,9 +8,9 @@ namespace B1Base.Model
 {
     public class BaseModel
     {
-
-
         public int Code { get; set; }
+
+        public bool Changed { get; set; }
 
         public class Size : Attribute
         {

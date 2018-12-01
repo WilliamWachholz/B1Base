@@ -22,7 +22,7 @@ namespace B1Base.DAO
         {
             Type type = typeof(T);
 
-            var props = type.GetProperties();
+            var props = type.GetProperties().Where(r => r.Name != "Changed");
 
             T model = (T)Activator.CreateInstance(type);
 
@@ -51,7 +51,15 @@ namespace B1Base.DAO
                 }
                 else
                 {
-                    return (T)Activator.CreateInstance(type);
+                    foreach (var prop in props)
+                    {
+                        if (prop.PropertyType == typeof(String))
+                        {
+                            prop.SetValue(model, string.Empty);
+                        }
+                    }
+
+                    return model as T;
                 }
             }
             finally
@@ -65,7 +73,7 @@ namespace B1Base.DAO
         {
             Type type = typeof(T);
 
-            var props = type.GetProperties();
+            var props = type.GetProperties().Where(r => r.Name != "Changed");
 
             UserTable userTable = (UserTable)AddOn.Instance.ConnectionController.Company.UserTables.Item(TableName);
             try
@@ -92,6 +100,8 @@ namespace B1Base.DAO
                 }
                 else
                 {
+                    model.Code = AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetLastCode", TableName);
+
                     userTable.Code = model.Code.ToString();
                     userTable.Name = model.Code.ToString();
 
@@ -100,6 +110,10 @@ namespace B1Base.DAO
                         if (prop.PropertyType == typeof(Boolean))
                         {
                             userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (bool)prop.GetValue(model) ? "Y" : "N";
+                        }
+                        else if (prop.PropertyType.IsEnum)
+                        {
+                            userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (int)prop.GetValue(model);
                         }
                         else
                         {

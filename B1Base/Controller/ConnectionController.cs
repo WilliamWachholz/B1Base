@@ -475,7 +475,7 @@ namespace B1Base.Controller
 
             Type type = typeof(T);
 
-            var props = type.GetProperties();
+            var props = type.GetProperties().Where(r => r.Name != "Changed");
 
             string table = type.Name.Replace("Model", "");
 
