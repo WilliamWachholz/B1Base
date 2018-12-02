@@ -90,9 +90,9 @@ namespace B1Base.View
             SAPForm.EnableMenu("1286", enableNavigation);
         }
 
-        protected void LoadCombo(ComboBox combo, string sqlScript)
+        protected void LoadCombo(ComboBox combo, string sqlScript, params string[] variables)
         {
-            Dictionary<int, string> validValues = AddOn.Instance.ConnectionController.ExecuteSqlForObject<Dictionary<int, string>>(sqlScript);
+            List<KeyValuePair<int, string>> validValues = AddOn.Instance.ConnectionController.ExecuteSqlForList<KeyValuePair<int, string>>(sqlScript, variables);
 
             foreach (KeyValuePair<int, string> validValue in validValues)
             {
@@ -100,7 +100,12 @@ namespace B1Base.View
             }
         }
 
-        protected void LoadCombo(ComboBox combo, Enum valuesEnum)
+        protected void LoadCombo(string table, string codeField, string nameField, ComboBox combo)
+        {
+            LoadCombo(combo, "GetComboValues", table, codeField, nameField);
+        }
+
+        protected void LoadCombo(Enum valuesEnum, ComboBox combo)
         {
 
         }

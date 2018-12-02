@@ -380,7 +380,11 @@ namespace B1Base.Controller
                 while (!recordSet.EoF)
                 {
                     T obj;
-                    if (isNotCoreType(type))
+                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                    {
+                        obj = (T)Activator.CreateInstance(type, new[] {Convert.ToInt32(recordSet.Fields.Item(0).Value),recordSet.Fields.Item(1).Value.ToString() });                        
+                    }
+                    else if (isNotCoreType(type))
                         obj = PrepareObject<T>(recordSet);
                     else
                     {
@@ -437,6 +441,7 @@ namespace B1Base.Controller
         private T PrepareObject<T>(Recordset oRs)
         {
             Type type = typeof(T);
+
             T obj = (T)Activator.CreateInstance(type);
             for (int i = 0; i < oRs.Fields.Count; i++)
             {
