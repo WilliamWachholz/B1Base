@@ -131,5 +131,26 @@ namespace B1Base.DAO
                 Marshal.ReleaseComObject(userTable);
             }
         }
+
+
+        public void Delete(T model)
+        {
+            Type type = typeof(T);
+
+            UserTable userTable = (UserTable)AddOn.Instance.ConnectionController.Company.UserTables.Item(TableName);
+            try
+            {
+                if (userTable.GetByKey(model.Code.ToString()))
+                {
+                    userTable.Remove();
+                }
+
+                AddOn.Instance.ConnectionController.VerifyBussinesObjectSuccess();
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(userTable);
+            }
+        }
     }
 }
