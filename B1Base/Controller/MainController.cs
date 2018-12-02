@@ -90,6 +90,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSearch;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuDuplicate;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuAny;
+            Controller.ConnectionController.Instance.Application.RightClickEvent += HandleRightClick;
 
             try
             {
@@ -329,6 +330,26 @@ namespace B1Base.Controller
             }
         }
 
+        private void HandleRightClick(ref ContextMenuInfo eventInfo, out bool bubbleEvent)
+        {
+            bubbleEvent = true;
+
+            try
+            {
+                string formUID = eventInfo.FormUID;                
+
+                foreach (View.BaseView baseView in m_Views.Where(r => r.FormUID == formUID))
+                {
+                    baseView.RightClick(eventInfo.ItemUID, eventInfo.Row, eventInfo.ColUID);
+                }
+            }
+            catch (Exception e)
+            {
+                //ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
+                //throw e;
+            }
+        }
+
         private void HandleFormResize(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
@@ -529,7 +550,6 @@ namespace B1Base.Controller
 
         private void HandleMenuDuplicate(ref MenuEvent pVal, out bool bubbleEvent)
         {
-
             bubbleEvent = true;
 
             if (pVal.MenuUID == "1287" && pVal.BeforeAction == false)
@@ -547,6 +567,35 @@ namespace B1Base.Controller
                     if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                     {
                         m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuDuplicate();
+                    }
+                }
+                catch (Exception e)
+                {
+                    //ConnectionController.Instance.Application.StatusBar.SetText("444 - " + e.Message);
+                    //throw e;
+                }
+            }
+        }
+
+        private void HandleMenuRightClick(ref MenuEvent pVal, out bool bubbleEvent)
+        {
+            bubbleEvent = true;
+
+            if (pVal.BeforeAction == false)
+            {
+                try
+                {
+                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UDFFormUID;
+                    string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
+
+                    if (formId.Contains("F_"))
+                    {
+                        formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
+                    }
+
+                    if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                    {
+                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuRightClick(pVal.MenuUID);
                     }
                 }
                 catch (Exception e)

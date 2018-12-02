@@ -32,6 +32,7 @@ namespace B1Base.View
         public delegate void FolderSelectEventHandler();
         public delegate void ChooseFromEventHandler(params string[] values);
         public delegate void MatixRowClickEventHandler(int row, string column);
+        public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void EditValidateEventHandler();
 
         protected Form SAPForm
@@ -55,6 +56,7 @@ namespace B1Base.View
 
                 SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
                 SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;                
+
             }
             finally
             {
@@ -69,6 +71,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, ChooseFromEventHandler> ChooseFromEvents { get { return new Dictionary<string, ChooseFromEventHandler>(); } }
 
         protected virtual Dictionary<string, MatixRowClickEventHandler> MatrixRowClickEvents { get { return new Dictionary<string, MatixRowClickEventHandler>(); } }
+
+        protected virtual Dictionary<string, MatrixRowRemoveEventHandler> MatrixRowRemoveEvents { get { return new Dictionary<string, MatrixRowRemoveEventHandler>(); } }
 
         protected virtual Dictionary<string, FolderSelectEventHandler> FolderSelectEvents { get { return new Dictionary<string, FolderSelectEventHandler>(); } }
 
@@ -154,6 +158,58 @@ namespace B1Base.View
             if (MatrixRowClickEvents.ContainsKey(matrix))
             {
                 MatrixRowClickEvents[matrix](row, column);
+            }
+        }
+
+        public void MenuRightClick(string menu)
+        {
+            foreach (KeyValuePair<string, MatrixRowRemoveEventHandler> matrixRowRemoveEvent in MatrixRowRemoveEvents)
+            {
+                if (menu == string.Format("MNUREM{0}{1}{2}", SAPForm.TypeEx, SAPForm.UniqueID, matrixRowRemoveEvent.Key))
+                {
+                    Matrix matrix = (Matrix)SAPForm.Items.Item(MatrixRowRemoveEvents.Keys);
+
+                    int row = matrix.GetCellFocus().rowIndex;
+
+                    matrixRowRemoveEvent.Value(row);
+                }
+            }
+        }
+
+        public void RightClick(string item, int row, string col)
+        {
+            foreach (KeyValuePair<string, MatrixRowRemoveEventHandler> matrixRowRemoveEvent in MatrixRowRemoveEvents)
+            {
+                if (matrixRowRemoveEvent.Key == item)
+                {
+                    string menuID = string.Format("MNUREM{0}{1}{2}", SAPForm.TypeEx, SAPForm.UniqueID, item);
+
+                    if (AddOn.Instance.ConnectionController.Application.Menus.Exists(menuID))
+                        AddOn.Instance.ConnectionController.Application.Menus.RemoveEx(menuID);
+
+                    SAPbouiCOM.Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
+
+                    string colTitle = matrix.Columns.Item(col).Title;
+                    string firstCol = matrix.Columns.Item(0).UniqueID;
+
+                    if (row > 0 && row < matrix.RowCount && (col != firstCol || colTitle != "#" || colTitle != ""))
+                    {
+                        MenuItem menuItem = null;
+                        Menus menu = null;
+                        MenuCreationParams creationPackage = null;
+
+                        creationPackage = ((MenuCreationParams)(AddOn.Instance.ConnectionController.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
+
+                        creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
+                        creationPackage.UniqueID = menuID;
+                        creationPackage.String = "Eliminar linha";
+                        creationPackage.Enabled = true;
+
+                        menuItem = AddOn.Instance.ConnectionController.Application.Menus.Item("1280");
+                        menu = menuItem.SubMenus;
+                        menu.AddEx(creationPackage);
+                    }
+                }
             }
         }
 
