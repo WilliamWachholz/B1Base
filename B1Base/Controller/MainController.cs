@@ -83,6 +83,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleChooseFrom;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonPress;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormValidate;
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleChecked;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormResize;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixRowClick;
             Controller.ConnectionController.Instance.Application.FormDataEvent += HandleFormDataLoad;
@@ -320,6 +321,29 @@ namespace B1Base.Controller
                     if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
                         m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditValidate(pVal.ItemUID); ;
+                    }
+                }
+                catch (Exception e)
+                {
+                    //ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
+                    //throw e;
+                }
+            }
+        }
+
+        private void HandleChecked(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
+        {
+            bubbleEvent = true;
+
+            if (pVal.EventType == BoEventTypes.et_CLICK && pVal.BeforeAction == false)
+            {
+                try
+                {
+                    string formType = pVal.FormTypeEx;
+
+                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    {
+                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Checked(pVal.ItemUID);
                     }
                 }
                 catch (Exception e)

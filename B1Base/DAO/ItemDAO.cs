@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using SAPbobsCOM;
 
 namespace B1Base.DAO
@@ -23,7 +24,7 @@ namespace B1Base.DAO
             }
             finally
             {
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(item);
+                Marshal.ReleaseComObject(item);
                 GC.Collect();
             }
         }

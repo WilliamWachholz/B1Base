@@ -34,6 +34,7 @@ namespace B1Base.View
         public delegate void MatixRowClickEventHandler(int row, string column);
         public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void EditValidateEventHandler();
+        public delegate void CheckEventHandler();
 
         protected Form SAPForm
         {
@@ -77,6 +78,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, FolderSelectEventHandler> FolderSelectEvents { get { return new Dictionary<string, FolderSelectEventHandler>(); } }
 
         protected virtual Dictionary<string, EditValidateEventHandler> EditValidateEvents { get { return new Dictionary<string, EditValidateEventHandler>(); } }
+
+        protected virtual Dictionary<string, CheckEventHandler> CheckEvents { get { return new Dictionary<string, CheckEventHandler>(); } }
 
         protected virtual void CreateControls() { }
 
@@ -223,6 +226,14 @@ namespace B1Base.View
             if (EditValidateEvents.ContainsKey(edit))
             {
                 EditValidateEvents[edit]();
+            }
+        }
+
+        public void Checked(string check)
+        {
+            if (CheckEvents.ContainsKey(check))
+            {
+                CheckEvents[check]();
             }
         }
     }

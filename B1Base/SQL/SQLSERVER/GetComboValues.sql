@@ -1,3 +1,3 @@
-﻿select	{1} AS "Key",
-		{2} AS Value
+﻿select	{1},
+		{2}
 from {0}
