@@ -221,19 +221,19 @@ namespace B1Base.View
             }
         }
 
-        public void EditValidate(string edit)
-        {
-            if (EditValidateEvents.ContainsKey(edit))
-            {
-                EditValidateEvents[edit]();
-            }
-        }
-
         public void Checked(string check)
         {
             if (CheckEvents.ContainsKey(check))
             {
                 CheckEvents[check]();
+            }
+        }
+
+        public void EditValidate(string edit)
+        {
+            if (EditValidateEvents.ContainsKey(edit))
+            {
+                EditValidateEvents[edit]();
             }
         }
     }

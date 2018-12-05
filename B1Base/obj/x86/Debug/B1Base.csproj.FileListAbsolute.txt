@@ -1,0 +1,17 @@
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetFieldExists.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetTableExists.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetComboValues.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetFieldExists.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetLastCode.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetTableExists.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SRF\ConfigView.srf
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\B1Base.dll.config
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\B1Base.dll
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\B1Base.pdb
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\Interop.SAPbobsCOM.dll
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\Interop.SAPbouiCOM.dll
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csproj.ResolveComReference.cache
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.Properties.Resources.resources
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csproj.GenerateResource.Cache
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.dll
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.pdb

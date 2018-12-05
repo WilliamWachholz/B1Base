@@ -82,8 +82,8 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFolderSelect;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleChooseFrom;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonPress;
-            Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormValidate;
-            Controller.ConnectionController.Instance.Application.ItemEvent += HandleChecked;
+            //Controller.ConnectionController.Instance.Application.ItemEvent += HandleChecked;
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormValidate;            
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormResize;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixRowClick;
             Controller.ConnectionController.Instance.Application.FormDataEvent += HandleFormDataLoad;
@@ -320,7 +320,9 @@ namespace B1Base.Controller
 
                     if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditValidate(pVal.ItemUID); ;
+                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditValidate(pVal.ItemUID);
+
+                        bubbleEvent = false;
                     }
                 }
                 catch (Exception e)
@@ -329,27 +331,27 @@ namespace B1Base.Controller
                     //throw e;
                 }
             }
-        }
 
-        private void HandleChecked(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
-        {
-            bubbleEvent = true;
-
-            if (pVal.EventType == BoEventTypes.et_CLICK && pVal.BeforeAction == false)
+            if (bubbleEvent)
             {
-                try
+                if (pVal.EventType == BoEventTypes.et_ITEM_PRESSED && pVal.BeforeAction == false)
                 {
-                    string formType = pVal.FormTypeEx;
-
-                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    try
                     {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Checked(pVal.ItemUID);
+                        string formType = pVal.FormTypeEx;
+
+                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Checked(pVal.ItemUID);
+
+                            bubbleEvent = false;
+                        }
                     }
-                }
-                catch (Exception e)
-                {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
-                    //throw e;
+                    catch (Exception e)
+                    {
+                        //ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
+                        //throw e;
+                    }
                 }
             }
         }
