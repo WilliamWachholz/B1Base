@@ -149,6 +149,9 @@
     <Content Include="SQL\SQLSERVER\GetTableExists.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="SQL\SQLSERVER\UpdateBusinessPartnerAgentCode.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SRF\ConfigView.srf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

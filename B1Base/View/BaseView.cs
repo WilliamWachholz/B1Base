@@ -26,15 +26,16 @@ namespace B1Base.View
             SAPForm.Freeze(true);
         }
 
-        
         public delegate void ButtonClickEventHandler();
         public delegate void ButtonPressEventHandler();
         public delegate void FolderSelectEventHandler();
         public delegate void ChooseFromEventHandler(params string[] values);
         public delegate void MatixRowClickEventHandler(int row, string column);
         public delegate void MatrixRowRemoveEventHandler(int row);
-        public delegate void EditValidateEventHandler();
+        public delegate void EditValidateEventHandler(bool changed);
         public delegate void CheckEventHandler();
+
+        public string LastEditValue { get; private set; }
 
         protected Form SAPForm
         {
@@ -233,9 +234,25 @@ namespace B1Base.View
         {
             if (EditValidateEvents.ContainsKey(edit))
             {
-                EditValidateEvents[edit]();
+                //tratar matriz.edit
+                EditValidateEvents[edit](LastEditValue != ((EditText)SAPForm.Items.Item(edit).Specific).String);
             }
         }
+
+        public void EditFocus(string edit)
+        {
+            if (EditValidateEvents.ContainsKey(edit))
+            {
+                //tratar matriz.edit
+                LastEditValue = ((EditText)SAPForm.Items.Item(edit).Specific).String;
+            }
+        }
+
+//        baseview.showerrormesssage(string msg)
+//baseview.showwarningmesssage(string msg)
+//baseview.showsuccessmessage() = operacao completada com exito
+//baseview.showdeleteconfirmation() = deseja realmente eliliminar esse registro?
+//baseview.showabortconfirmatio()= dados nao salvos serao perdidos
     }
     
 }

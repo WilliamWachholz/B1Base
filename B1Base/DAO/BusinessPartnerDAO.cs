@@ -17,12 +17,13 @@ namespace B1Base.DAO
             {
                 if (businessPartner.GetByKey(businessPartnerModel.CardCode))
                 {
-                    businessPartner.SalesPersonCode = businessPartnerModel.SlpCode;
-                    businessPartner.AgentCode = businessPartnerModel.AgentCode;
+                    businessPartner.SalesPersonCode = businessPartnerModel.SlpCode;                    
 
                     businessPartner.Update();
 
                     AddOn.Instance.ConnectionController.VerifyBussinesObjectSuccess();
+
+                    AddOn.Instance.ConnectionController.ExecuteStatement("UpdateBusinessPartnerAgentCode", businessPartnerModel.AgentCode, businessPartnerModel.CardCode);
                 }
             }
             finally

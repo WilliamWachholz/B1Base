@@ -228,6 +228,9 @@ namespace B1Base.Controller
                     if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
                         m_Views.First(r => r.FormUID == formUID && r.FormType == formType).GotFocus();
+
+                        if (pVal.ItemUID != string.Empty)
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditFocus(pVal.ItemUID);
                     }
                 }
                 catch (Exception e)
@@ -415,17 +418,26 @@ namespace B1Base.Controller
                     {
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(chooseFromListEvent.ChooseFromListUID,
-                                chooseFromListEvent.SelectedObjects.GetValue(0, 0).ToString(),
-                                chooseFromListEvent.SelectedObjects.GetValue(1, 0).ToString(),
-                                chooseFromListEvent.SelectedObjects.GetValue(2, 0).ToString(),
-                                chooseFromListEvent.SelectedObjects.GetValue(3, 0).ToString(),
-                                chooseFromListEvent.SelectedObjects.GetValue(4, 0).ToString(),
-                                chooseFromListEvent.SelectedObjects.GetValue(5, 0).ToString(),
-                                chooseFromListEvent.SelectedObjects.GetValue(6, 0).ToString(),
-                                chooseFromListEvent.SelectedObjects.GetValue(7, 0).ToString(),
-                                chooseFromListEvent.SelectedObjects.GetValue(8, 0).ToString(),
-                                chooseFromListEvent.SelectedObjects.GetValue(9, 0).ToString());
+                            if (chooseFromListEvent.SelectedObjects.Columns.Count > 9)
+                            {
+                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(chooseFromListEvent.ChooseFromListUID,
+                                    chooseFromListEvent.SelectedObjects.GetValue(0, 0).ToString(),
+                                    chooseFromListEvent.SelectedObjects.GetValue(1, 0).ToString(),
+                                    chooseFromListEvent.SelectedObjects.GetValue(2, 0).ToString(),
+                                    chooseFromListEvent.SelectedObjects.GetValue(3, 0).ToString(),
+                                    chooseFromListEvent.SelectedObjects.GetValue(4, 0).ToString(),
+                                    chooseFromListEvent.SelectedObjects.GetValue(5, 0).ToString(),
+                                    chooseFromListEvent.SelectedObjects.GetValue(6, 0).ToString(),
+                                    chooseFromListEvent.SelectedObjects.GetValue(7, 0).ToString(),
+                                    chooseFromListEvent.SelectedObjects.GetValue(8, 0).ToString(),
+                                    chooseFromListEvent.SelectedObjects.GetValue(9, 0).ToString());
+                            }
+                            else
+                            {
+                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(chooseFromListEvent.ChooseFromListUID,
+                                   chooseFromListEvent.SelectedObjects.GetValue(0, 0).ToString(),
+                                   chooseFromListEvent.SelectedObjects.GetValue(1, 0).ToString());
+                            }
                         }
                     }
                 }
