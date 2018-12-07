@@ -82,7 +82,6 @@
     <Compile Include="Model\EnumOperation.cs" />
     <Compile Include="Model\ItemModel.cs" />
     <Compile Include="Model\ItemWarehouseModel.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="View\BaseView.cs" />
     <Compile Include="View\ConfigView.cs" />

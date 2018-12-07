@@ -91,6 +91,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSearch;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuDuplicate;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuAny;
+            Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuRightClick;
             Controller.ConnectionController.Instance.Application.RightClickEvent += HandleRightClick;
 
             try
@@ -536,7 +537,7 @@ namespace B1Base.Controller
             {
                 try
                 {
-                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UDFFormUID;
+                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
                     string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
 
                     if (formId.Contains("F_"))
@@ -565,7 +566,7 @@ namespace B1Base.Controller
             {
                 try
                 {
-                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UDFFormUID;
+                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
                     string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
 
                     if (formId.Contains("F_"))
@@ -594,7 +595,7 @@ namespace B1Base.Controller
             {
                 try
                 {
-                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UDFFormUID;
+                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
                     string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
 
                     if (formId.Contains("F_"))
@@ -623,7 +624,7 @@ namespace B1Base.Controller
             {
                 try
                 {
-                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UDFFormUID;
+                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
                     string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
 
                     if (formId.Contains("F_"))

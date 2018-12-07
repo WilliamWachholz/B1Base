@@ -174,11 +174,11 @@ namespace B1Base.View
         {
             foreach (KeyValuePair<string, MatrixRowRemoveEventHandler> matrixRowRemoveEvent in MatrixRowRemoveEvents)
             {
-                if (menu == string.Format("MNUREM{0}{1}{2}", SAPForm.TypeEx, SAPForm.UniqueID, matrixRowRemoveEvent.Key))
+                if (menu.StartsWith(string.Format("MNUREM{0}{1}{2}", SAPForm.TypeEx, SAPForm.UniqueID, matrixRowRemoveEvent.Key)))
                 {
-                    Matrix matrix = (Matrix)SAPForm.Items.Item(MatrixRowRemoveEvents.Keys);
+                    Matrix matrix = (Matrix)SAPForm.Items.Item(matrixRowRemoveEvent.Key).Specific;
 
-                    int row = matrix.GetCellFocus().rowIndex;
+                    int row = Convert.ToInt16(menu.Split('-')[1]);
 
                     matrixRowRemoveEvent.Value(row);
                 }
@@ -191,7 +191,7 @@ namespace B1Base.View
             {
                 if (matrixRowRemoveEvent.Key == item)
                 {
-                    string menuID = string.Format("MNUREM{0}{1}{2}", SAPForm.TypeEx, SAPForm.UniqueID, item);
+                    string menuID = string.Format("MNUREM{0}{1}{2}-{3}", SAPForm.TypeEx, SAPForm.UniqueID, item, row);
 
                     if (AddOn.Instance.ConnectionController.Application.Menus.Exists(menuID))
                         AddOn.Instance.ConnectionController.Application.Menus.RemoveEx(menuID);
@@ -235,7 +235,14 @@ namespace B1Base.View
             if (EditValidateEvents.ContainsKey(edit))
             {
                 //tratar matriz.edit
-                EditValidateEvents[edit](LastEditValue != ((EditText)SAPForm.Items.Item(edit).Specific).String);
+                try
+                {
+                    EditValidateEvents[edit](LastEditValue != ((EditText)SAPForm.Items.Item(edit).Specific).String);
+                }
+                catch
+                {
+                    EditValidateEvents[edit](true);
+                }
             }
         }
 
@@ -243,8 +250,15 @@ namespace B1Base.View
         {
             if (EditValidateEvents.ContainsKey(edit))
             {
-                //tratar matriz.edit
-                LastEditValue = ((EditText)SAPForm.Items.Item(edit).Specific).String;
+                try
+                {
+                    //tratar matriz.edit
+                    LastEditValue = ((EditText)SAPForm.Items.Item(edit).Specific).String;
+                }
+                catch
+                {
+                    LastEditValue = string.Empty;
+                }
             }
         }
 
