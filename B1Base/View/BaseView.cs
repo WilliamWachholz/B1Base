@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SAPbouiCOM;
 using System.Timers;
+using System.ComponentModel;
+using System.Reflection;
+using SAPbouiCOM;
 
 namespace B1Base.View
 {
@@ -33,9 +35,11 @@ namespace B1Base.View
         public delegate void MatixRowClickEventHandler(int row, string column);
         public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void EditValidateEventHandler(bool changed);
+        public delegate void ComboSelectEventHandler(bool changed);
         public delegate void CheckEventHandler();
 
         public string LastEditValue { get; private set; }
+        public string LastComboValue { get; private set; }
 
         protected Form SAPForm
         {
@@ -57,8 +61,10 @@ namespace B1Base.View
                 Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
 
                 SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
-                SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;                
+                SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
 
+                LastEditValue = string.Empty;
+                LastComboValue = string.Empty;
             }
             finally
             {
@@ -79,6 +85,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, FolderSelectEventHandler> FolderSelectEvents { get { return new Dictionary<string, FolderSelectEventHandler>(); } }
 
         protected virtual Dictionary<string, EditValidateEventHandler> EditValidateEvents { get { return new Dictionary<string, EditValidateEventHandler>(); } }
+
+        protected virtual Dictionary<string, ComboSelectEventHandler> ComboSelectEvents { get { return new Dictionary<string, ComboSelectEventHandler>(); } }
 
         protected virtual Dictionary<string, CheckEventHandler> CheckEvents { get { return new Dictionary<string, CheckEventHandler>(); } }
 
@@ -109,9 +117,97 @@ namespace B1Base.View
             LoadCombo(combo, "GetComboValues", table, codeField, nameField);
         }
 
-        protected void LoadCombo(Enum valuesEnum, ComboBox combo)
+        protected void LoadCombo<T>(ComboBox combo)
         {
+            var type = typeof(T);
 
+            if (!type.IsEnum)
+            {
+                return;
+            }
+
+            foreach (var field in type.GetFields())
+            {
+                var attribute = Attribute.GetCustomAttribute(field,
+                    typeof(DescriptionAttribute)) as DescriptionAttribute;
+
+                if (attribute != null)
+                {
+                    combo.ValidValues.Add(field.GetValue(null).ToString(), attribute.Description);
+                }
+                else
+                {
+                    combo.ValidValues.Add(field.GetValue(null).ToString(), field.Name);
+                }
+            }            
+        }
+
+        protected dynamic GetValue(string item) 
+        {
+            if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((ComboBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+
+                if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER)
+                {
+                    if (userDataSource.Value == string.Empty)
+                        return 0;
+                    else return Convert.ToInt32(userDataSource.Value);
+                }
+                else return userDataSource.Value;                
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                
+                if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER)
+                {
+                    if (userDataSource.Value == string.Empty)
+                        return 0;
+                    else return Convert.ToInt32(userDataSource.Value);
+                }
+                if (userDataSource.DataType == BoDataType.dt_MEASURE || userDataSource.DataType == BoDataType.dt_PERCENT ||
+                    userDataSource.DataType == BoDataType.dt_PRICE || userDataSource.DataType == BoDataType.dt_QUANTITY ||
+                    userDataSource.DataType == BoDataType.dt_RATE || userDataSource.DataType == BoDataType.dt_SUM)
+                {
+                    if (userDataSource.Value == string.Empty)
+                        return 0;
+                    else return Convert.ToDouble(userDataSource.Value);
+                }
+                else if (userDataSource.DataType == BoDataType.dt_DATE)
+                {
+                    if (userDataSource.Value == string.Empty)
+                        return new DateTime(1990, 1, 1);
+                    else return Convert.ToDateTime(userDataSource.Value);
+                }
+                else return userDataSource.Value;
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_CHECK_BOX)
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((ComboBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+
+                return userDataSource.Value == "Y";
+            }
+            else return string.Empty;
+        }
+
+        protected void SetValue(string item, dynamic value)
+        {
+            if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((ComboBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                userDataSource.Value = value;
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                userDataSource.Value = value;
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_CHECK_BOX)
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((ComboBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                userDataSource.Value = value ? "Y" : "N";
+            }
         }
 
         public virtual void GotFormData() { }
@@ -258,6 +354,41 @@ namespace B1Base.View
                 catch
                 {
                     LastEditValue = string.Empty;
+                }
+            }
+        }
+
+        public void ComboSelect(string combo)
+        {
+            if (ComboSelectEvents.ContainsKey(combo))
+            {
+                //tratar matriz.combo
+                try
+                {
+                    ComboSelectEvents[combo](LastComboValue !=
+                        (((ComboBox)SAPForm.Items.Item(combo).Specific).Selected == null ? string.Empty :
+                        ((ComboBox)SAPForm.Items.Item(combo).Specific).Selected.Value));
+                }
+                catch
+                {
+                    ComboSelectEvents[combo](true);
+                }
+            }
+        }
+
+        public void ComboFocus(string combo)
+        {
+            if (ComboSelectEvents.ContainsKey(combo))
+            {
+                try
+                {
+                    //tratar matriz.combo
+                    LastComboValue = (((ComboBox)SAPForm.Items.Item(combo).Specific).Selected == null ? string.Empty :
+                        ((ComboBox)SAPForm.Items.Item(combo).Specific).Selected.Value);
+                }
+                catch
+                {
+                    LastComboValue = string.Empty;
                 }
             }
         }

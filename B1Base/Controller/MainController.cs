@@ -82,7 +82,6 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFolderSelect;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleChooseFrom;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonPress;
-            //Controller.ConnectionController.Instance.Application.ItemEvent += HandleChecked;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormValidate;            
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormResize;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixRowClick;
@@ -231,7 +230,10 @@ namespace B1Base.Controller
                         m_Views.First(r => r.FormUID == formUID && r.FormType == formType).GotFocus();
 
                         if (pVal.ItemUID != string.Empty)
+                        {
                             m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditFocus(pVal.ItemUID);
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ComboFocus(pVal.ItemUID);
+                        }
                     }
                 }
                 catch (Exception e)
@@ -356,6 +358,26 @@ namespace B1Base.Controller
                         //ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
                         //throw e;
                     }
+                }
+            }
+
+            if (pVal.EventType == BoEventTypes.et_COMBO_SELECT && pVal.BeforeAction == false)
+            {
+                try
+                {
+                    string formType = pVal.FormTypeEx;
+
+                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    {
+                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ComboSelect(pVal.ItemUID);
+
+                        bubbleEvent = false;
+                    }
+                }
+                catch (Exception e)
+                {
+                    //ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
+                    //throw e;
                 }
             }
         }
