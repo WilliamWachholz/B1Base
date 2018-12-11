@@ -537,7 +537,7 @@ namespace B1Base.Controller
 
                     foreach (var enumValue in enumValues)
                     {
-                        fieldMetadata.ValidValues.Add(enumValue.ToString(), Model.EnumOperation.GetEnumDescription(enumValue.ToString()));
+                        fieldMetadata.ValidValues.Add(enumValue.ToString(), Model.EnumOperation.GetEnumDescription(enumValue));
                     }
                 }
                 else if (prop.PropertyType == typeof(DateTime))

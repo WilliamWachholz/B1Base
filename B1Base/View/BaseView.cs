@@ -121,25 +121,32 @@ namespace B1Base.View
         {
             var type = typeof(T);
 
-            if (!type.IsEnum)
+            //if (!type.IsEnum)
+            //{
+            //    return;
+            //}
+
+            //var names = Enum.GetNames(type);
+            //foreach (var name in names)
+            //{
+            //    var field = type.GetField(name);
+            //    var attribute = field.GetCustomAttribute(typeof(DescriptionAttribute), true);
+                
+            //    if (attribute != null)
+            //    {
+            //        combo.ValidValues.Add(((int)field.GetValue(null)).ToString(), ((DescriptionAttribute)attribute).Description);
+            //    }
+            //    else
+            //    {
+            //        combo.ValidValues.Add(((int)field.GetValue(null)).ToString(), field.Name);
+            //    }
+            //}
+            var enumValues = Enum.GetValues(type);
+
+            foreach (var enumValue in enumValues)
             {
-                return;
+                combo.ValidValues.Add(enumValue.ToString(), Model.EnumOperation.GetEnumDescription(enumValue));
             }
-
-            foreach (var field in type.GetFields())
-            {
-                var attribute = Attribute.GetCustomAttribute(field,
-                    typeof(DescriptionAttribute)) as DescriptionAttribute;
-
-                if (attribute != null)
-                {
-                    combo.ValidValues.Add(field.GetValue(null).ToString(), attribute.Description);
-                }
-                else
-                {
-                    combo.ValidValues.Add(field.GetValue(null).ToString(), field.Name);
-                }
-            }            
         }
 
         protected dynamic GetValue(string item) 
@@ -196,12 +203,22 @@ namespace B1Base.View
             if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
             {
                 UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((ComboBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
-                userDataSource.Value = value;
+
+                Type type = value.GetType();
+
+                if (type.IsEnum)
+                {
+                    userDataSource.Value = ((int) value).ToString();
+                }
+                else
+                {
+                    userDataSource.Value = value.ToString();
+                }                
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
             {
                 UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
-                userDataSource.Value = value;
+                userDataSource.Value = value.ToString();
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_CHECK_BOX)
             {
