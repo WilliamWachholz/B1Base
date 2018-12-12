@@ -85,6 +85,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormValidate;            
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormResize;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixRowClick;
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixSort;
             Controller.ConnectionController.Instance.Application.FormDataEvent += HandleFormDataLoad;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuInsert;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSearch;
@@ -443,7 +444,7 @@ namespace B1Base.Controller
                         {
                             if (chooseFromListEvent.SelectedObjects.Columns.Count > 9)
                             {
-                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(chooseFromListEvent.ChooseFromListUID,
+                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(pVal.ItemUID,
                                     chooseFromListEvent.SelectedObjects.GetValue(0, 0).ToString(),
                                     chooseFromListEvent.SelectedObjects.GetValue(1, 0).ToString(),
                                     chooseFromListEvent.SelectedObjects.GetValue(2, 0).ToString(),
@@ -457,7 +458,7 @@ namespace B1Base.Controller
                             }
                             else
                             {
-                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(chooseFromListEvent.ChooseFromListUID,
+                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(pVal.ItemUID,
                                    chooseFromListEvent.SelectedObjects.GetValue(0, 0).ToString(),
                                    chooseFromListEvent.SelectedObjects.GetValue(1, 0).ToString());
                             }
@@ -511,6 +512,29 @@ namespace B1Base.Controller
                         {
                             m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowClick(pVal.ItemUID, pVal.Row, pVal.ColUID);
                         }
+                    }
+                }
+                catch (Exception e)
+                {
+                    //ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);
+                    //throw e;
+                }
+            }
+        }
+
+        private void HandleMatrixSort(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
+        {
+            bubbleEvent = true;
+
+            if (pVal.EventType == BoEventTypes.et_GRID_SORT && pVal.BeforeAction == false)
+            {
+                try
+                {
+                    string formType = pVal.FormTypeEx;
+
+                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    {
+                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixSort(pVal.ItemUID, pVal.ColUID);
                     }
                 }
                 catch (Exception e)

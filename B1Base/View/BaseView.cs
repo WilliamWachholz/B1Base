@@ -31,15 +31,17 @@ namespace B1Base.View
         public delegate void ButtonClickEventHandler();
         public delegate void ButtonPressEventHandler();
         public delegate void FolderSelectEventHandler();
-        public delegate void ChooseFromEventHandler(params string[] values);
+        public delegate void ChooseFromEventHandler(params string[] values);        
         public delegate void MatixRowClickEventHandler(int row, string column);
         public delegate void MatrixRowRemoveEventHandler(int row);
+        public delegate void MatrixSortEventHandler(string column);
         public delegate void EditValidateEventHandler(bool changed);
         public delegate void ComboSelectEventHandler(bool changed);
         public delegate void CheckEventHandler();
 
         public string LastEditValue { get; private set; }
         public string LastComboValue { get; private set; }
+        public int LastSortedColPos { get; private set; }
 
         protected Form SAPForm
         {
@@ -65,6 +67,7 @@ namespace B1Base.View
 
                 LastEditValue = string.Empty;
                 LastComboValue = string.Empty;
+                LastSortedColPos = 1;
             }
             finally
             {
@@ -81,6 +84,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, MatixRowClickEventHandler> MatrixRowClickEvents { get { return new Dictionary<string, MatixRowClickEventHandler>(); } }
 
         protected virtual Dictionary<string, MatrixRowRemoveEventHandler> MatrixRowRemoveEvents { get { return new Dictionary<string, MatrixRowRemoveEventHandler>(); } }
+
+        protected virtual Dictionary<string, MatrixSortEventHandler> MatrixSortEvents { get { return new Dictionary<string, MatrixSortEventHandler>(); } }
 
         protected virtual Dictionary<string, FolderSelectEventHandler> FolderSelectEvents { get { return new Dictionary<string, FolderSelectEventHandler>(); } }
 
@@ -120,27 +125,7 @@ namespace B1Base.View
         protected void LoadCombo<T>(ComboBox combo)
         {
             var type = typeof(T);
-
-            //if (!type.IsEnum)
-            //{
-            //    return;
-            //}
-
-            //var names = Enum.GetNames(type);
-            //foreach (var name in names)
-            //{
-            //    var field = type.GetField(name);
-            //    var attribute = field.GetCustomAttribute(typeof(DescriptionAttribute), true);
-                
-            //    if (attribute != null)
-            //    {
-            //        combo.ValidValues.Add(((int)field.GetValue(null)).ToString(), ((DescriptionAttribute)attribute).Description);
-            //    }
-            //    else
-            //    {
-            //        combo.ValidValues.Add(((int)field.GetValue(null)).ToString(), field.Name);
-            //    }
-            //}
+            
             var enumValues = Enum.GetValues(type);
 
             foreach (var enumValue in enumValues)
@@ -167,6 +152,17 @@ namespace B1Base.View
             {
                 UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
                 
+                EditText editText = (EditText)SAPForm.Items.Item(item).Specific;
+                
+                if (editText.ChooseFromListUID != string.Empty)
+                {
+                    try
+                    {
+                        userDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
+                    }
+                    catch { }
+                }
+                
                 if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER)
                 {
                     if (userDataSource.Value == string.Empty)
@@ -191,7 +187,7 @@ namespace B1Base.View
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_CHECK_BOX)
             {
-                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((ComboBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((CheckBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
 
                 return userDataSource.Value == "Y";
             }
@@ -210,19 +206,72 @@ namespace B1Base.View
                 {
                     userDataSource.Value = ((int) value).ToString();
                 }
+                else if (type == typeof(Int32))
+                {
+                    if (value == 0)
+                        userDataSource.Value = string.Empty;
+                    else
+                        userDataSource.Value = value.ToString();
+                }       
                 else
                 {
                     userDataSource.Value = value.ToString();
-                }                
+                }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
             {
-                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
-                userDataSource.Value = value.ToString();
+                EditText editText = (EditText)SAPForm.Items.Item(item).Specific;
+                
+                if (editText.ChooseFromListUID != string.Empty)
+                {
+                    try
+                    {
+                        ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(editText.ChooseFromListUID);
+
+                        string descValue = AddOn.Instance.ConnectionController.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
+
+                        UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
+
+                        if (codeDataSource.DataType == BoDataType.dt_SHORT_NUMBER || codeDataSource.DataType == BoDataType.dt_LONG_NUMBER ||
+                            codeDataSource.DataType == BoDataType.dt_MEASURE || codeDataSource.DataType == BoDataType.dt_PERCENT ||
+                            codeDataSource.DataType == BoDataType.dt_PRICE || codeDataSource.DataType == BoDataType.dt_QUANTITY ||
+                            codeDataSource.DataType == BoDataType.dt_RATE || codeDataSource.DataType == BoDataType.dt_SUM)
+                        {
+                            if (value != 0)
+                                codeDataSource.Value = value.ToString();
+                            else
+                                codeDataSource.Value = string.Empty;
+                        }
+                        else if (codeDataSource.DataType == BoDataType.dt_DATE)
+                        {
+                            if (value != DateTime.MinValue && value != new DateTime(1990, 1, 1))
+                                codeDataSource.Value = value.ToString();
+                            else
+                                codeDataSource.Value = string.Empty;
+                        }
+                        else
+                        {
+                            codeDataSource.Value = value.ToString();
+                        }
+
+                        UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                        userDataSource.Value = descValue;
+                    }
+                    catch 
+                    {
+                        UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                        userDataSource.Value = value.ToString();
+                    }
+                }                
+                else
+                {
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                    userDataSource.Value = value.ToString();
+                }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_CHECK_BOX)
             {
-                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((ComboBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((CheckBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
                 userDataSource.Value = value ? "Y" : "N";
             }
         }
@@ -259,11 +308,21 @@ namespace B1Base.View
             }
         }
 
-        public void ChooseFrom(string choose, params string[] values)
+        public void ChooseFrom(string edit, params string[] values)
         {
-            if (ChooseFromEvents.ContainsKey(choose))
+            if (ChooseFromEvents.ContainsKey(edit))
             {
-                ChooseFromEvents[choose](values);
+                try
+                {
+                    UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + ((EditText)SAPForm.Items.Item(edit).Specific).DataBind.Alias);
+                    codeDataSource.Value = values[0];
+
+                    UserDataSource valueDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(edit).Specific).DataBind.Alias);
+                    valueDataSource.Value = values[1];
+                }
+                catch { }
+
+                ChooseFromEvents[edit](values);
             }
         }
 
@@ -295,6 +354,25 @@ namespace B1Base.View
 
                     matrixRowRemoveEvent.Value(row);
                 }
+            }
+        }
+
+        public void MatrixSort(string matrix, string column)
+        {
+            if (MatrixSortEvents.ContainsKey(matrix))
+            {
+                Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                for (int colPos = 1; colPos < matrixItem.Columns.Count;  colPos++)
+                {
+                    if (matrixItem.Columns.Item(colPos).UniqueID == column)
+                    {
+                        LastSortedColPos = colPos;
+                        break;
+                    }
+                }
+                   
+                MatrixSortEvents[matrix](column);
             }
         }
 

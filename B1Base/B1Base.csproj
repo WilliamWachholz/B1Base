@@ -136,6 +136,9 @@
     <Content Include="SQL\HANA\GetTableExists.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="SQL\SQLSERVER\GetChooseValue.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SQL\SQLSERVER\GetComboValues.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
