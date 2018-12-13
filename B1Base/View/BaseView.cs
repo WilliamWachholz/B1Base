@@ -130,7 +130,7 @@ namespace B1Base.View
 
             foreach (var enumValue in enumValues)
             {
-                combo.ValidValues.Add(enumValue.ToString(), Model.EnumOperation.GetEnumDescription(enumValue));
+                combo.ValidValues.Add(((int)enumValue).ToString(), Model.EnumOperation.GetEnumDescription(enumValue));
             }
         }
 
