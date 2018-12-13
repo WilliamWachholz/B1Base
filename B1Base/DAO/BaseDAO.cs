@@ -44,7 +44,7 @@ namespace B1Base.DAO
                         else
                         {
                             prop.SetValue(model, userTable.UserFields.Fields.Item("U_" + prop.Name).Value);
-                        }                    
+                        }
                     }
 
                     return model as T;

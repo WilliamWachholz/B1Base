@@ -109,9 +109,9 @@ namespace B1Base.View
 
         protected void LoadCombo(ComboBox combo, string sqlScript, params string[] variables)
         {
-            List<KeyValuePair<int, string>> validValues = AddOn.Instance.ConnectionController.ExecuteSqlForList<KeyValuePair<int, string>>(sqlScript, variables);
+            List<KeyValuePair<dynamic, string>> validValues = AddOn.Instance.ConnectionController.ExecuteSqlForList<KeyValuePair<dynamic, string>>(sqlScript, variables);
 
-            foreach (KeyValuePair<int, string> validValue in validValues)
+            foreach (KeyValuePair<dynamic, string> validValue in validValues)
             {
                 combo.ValidValues.Add(validValue.Key.ToString(), validValue.Value);
             }

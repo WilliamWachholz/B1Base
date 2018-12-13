@@ -382,7 +382,7 @@ namespace B1Base.Controller
                     T obj;
                     if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
                     {
-                        obj = (T)Activator.CreateInstance(type, new[] {Convert.ToInt32(recordSet.Fields.Item(0).Value),recordSet.Fields.Item(1).Value.ToString() });                        
+                        obj = (T)Activator.CreateInstance(type, new[] {recordSet.Fields.Item(0).Value, recordSet.Fields.Item(1).Value.ToString() });                        
                     }
                     else if (isNotCoreType(type))
                         obj = PrepareObject<T>(recordSet);
@@ -576,6 +576,10 @@ namespace B1Base.Controller
                     else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Measurement)
                     {
                         fieldMetadata.FieldType = FieldTypeEnum.Measurement;
+                    }
+                    else
+                    {
+                        fieldMetadata.FieldType = FieldTypeEnum.Quantity;
                     }
                 }
 
