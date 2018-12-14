@@ -458,9 +458,15 @@ namespace B1Base.Controller
                             }
                             else
                             {
+                                string[] values = new string[chooseFromListEvent.SelectedObjects.Columns.Count];
+
+                                for (int value = 0; value < values.Count() - 1; value++)
+                                {
+                                    values[value] = chooseFromListEvent.SelectedObjects.GetValue(value, 0).ToString();
+                                }
+
                                 m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(pVal.ItemUID,
-                                   chooseFromListEvent.SelectedObjects.GetValue(0, 0).ToString(),
-                                   chooseFromListEvent.SelectedObjects.GetValue(1, 0).ToString());
+                                   values);
                             }
                         }
                     }
