@@ -134,6 +134,24 @@ namespace B1Base.View
             }
         }
 
+        protected void FilterChoose(EditText edit, string column, BoConditionOperation operation, string value)
+        {
+            if (edit.ChooseFromListUID != string.Empty)
+            {
+                ChooseFromList choose = (ChooseFromList)SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
+
+                Conditions conditions = new Conditions();
+
+                Condition condition = conditions.Add();
+
+                condition.Alias = column;
+                condition.Operation = operation;
+                condition.CondVal = value;
+
+                choose.SetConditions(conditions);
+            }
+        }
+
         protected dynamic GetValue(string item) 
         {
             if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
