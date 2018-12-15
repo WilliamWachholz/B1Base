@@ -17,7 +17,10 @@ namespace B1Base.DAO
             {
                 if (businessPartner.GetByKey(businessPartnerModel.CardCode))
                 {
-                    businessPartner.SalesPersonCode = businessPartnerModel.SlpCode;                    
+                    if (businessPartnerModel.SlpCode == 0)
+                        businessPartner.SalesPersonCode = -1;
+                    else
+                        businessPartner.SalesPersonCode = businessPartnerModel.SlpCode;                    
 
                     businessPartner.Update();
 
