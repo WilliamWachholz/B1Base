@@ -46,6 +46,5 @@ namespace B1Base.Model
         }
 
         
-        //DELTA?
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Data;
 using SAPbobsCOM;
 
 namespace B1Base.DAO
@@ -131,7 +132,6 @@ namespace B1Base.DAO
                 Marshal.ReleaseComObject(userTable);
             }
         }
-
 
         public void Delete(T model)
         {

@@ -443,6 +443,21 @@ namespace B1Base.View
         {
             if (EditValidateEvents.ContainsKey(edit))
             {
+                if (((EditText)SAPForm.Items.Item(edit).Specific).String == string.Empty)
+                {
+                    try
+                    {
+                        UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + ((EditText)SAPForm.Items.Item(edit).Specific).DataBind.Alias);
+                        codeDataSource.Value = "";
+
+                        UserDataSource valueDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(edit).Specific).DataBind.Alias);
+                        valueDataSource.Value = "";
+                    }
+                    catch { }
+
+                    ChooseFromEvents[edit]("");
+                }
+
                 //tratar matriz.edit
                 try
                 {

@@ -148,6 +148,9 @@
     <Content Include="SQL\SQLSERVER\GetLastCode.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="SQL\SQLSERVER\GetListModel.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SQL\SQLSERVER\GetTableExists.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
