@@ -389,6 +389,9 @@ namespace B1Base.View
             dataTable.Rows.Add();
 
             matrix.LoadFromDataSource();
+
+            if (matrix.RowCount == 0)
+                matrix.AddRow();
         }
 
         public virtual void GotFormData() { }
