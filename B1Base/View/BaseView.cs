@@ -31,16 +31,21 @@ namespace B1Base.View
         public delegate void ButtonClickEventHandler();
         public delegate void ButtonPressEventHandler();
         public delegate void FolderSelectEventHandler();
-        public delegate void ChooseFromEventHandler(params string[] values);        
+        public delegate void ChooseFromEventHandler(params string[] values);
+        public delegate void ColChooseFromEventHandler(int row, Dictionary<string, string> values);        
         public delegate void MatixRowClickEventHandler(int row, string column);
         public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void MatrixSortEventHandler(string column);
+        public delegate bool MatrixCanAddEventHandler(int row);
         public delegate void EditValidateEventHandler(bool changed);
+        public delegate void ColumnValidateEventHandler(int row, bool changed);
         public delegate void ComboSelectEventHandler(bool changed);
+        public delegate void ColumnSelectEventHandler(int row, bool changed);
         public delegate void CheckEventHandler();
 
         public string LastEditValue { get; private set; }
         public string LastComboValue { get; private set; }
+        public string LastColumnValue { get; private set; }
         public int LastSortedColPos { get; private set; }
 
         protected Form SAPForm
@@ -81,17 +86,25 @@ namespace B1Base.View
 
         protected virtual Dictionary<string, ChooseFromEventHandler> ChooseFromEvents { get { return new Dictionary<string, ChooseFromEventHandler>(); } }
 
+        protected virtual Dictionary<string, ColChooseFromEventHandler> ColChooseFromEvents { get { return new Dictionary<string, ColChooseFromEventHandler>(); } }
+
         protected virtual Dictionary<string, MatixRowClickEventHandler> MatrixRowClickEvents { get { return new Dictionary<string, MatixRowClickEventHandler>(); } }
 
         protected virtual Dictionary<string, MatrixRowRemoveEventHandler> MatrixRowRemoveEvents { get { return new Dictionary<string, MatrixRowRemoveEventHandler>(); } }
 
         protected virtual Dictionary<string, MatrixSortEventHandler> MatrixSortEvents { get { return new Dictionary<string, MatrixSortEventHandler>(); } }
 
+        protected virtual Dictionary<string, MatrixCanAddEventHandler> MatrixCanAddEvents { get { return new Dictionary<string, MatrixCanAddEventHandler>(); } }
+
         protected virtual Dictionary<string, FolderSelectEventHandler> FolderSelectEvents { get { return new Dictionary<string, FolderSelectEventHandler>(); } }
 
         protected virtual Dictionary<string, EditValidateEventHandler> EditValidateEvents { get { return new Dictionary<string, EditValidateEventHandler>(); } }
 
+        protected virtual Dictionary<string, ColumnValidateEventHandler> ColumnValidateEvents { get { return new Dictionary<string, ColumnValidateEventHandler>(); } }
+
         protected virtual Dictionary<string, ComboSelectEventHandler> ComboSelectEvents { get { return new Dictionary<string, ComboSelectEventHandler>(); } }
+
+        protected virtual Dictionary<string, ColumnSelectEventHandler> ColumnSelectEvents { get { return new Dictionary<string, ColumnSelectEventHandler>(); } }
 
         protected virtual Dictionary<string, CheckEventHandler> CheckEvents { get { return new Dictionary<string, CheckEventHandler>(); } }
 
@@ -212,6 +225,49 @@ namespace B1Base.View
             else return string.Empty;
         }
 
+        protected List<T> GetValue<T>(DataTable dataTable, Matrix matrix)
+        {
+            List<T> result = new List<T>();
+
+            Type type = typeof(T);
+
+            var props = type.GetProperties().Where(r => r.Name != "Changed");
+
+            matrix.FlushToDataSource();
+
+            for (int row = 0; row < dataTable.Rows.Count - 1; row++)
+            {
+                T model = (T)Activator.CreateInstance(type);
+
+                foreach (var prop in props)
+                {
+                    for (int col = 0; col < dataTable.Columns.Count; col++)
+                    {
+                        if (dataTable.Columns.Item(col).Name == prop.Name)
+                        {
+                            if (prop.PropertyType == typeof(Boolean))
+                            {
+                                prop.SetValue(model, dataTable.GetValue(col, row).ToString().Equals("Y"), null);
+                            }
+                            else if (prop.PropertyType.IsEnum)
+                            {
+                                prop.SetValue(model, Convert.ChangeType(dataTable.GetValue(col, row), Enum.GetUnderlyingType(prop.PropertyType)), null);
+                            }
+                            else
+                            {
+                                prop.SetValue(model, dataTable.GetValue(col, row));
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                result.Add(model);
+            }
+
+            return result;
+        }
+
         protected void SetValue(string item, dynamic value)
         {
             if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
@@ -294,6 +350,47 @@ namespace B1Base.View
             }
         }
 
+        protected void SetValue<T>(DataTable dataTable, Matrix matrix, List<T> list) where T : Model.BaseModel
+        {
+            dataTable.Rows.Clear();
+
+            Type type = typeof(T);
+
+            var props = type.GetProperties().Where(r => r.Name != "Changed");
+
+            foreach (T model in list)
+            {
+                dataTable.Rows.Add();
+
+                foreach (var prop in props)
+                {
+                    for (int col = 0; col < dataTable.Columns.Count; col++)
+                    {
+                        if (dataTable.Columns.Item(col).Name == prop.Name)
+                        {
+                            if (prop.PropertyType == typeof(Boolean))
+                            {
+                                dataTable.SetValue(col, dataTable.Rows.Count - 1, (bool) prop.GetValue(model) ? "Y" : "N");
+                            }
+                            else if (prop.PropertyType.IsEnum)
+                            {
+                                dataTable.SetValue(col, dataTable.Rows.Count - 1, (int) prop.GetValue(model));;
+                            }
+                            else
+                            {
+                                dataTable.SetValue(col, dataTable.Rows.Count - 1, prop.GetValue(model));
+                            }
+                            
+                            break;
+                        }
+                    }
+                }
+            }
+            dataTable.Rows.Add();
+
+            matrix.LoadFromDataSource();
+        }
+
         public virtual void GotFormData() { }
 
         public virtual void AddFormData() { }
@@ -341,6 +438,43 @@ namespace B1Base.View
                 catch { }
 
                 ChooseFromEvents[edit](values);
+            }
+        }
+
+        public void ColChooseFrom(string matrix, int row, string column, Dictionary<string, string> values)
+        {
+            string key = string.Format("{0}.{1}", matrix, column);
+
+            if (ColChooseFromEvents.ContainsKey(key))
+            {
+                Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                for (int col = 0; col < matrixItem.Columns.Count; col++)
+                {
+                    if (matrixItem.Columns.Item(col).Type == BoFormItemTypes.it_EDIT || matrixItem.Columns.Item(col).Type == BoFormItemTypes.it_LINKED_BUTTON)
+                    {
+                        EditText editText = (EditText)matrixItem.Columns.Item(col).Cells.Item(row).Specific;
+
+                        string alias = string.Empty;
+
+                        try
+                        {
+                            alias = matrixItem.Columns.Item(col).ChooseFromListAlias;
+                        }
+                        catch { }
+                        
+                        if (values.ContainsKey(alias))
+                        {
+                            try
+                            {
+                                editText.String = values[alias];
+                            }
+                            catch { }
+                        }
+                    }
+                }
+
+                ColChooseFromEvents[key](row, values);
             }
         }
 
@@ -443,14 +577,15 @@ namespace B1Base.View
         {
             if (EditValidateEvents.ContainsKey(edit))
             {
-                if (((EditText)SAPForm.Items.Item(edit).Specific).String == string.Empty)
+                EditText editText = ((EditText)SAPForm.Items.Item(edit).Specific);
+                if (editText.String == string.Empty)
                 {
                     try
                     {
-                        UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + ((EditText)SAPForm.Items.Item(edit).Specific).DataBind.Alias);
+                        UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
                         codeDataSource.Value = "";
 
-                        UserDataSource valueDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(edit).Specific).DataBind.Alias);
+                        UserDataSource valueDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
                         valueDataSource.Value = "";
                     }
                     catch { }
@@ -458,14 +593,42 @@ namespace B1Base.View
                     ChooseFromEvents[edit]("");
                 }
 
-                //tratar matriz.edit
-                try
+                EditValidateEvents[edit](LastEditValue != editText.String);
+            }
+        }
+
+        public void ColumnValidate(string matrix, int row, string column)
+        {
+            string key = string.Format("{0}.{1}", matrix, column);
+
+            if (ColumnValidateEvents.ContainsKey(key))
+            {
+                Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                EditText editText = (EditText)matrixItem.Columns.Item(column).Cells.Item(row).Specific;
+                if (editText.String == string.Empty)
                 {
-                    EditValidateEvents[edit](LastEditValue != ((EditText)SAPForm.Items.Item(edit).Specific).String);
+                    try
+                    {
+                        UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
+                        codeDataSource.Value = "";
+
+                        UserDataSource valueDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
+                        valueDataSource.Value = "";
+                    }
+                    catch { }
+
+                    ChooseFromEvents[key]("");
                 }
-                catch
+
+                ColumnValidateEvents[key](row, LastColumnValue != editText.String);
+
+                if (MatrixCanAddEvents.ContainsKey(key) && row == matrixItem.RowCount)
                 {
-                    EditValidateEvents[edit](true);
+                    if (MatrixCanAddEvents[key](row))
+                    {
+                        matrixItem.AddRow();
+                    }
                 }
             }
         }
@@ -474,15 +637,7 @@ namespace B1Base.View
         {
             if (EditValidateEvents.ContainsKey(edit))
             {
-                try
-                {
-                    //tratar matriz.edit
-                    LastEditValue = ((EditText)SAPForm.Items.Item(edit).Specific).String;
-                }
-                catch
-                {
-                    LastEditValue = string.Empty;
-                }
+                LastEditValue = ((EditText)SAPForm.Items.Item(edit).Specific).String;
             }
         }
 
@@ -490,16 +645,30 @@ namespace B1Base.View
         {
             if (ComboSelectEvents.ContainsKey(combo))
             {
-                //tratar matriz.combo
-                try
+                ComboSelectEvents[combo](LastComboValue !=
+                    (((ComboBox)SAPForm.Items.Item(combo).Specific).Selected == null ? string.Empty :
+                    ((ComboBox)SAPForm.Items.Item(combo).Specific).Selected.Value));
+            }
+        }
+
+        public void ColumnSelect(string matrix, int row, string column)
+        {
+            string key = string.Format("{0}.{1}", matrix, column);
+
+            if (ColumnSelectEvents.ContainsKey(key))
+            {
+                Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                ColumnSelectEvents[key](row, LastComboValue !=
+                    (((ComboBox)matrixItem.Columns.Item(column).Cells.Item(row).Specific).Selected == null ? string.Empty :
+                    ((ComboBox)matrixItem.Columns.Item(column).Cells.Item(row).Specific).Selected.Value));
+
+                if (MatrixCanAddEvents.ContainsKey(key) && row == matrixItem.RowCount)
                 {
-                    ComboSelectEvents[combo](LastComboValue !=
-                        (((ComboBox)SAPForm.Items.Item(combo).Specific).Selected == null ? string.Empty :
-                        ((ComboBox)SAPForm.Items.Item(combo).Specific).Selected.Value));
-                }
-                catch
-                {
-                    ComboSelectEvents[combo](true);
+                    if (MatrixCanAddEvents[key](row))
+                    {
+                        matrixItem.AddRow();
+                    }
                 }
             }
         }
@@ -508,15 +677,26 @@ namespace B1Base.View
         {
             if (ComboSelectEvents.ContainsKey(combo))
             {
-                try
+                LastComboValue = (((ComboBox)SAPForm.Items.Item(combo).Specific).Selected == null ? string.Empty :
+                    ((ComboBox)SAPForm.Items.Item(combo).Specific).Selected.Value);
+            }
+        }
+
+        public void ColumnFocus(string matrix, int row, string column)
+        {
+            string key = string.Format("{0}.{1}", matrix, column);
+            if (ColumnValidateEvents.ContainsKey(key))
+            {
+                Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                if (matrixItem.Columns.Item(column).Type == BoFormItemTypes.it_COMBO_BOX)
                 {
-                    //tratar matriz.combo
-                    LastComboValue = (((ComboBox)SAPForm.Items.Item(combo).Specific).Selected == null ? string.Empty :
-                        ((ComboBox)SAPForm.Items.Item(combo).Specific).Selected.Value);
+                    LastColumnValue = (((ComboBox)matrixItem.Columns.Item(column).Cells.Item(row).Specific).Selected == null ? string.Empty :
+                        ((ComboBox)matrixItem.Columns.Item(column).Cells.Item(row).Specific).Selected.Value);
                 }
-                catch
+                else
                 {
-                    LastComboValue = string.Empty;
+                    LastColumnValue = ((EditText)matrixItem.Columns.Item(column).Cells.Item(row).Specific).String;
                 }
             }
         }

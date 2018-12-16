@@ -36,7 +36,7 @@ namespace B1Base.DAO
                     {
                         if (prop.PropertyType == typeof(Boolean))
                         {
-                            prop.SetValue(model, userTable.UserFields.Fields.Item("U_" + prop.Name).Value.ToString().Equals("Y") ? true : false, null);
+                            prop.SetValue(model, userTable.UserFields.Fields.Item("U_" + prop.Name).Value.ToString().Equals("Y"), null);
                         }
                         else if (prop.PropertyType.IsEnum)
                         {

@@ -232,8 +232,15 @@ namespace B1Base.Controller
 
                         if (pVal.ItemUID != string.Empty)
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditFocus(pVal.ItemUID);
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ComboFocus(pVal.ItemUID);
+                            if (pVal.ColUID != string.Empty)
+                            {
+                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnFocus(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                            }
+                            else
+                            {
+                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditFocus(pVal.ItemUID);
+                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ComboFocus(pVal.ItemUID);
+                            }
                         }
                     }
                 }
@@ -327,7 +334,14 @@ namespace B1Base.Controller
 
                     if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditValidate(pVal.ItemUID);
+                        if (pVal.ColUID != string.Empty)
+                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnValidate(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                        }
+                        else
+                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditValidate(pVal.ItemUID);
+                        }
 
                         bubbleEvent = false;
                     }
@@ -370,7 +384,14 @@ namespace B1Base.Controller
 
                     if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ComboSelect(pVal.ItemUID);
+                        if (pVal.ColUID != string.Empty)
+                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnSelect(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                        }
+                        else
+                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ComboSelect(pVal.ItemUID);
+                        }
 
                         bubbleEvent = false;
                     }
@@ -444,29 +465,63 @@ namespace B1Base.Controller
                         {
                             if (chooseFromListEvent.SelectedObjects.Columns.Count > 9)
                             {
-                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(pVal.ItemUID,
-                                    chooseFromListEvent.SelectedObjects.GetValue(0, 0).ToString(),
-                                    chooseFromListEvent.SelectedObjects.GetValue(1, 0).ToString(),
-                                    chooseFromListEvent.SelectedObjects.GetValue(2, 0).ToString(),
-                                    chooseFromListEvent.SelectedObjects.GetValue(3, 0).ToString(),
-                                    chooseFromListEvent.SelectedObjects.GetValue(4, 0).ToString(),
-                                    chooseFromListEvent.SelectedObjects.GetValue(5, 0).ToString(),
-                                    chooseFromListEvent.SelectedObjects.GetValue(6, 0).ToString(),
-                                    chooseFromListEvent.SelectedObjects.GetValue(7, 0).ToString(),
-                                    chooseFromListEvent.SelectedObjects.GetValue(8, 0).ToString(),
-                                    chooseFromListEvent.SelectedObjects.GetValue(9, 0).ToString());
+                                if (pVal.ColUID != string.Empty)
+                                {
+                                    Dictionary<string, string> values = new Dictionary<string, string>();
+
+                                    for (int value = 0; value < 9; value++)
+                                    {
+                                        values.Add(chooseFromListEvent.SelectedObjects.Columns.Item(value).Name, chooseFromListEvent.SelectedObjects.GetValue(value, 0).ToString());
+                                    }
+
+                                    m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColChooseFrom(pVal.ItemUID, 
+                                        pVal.Row, 
+                                        pVal.ColUID,
+                                        values);
+                                }
+                                else
+                                {
+                                    m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(pVal.ItemUID,
+                                        chooseFromListEvent.SelectedObjects.GetValue(0, 0).ToString(),
+                                        chooseFromListEvent.SelectedObjects.GetValue(1, 0).ToString(),
+                                        chooseFromListEvent.SelectedObjects.GetValue(2, 0).ToString(),
+                                        chooseFromListEvent.SelectedObjects.GetValue(3, 0).ToString(),
+                                        chooseFromListEvent.SelectedObjects.GetValue(4, 0).ToString(),
+                                        chooseFromListEvent.SelectedObjects.GetValue(5, 0).ToString(),
+                                        chooseFromListEvent.SelectedObjects.GetValue(6, 0).ToString(),
+                                        chooseFromListEvent.SelectedObjects.GetValue(7, 0).ToString(),
+                                        chooseFromListEvent.SelectedObjects.GetValue(8, 0).ToString(),
+                                        chooseFromListEvent.SelectedObjects.GetValue(9, 0).ToString());
+                                }
                             }
                             else
-                            {
-                                string[] values = new string[chooseFromListEvent.SelectedObjects.Columns.Count];
-
-                                for (int value = 0; value < values.Count() - 1; value++)
+                            {                                
+                                if (pVal.ColUID != string.Empty)
                                 {
-                                    values[value] = chooseFromListEvent.SelectedObjects.GetValue(value, 0).ToString();
-                                }
+                                    Dictionary<string, string> values = new Dictionary<string, string>();
 
-                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(pVal.ItemUID,
-                                   values);
+                                    for (int value = 0; value < chooseFromListEvent.SelectedObjects.Columns.Count - 1; value++)
+                                    {
+                                        values.Add(chooseFromListEvent.SelectedObjects.Columns.Item(value).Name, chooseFromListEvent.SelectedObjects.GetValue(value, 0).ToString());
+                                    }
+
+                                    m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColChooseFrom(pVal.ItemUID, 
+                                        pVal.Row, 
+                                        pVal.ColUID,
+                                        values);
+                                }
+                                else
+                                {
+                                    string[] values = new string[chooseFromListEvent.SelectedObjects.Columns.Count];
+
+                                    for (int value = 0; value < values.Count() - 1; value++)
+                                    {
+                                        values[value] = chooseFromListEvent.SelectedObjects.GetValue(value, 0).ToString();
+                                    }
+
+                                    m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(pVal.ItemUID,
+                                       values);
+                                }
                             }
                         }
                     }
