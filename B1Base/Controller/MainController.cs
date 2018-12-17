@@ -363,7 +363,14 @@ namespace B1Base.Controller
 
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Checked(pVal.ItemUID);
+                            if (pVal.ItemUID != string.Empty)
+                            {
+                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnChecked(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                            }
+                            else
+                            {
+                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Checked(pVal.ItemUID);
+                            }
 
                             bubbleEvent = false;
                         }

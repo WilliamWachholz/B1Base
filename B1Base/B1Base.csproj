@@ -68,14 +68,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddOn.cs" />
+    <Compile Include="Controller\AttachmentoController.cs" />
     <Compile Include="Controller\BaseController.cs" />
     <Compile Include="Controller\ConfigController.cs" />
     <Compile Include="Controller\MainController.cs" />
+    <Compile Include="DAO\AttachmentDAO.cs" />
     <Compile Include="DAO\BusinessPartnerDAO.cs" />
     <Compile Include="DAO\ConfigDAO.cs" />
     <Compile Include="DAO\ItemDAO.cs" />
     <Compile Include="DAO\BaseDAO.cs" />
     <Compile Include="Controller\ConnectionController.cs" />
+    <Compile Include="Model\AttachmentModel.cs" />
     <Compile Include="Model\BaseModel.cs" />
     <Compile Include="Model\BusinessPartnerModel.cs" />
     <Compile Include="Model\ConfigModel.cs" />
@@ -85,6 +88,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="View\BaseView.cs" />
     <Compile Include="View\ConfigView.cs" />
+    <Compile Include="View\PromptDialogView.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

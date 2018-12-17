@@ -42,6 +42,7 @@ namespace B1Base.View
         public delegate void ComboSelectEventHandler(bool changed);
         public delegate void ColumnSelectEventHandler(int row, bool changed);
         public delegate void CheckEventHandler();
+        public delegate void ColumnCheckEventHandler(int row);
 
         public string LastEditValue { get; private set; }
         public string LastComboValue { get; private set; }
@@ -107,6 +108,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, ColumnSelectEventHandler> ColumnSelectEvents { get { return new Dictionary<string, ColumnSelectEventHandler>(); } }
 
         protected virtual Dictionary<string, CheckEventHandler> CheckEvents { get { return new Dictionary<string, CheckEventHandler>(); } }
+
+        protected virtual Dictionary<string, ColumnCheckEventHandler> ColumnCheckEvents { get { return new Dictionary<string, ColumnCheckEventHandler>(); } }
 
         protected virtual void CreateControls() { }
 
@@ -225,7 +228,7 @@ namespace B1Base.View
             else return string.Empty;
         }
 
-        protected List<T> GetValue<T>(DataTable dataTable, Matrix matrix)
+        protected List<T> GetValue<T>(DataTable dataTable, Matrix matrix) where T : Model.BaseModel
         {
             List<T> result = new List<T>();
 
@@ -573,6 +576,16 @@ namespace B1Base.View
             if (CheckEvents.ContainsKey(check))
             {
                 CheckEvents[check]();
+            }
+        }
+
+        public void ColumnChecked(string matrix, int row, string column)
+        {
+            string key = string.Format("{0}.{1}", matrix, column);
+
+            if (ColumnCheckEvents.ContainsKey(key))
+            {
+                ColumnCheckEvents[key](row);
             }
         }
 
