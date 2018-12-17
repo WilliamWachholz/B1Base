@@ -80,7 +80,7 @@ namespace B1Base.View
             m_timerInitialize.Enabled = true;
 
             m_timerCreateControls.Interval = 1000;
-            m_timerCreateControls.Elapsed += ControlsCreated;
+            m_timerCreateControls.Elapsed += ControlsCreation;
             m_timerCreateControls.Enabled = true;            
         }
 
@@ -133,6 +133,8 @@ namespace B1Base.View
         protected virtual int DefaultPane { get { return 1; } }
 
         protected virtual int CreateControlsTime { get { return 1; } }
+
+        protected bool ControlsCreated { get { return m_timerCreateControls.Enabled; } }
 
         private Timer m_timerCreateControls = new Timer(1000);
 
@@ -260,7 +262,7 @@ namespace B1Base.View
             }
         }
 
-        private void ControlsCreated(object sender, ElapsedEventArgs e)
+        private void ControlsCreation(object sender, ElapsedEventArgs e)
         {
             bool formReady = true;
 
