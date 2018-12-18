@@ -182,7 +182,7 @@ namespace B1Base.View
         /// <summary> Construtor
         /// </summary>
         /// <param name="title">Título da Dialog</param>
-        public PromptDialogView(string title)
+        public PromptDialogView(string title = "Anexo")
         {
             m_filter = string.Empty;
             m_result = DialogResult.None;

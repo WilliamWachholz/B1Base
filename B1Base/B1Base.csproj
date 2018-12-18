@@ -68,7 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddOn.cs" />
-    <Compile Include="Controller\AttachmentoController.cs" />
+    <Compile Include="Controller\AttachmentController.cs" />
     <Compile Include="Controller\BaseController.cs" />
     <Compile Include="Controller\ConfigController.cs" />
     <Compile Include="Controller\MainController.cs" />
@@ -138,6 +138,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\HANA\GetTableExists.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SQL\SQLSERVER\GetAttachmentFolder.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\SQLSERVER\GetChooseValue.sql">

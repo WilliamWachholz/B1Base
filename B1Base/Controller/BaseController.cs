@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace B1Base.Controller
 {
-    public class BaseController
+    public abstract class BaseController
     {
         public T Get<T>(int code) where T : Model.BaseModel
         {
@@ -102,5 +102,20 @@ namespace B1Base.Controller
                 }
             }
         }
+
+        public static string MsgSuccess
+        {
+            get { return "Operação Completada com êxito."; }
+        }
+
+        public static string MsgConfirmDelete
+        {
+            get { return "Deseja realmente eliminar esse registro? ";  }
+        }
+
+        public static string MsgConfirmAbort
+        {
+            get { return "Dados não salvos serão perdidos.";  }
+        }        
     }
 }

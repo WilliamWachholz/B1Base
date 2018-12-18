@@ -11,6 +11,30 @@ namespace B1Base.DAO
 {
     class AttachmentDAO
     {
+        public Model.AttachmentModel Get(int atcEntry, int line)
+        {
+            Model.AttachmentModel result = new Model.AttachmentModel();
+
+             Attachments2 attachment = (Attachments2)AddOn.Instance.ConnectionController.Company.GetBusinessObject(BoObjectTypes.oAttachments2);
+             try
+             {
+                 if (attachment.GetByKey(atcEntry))
+                 {
+                     attachment.Lines.SetCurrentLine(line - 1);
+
+                     result.AbsEntry = attachment.AbsoluteEntry;
+                     result.Line = line;
+                     result.Path = Path.ChangeExtension(Path.Combine(AttachmentFolder, attachment.Lines.FileName), attachment.Lines.FileExtension);
+                 }
+             }
+             finally
+             {
+                 Marshal.ReleaseComObject(attachment);
+             }
+
+            return result;
+        }
+
         public void Insert(Model.AttachmentModel attachmentModel)
         {
             Attachments2 attachment = (Attachments2)AddOn.Instance.ConnectionController.Company.GetBusinessObject(BoObjectTypes.oAttachments2);
@@ -18,9 +42,14 @@ namespace B1Base.DAO
             {
                 if (attachment.GetByKey(attachmentModel.AbsEntry))
                 {
+                    attachment.Lines.Add();
+
+                    attachment.Lines.SetCurrentLine(attachment.Lines.Count - 1);
+
                     attachment.Lines.SourcePath = Path.GetDirectoryName(attachmentModel.Path);
                     attachment.Lines.FileName = Path.GetFileNameWithoutExtension(attachmentModel.Path);
-                    attachment.Lines.FileExtension = Path.GetExtension(attachmentModel.Path);
+                    attachment.Lines.FileExtension = Path.GetExtension(attachmentModel.Path).Replace(".", "");
+                    attachment.Lines.Override = BoYesNoEnum.tYES;
 
                     attachment.Update();
 
@@ -31,6 +60,7 @@ namespace B1Base.DAO
                     attachment.Lines.SourcePath = Path.GetDirectoryName(attachmentModel.Path);
                     attachment.Lines.FileName = Path.GetFileNameWithoutExtension(attachmentModel.Path);
                     attachment.Lines.FileExtension = Path.GetExtension(attachmentModel.Path).Replace(".", "");
+                    attachment.Lines.Override = BoYesNoEnum.tYES;
 
                     attachment.Add();
 
@@ -54,9 +84,9 @@ namespace B1Base.DAO
                 {
                     attachment.Lines.SetCurrentLine(attachmentModel.Line - 1);
 
-                    //attachment.Lines.SourcePath = string.Empty;
+                    attachment.Lines.SourcePath = string.Empty;
                     attachment.Lines.FileName = string.Empty;
-                    //attachment.Lines.FileExtension = string.Empty;
+                    attachment.Lines.FileExtension = string.Empty;
 
                     attachment.Update();
 
@@ -66,6 +96,14 @@ namespace B1Base.DAO
             finally
             {
                 Marshal.ReleaseComObject(attachment);
+            }
+        }
+
+        public string AttachmentFolder
+        {
+            get
+            {
+                return AddOn.Instance.ConnectionController.ExecuteSqlForObject<string>("GetAttachmentFolder");
             }
         }
     }

@@ -717,11 +717,6 @@ namespace B1Base.View
             }
         }
 
-//        baseview.showerrormesssage(string msg)
-//baseview.showwarningmesssage(string msg)
-//baseview.showsuccessmessage() = operacao completada com exito
-//baseview.showdeleteconfirmation() = deseja realmente eliliminar esse registro?
-//baseview.showabortconfirmatio()= dados nao salvos serao perdidos
     }
     
 }
