@@ -19,3 +19,5 @@ C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.pdb
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetChooseValue.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetListModel.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetAttachmentFolder.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetImageFolder.sql
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csprojResolveAssemblyReference.cache

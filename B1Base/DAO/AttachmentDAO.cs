@@ -24,7 +24,7 @@ namespace B1Base.DAO
 
                      result.AbsEntry = attachment.AbsoluteEntry;
                      result.Line = line;
-                     result.Path = Path.ChangeExtension(Path.Combine(AttachmentFolder, attachment.Lines.FileName), attachment.Lines.FileExtension);
+                     result.Path = Path.ChangeExtension(Path.Combine(GetAttachmentFolder(), attachment.Lines.FileName), attachment.Lines.FileExtension);
                  }
              }
              finally
@@ -99,12 +99,14 @@ namespace B1Base.DAO
             }
         }
 
-        public string AttachmentFolder
+        public string GetAttachmentFolder()
         {
-            get
-            {
-                return AddOn.Instance.ConnectionController.ExecuteSqlForObject<string>("GetAttachmentFolder");
-            }
+            return AddOn.Instance.ConnectionController.ExecuteSqlForObject<string>("GetAttachmentFolder");
+        }
+
+        public string GetImageFolder()
+        {
+            return AddOn.Instance.ConnectionController.ExecuteSqlForObject<string>("GetImageFolder");            
         }
     }
 }

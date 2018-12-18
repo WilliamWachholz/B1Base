@@ -57,17 +57,35 @@ namespace B1Base.Controller
             System.Diagnostics.Process.Start(attachmentModel.Path);
         }
 
+        public void SaveImage(string file)
+        {
+            File.Copy(file, Path.Combine(ImageFolder, Path.GetFileName(file)), true);
+        }
+
+        public string ImageFolder
+        {
+            get
+            {
+                return new DAO.AttachmentDAO().GetImageFolder();
+            }
+        }
+
         public string AttachmentFolder
         {
             get
             {
-                return new DAO.AttachmentDAO().AttachmentFolder;
+                return new DAO.AttachmentDAO().GetAttachmentFolder();
             }
         }
 
         public bool AttachmentFolderExists()
         {
             return Directory.Exists(AttachmentFolder);
+        }
+
+        public bool ImageFolderExists()
+        {
+            return Directory.Exists(ImageFolder);
         }
 
         public bool FileAlreadyExists(string fileName)

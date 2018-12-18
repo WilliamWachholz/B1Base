@@ -152,6 +152,9 @@
     <Content Include="SQL\SQLSERVER\GetFieldExists.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="SQL\SQLSERVER\GetImageFolder.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SQL\SQLSERVER\GetLastCode.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

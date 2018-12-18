@@ -225,6 +225,15 @@ namespace B1Base.View
 
                 return userDataSource.Value == "Y";
             }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_PICTURE)
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((PictureBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+
+                if (userDataSource.Value == string.Empty)
+                    return string.Empty;
+                else return System.IO.Path.Combine(new Controller.AttachmentController().ImageFolder, userDataSource.Value);
+            }
+
             else return string.Empty;
         }
 
@@ -350,6 +359,14 @@ namespace B1Base.View
             {
                 UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((CheckBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
                 userDataSource.Value = value ? "Y" : "N";
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_PICTURE)
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((PictureBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                if (value.ToString() == string.Empty)
+                    userDataSource.Value = string.Empty;
+                else
+                    userDataSource.Value = System.IO.Path.Combine(new Controller.AttachmentController().ImageFolder, value.ToString());
             }
         }
 
