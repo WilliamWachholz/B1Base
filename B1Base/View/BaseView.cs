@@ -233,6 +233,12 @@ namespace B1Base.View
                     return string.Empty;
                 else return System.IO.Path.Combine(new Controller.AttachmentController().ImageFolder, userDataSource.Value);
             }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EXTEDIT)
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+
+                return userDataSource.Value;
+            }
 
             else return string.Empty;
         }
@@ -367,6 +373,11 @@ namespace B1Base.View
                     userDataSource.Value = string.Empty;
                 else
                     userDataSource.Value = System.IO.Path.Combine(new Controller.AttachmentController().ImageFolder, value.ToString());
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EXTEDIT)
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                userDataSource.Value = value;
             }
         }
 
