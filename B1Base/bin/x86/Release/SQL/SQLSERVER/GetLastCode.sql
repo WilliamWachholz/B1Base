@@ -1,3 +1,4 @@
-﻿select top(1) isnull(U_Code, 0) + 1
+﻿select
+isnull((select top(1) U_Code
 from [@{0}]
-order by U_Code desc
+order by U_Code desc), 0) + 1

@@ -12,9 +12,8 @@ namespace B1Base.View
         const string BUTTON_OK = "1";
         const string BUTTON_CREATE_METADATA = "BTNMETA";
         const string CHECK_AUTO_CREATE_METADATA = "CHK";
-        
-        Controller.ConfigController _configController;
-        UserDataSource _usdAutoCreateMetadata;
+        const string CHECK_LOG = "5";
+                
 
         public ConfigView(string formUID, string formType) : base(formUID, formType)        
         {
@@ -34,12 +33,12 @@ namespace B1Base.View
 
                 ControlMenus(false, false, false);
 
-                _configController = new Controller.ConfigController();
-                
-                _usdAutoCreateMetadata = SAPForm.DataSources.UserDataSources.Item("USDAUTOCM");
+                Controller.ConfigController configController = new Controller.ConfigController();
 
-                Model.ConfigModel configModel = _configController.GetConfig(1);
-                _usdAutoCreateMetadata.Value = configModel.AutoCreateMetadata ? "Y" : "N";
+                Model.ConfigModel configModel = configController.GetConfig(1);
+
+                SetValue(CHECK_AUTO_CREATE_METADATA, configModel.AutoCreateMetadata);
+                SetValue(CHECK_LOG, configModel.ActivateLog);
             }
             catch (Exception e)
             {
@@ -63,9 +62,10 @@ namespace B1Base.View
         {   
             Model.ConfigModel configModel = new Model.ConfigModel();
             configModel.Code = 1;
-            configModel.AutoCreateMetadata = _usdAutoCreateMetadata.Value == "Y";
+            configModel.AutoCreateMetadata = GetValue(CHECK_AUTO_CREATE_METADATA);
+            configModel.ActivateLog = GetValue(CHECK_LOG);
 
-            _configController.SaveConfig(configModel);
+            new Controller.ConfigController().SaveConfig(configModel);
         }
 
         private void HandleButtonCreateMetadataClick()

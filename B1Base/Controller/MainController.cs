@@ -14,10 +14,11 @@ namespace B1Base.Controller
         List<View.BaseView> m_Views = new List<View.BaseView>();
 
         public abstract string AddOnID { get; }
-        public abstract string AddOnName { get; }        
-        protected abstract void ExitApp();
+        public abstract string AddOnName { get; }
         public virtual void CreateMetadata() { }
+        protected abstract void ExitApp();
         protected virtual void CreateMenus() { }
+        private bool LogIsActive { get; set; }
 
         protected const string MENU_SAP = "43520";
         protected string MENU_ADDON { get { return AddOnID;  } }
@@ -61,7 +62,7 @@ namespace B1Base.Controller
                 {
                 }
             }
-        }
+        }        
 
         public void Initialize() 
         {
@@ -110,8 +111,13 @@ namespace B1Base.Controller
             {
                 ConnectionController.Instance.CreateMetadata(AddOnID + "Cnf", "Code", FieldTypeEnum.Integer);
                 ConnectionController.Instance.CreateMetadata(AddOnID + "Cnf", "AutoCreateMetadata", FieldTypeEnum.Alphanumeric, 1);
-                
-                if (new DAO.ConfigDAO().Get(1).AutoCreateMetadata)
+
+                Model.ConfigModel configModel = new Model.ConfigModel();
+                configModel = new ConfigController().GetConfig(1);
+
+                LogIsActive = configModel.ActivateLog;
+
+                if (configModel.AutoCreateMetadata)
                     CreateMetadata();
             }
             catch (Exception e)
@@ -210,8 +216,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("114 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("114 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
         }
@@ -246,8 +255,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("138 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("138 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
         }
@@ -270,8 +282,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("163 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("163 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
         }
@@ -293,8 +308,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("187 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("187 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
         }
@@ -316,8 +334,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("211 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("211 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
         }
@@ -348,8 +369,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
 
@@ -426,8 +450,11 @@ namespace B1Base.Controller
             }
             catch (Exception e)
             {
-                //ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
-                //throw e;
+                if (LogIsActive)
+                {
+                    ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
+                    throw e;
+                }
             }
         }
 
@@ -448,8 +475,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("259 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("259 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
         }
@@ -535,8 +565,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("299 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("299 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
         }
@@ -558,8 +591,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
         }
@@ -584,8 +620,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
         }
@@ -607,8 +646,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
         }
@@ -637,8 +679,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("344");
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("344");
+                        throw e;
+                    }
                 }
             }
         }
@@ -666,8 +711,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("384 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("384 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
         }
@@ -695,8 +743,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("414 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("414 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
         }
@@ -724,8 +775,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("444 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("444 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
         }
@@ -753,8 +807,11 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    //ConnectionController.Instance.Application.StatusBar.SetText("444 - " + e.Message);
-                    //throw e;
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("444 - " + e.Message);
+                        throw e;
+                    }
                 }
             }
         }
