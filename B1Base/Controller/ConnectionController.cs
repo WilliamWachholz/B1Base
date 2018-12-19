@@ -29,6 +29,8 @@ namespace B1Base.Controller
 
         public SAPbouiCOM.Application Application { get; private set; }
 
+        public string DBServerType { get; private set; }
+
         public bool Desenv { get; private set; }
 
         public void Initialize() 
@@ -77,6 +79,8 @@ namespace B1Base.Controller
                     this.Company.Connect();
                 }
                 this.Company.GetLastError(out lErrCode, out sErrMsg);
+
+                DBServerType = Company.DbServerType == SAPbobsCOM.BoDataServerTypes.dst_HANADB ? "HANA" : "SQLSERVER";
             }
             catch (Exception e)
             {
@@ -128,6 +132,8 @@ namespace B1Base.Controller
                     {
                         throw new Exception(iErro.ToString() + " - " + sErro);
                     }
+
+                    DBServerType = Company.DbServerType == SAPbobsCOM.BoDataServerTypes.dst_HANADB ? "HANA" : "SQLSERVER";
                 }
                 catch (Exception ex)
                 {
@@ -417,10 +423,8 @@ namespace B1Base.Controller
         }
 
         private string GetSQL(string sqlScript, params string[] variables)
-        {
-            string dbServerType = Company.DbServerType == SAPbobsCOM.BoDataServerTypes.dst_HANADB ? "HANA" : "SQLSERVER";
-
-            using (var stream = new MemoryStream(File.ReadAllBytes(AddOn.Instance.CurrentDirectory + "//SQL//" + dbServerType + "//" + sqlScript + ".sql")))
+        {            
+            using (var stream = new MemoryStream(File.ReadAllBytes(AddOn.Instance.CurrentDirectory + "//SQL//" + DBServerType + "//" + sqlScript + ".sql")))
             {
                 if (stream != null)
                 {

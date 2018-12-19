@@ -184,6 +184,9 @@ namespace B1Base.Controller
 
                 xml = xml.Replace("uid=\"RW0\"", string.Format("uid=\"{0}\"", formUID));
 
+                if (Controller.ConnectionController.Instance.DBServerType == "SQLSERVER")
+                    xml = xml.Replace("from dummy", "");
+
                 Controller.ConnectionController.Instance.Application.LoadBatchActions(ref xml);
             }
 
