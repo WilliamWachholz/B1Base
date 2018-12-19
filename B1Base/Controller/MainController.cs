@@ -111,6 +111,7 @@ namespace B1Base.Controller
             {
                 ConnectionController.Instance.CreateMetadata(AddOnID + "Cnf", "Code", FieldTypeEnum.Integer);
                 ConnectionController.Instance.CreateMetadata(AddOnID + "Cnf", "AutoCreateMetadata", FieldTypeEnum.Alphanumeric, 1);
+                ConnectionController.Instance.CreateMetadata(AddOnID + "Cnf", "ActivateLog", FieldTypeEnum.Alphanumeric, 1);
 
                 Model.ConfigModel configModel = new Model.ConfigModel();
                 configModel = new ConfigController().GetConfig(1);
@@ -347,7 +348,8 @@ namespace B1Base.Controller
         {
             bubbleEvent = true;
 
-            if (pVal.EventType == BoEventTypes.et_VALIDATE && pVal.BeforeAction == false)
+
+            if (pVal.EventType == BoEventTypes.et_ITEM_PRESSED && pVal.BeforeAction == false)
             {
                 try
                 {
@@ -357,11 +359,11 @@ namespace B1Base.Controller
                     {
                         if (pVal.ColUID != string.Empty)
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnValidate(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnChecked(pVal.ItemUID, pVal.Row, pVal.ColUID);
                         }
                         else
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditValidate(pVal.ItemUID);
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Checked(pVal.ItemUID);
                         }
 
                         bubbleEvent = false;
@@ -369,17 +371,14 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    if (LogIsActive)
-                    {
-                        ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
-                        throw e;
-                    }
+                    //ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
+                    //throw e;
                 }
             }
 
             if (bubbleEvent)
             {
-                if (pVal.EventType == BoEventTypes.et_ITEM_PRESSED && pVal.BeforeAction == false)
+                if (pVal.EventType == BoEventTypes.et_VALIDATE && pVal.BeforeAction == false)
                 {
                     try
                     {
@@ -387,13 +386,13 @@ namespace B1Base.Controller
 
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
-                            if (pVal.ItemUID != string.Empty)
+                            if (pVal.ColUID != string.Empty)
                             {
-                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnChecked(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnValidate(pVal.ItemUID, pVal.Row, pVal.ColUID);
                             }
                             else
                             {
-                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Checked(pVal.ItemUID);
+                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditValidate(pVal.ItemUID);
                             }
 
                             bubbleEvent = false;
@@ -401,8 +400,11 @@ namespace B1Base.Controller
                     }
                     catch (Exception e)
                     {
-                        //ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
-                        //throw e;
+                        if (LogIsActive)
+                        {
+                            ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
+                            throw e;
+                        }
                     }
                 }
             }

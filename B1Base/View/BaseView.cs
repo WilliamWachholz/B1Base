@@ -622,7 +622,7 @@ namespace B1Base.View
             if (EditValidateEvents.ContainsKey(edit))
             {
                 EditText editText = ((EditText)SAPForm.Items.Item(edit).Specific);
-                if (editText.String == string.Empty)
+                if (editText.ChooseFromListUID != string.Empty && editText.String == string.Empty)
                 {
                     try
                     {
@@ -634,7 +634,8 @@ namespace B1Base.View
                     }
                     catch { }
 
-                    ChooseFromEvents[edit]("");
+                    if (ChooseFromEvents.ContainsKey(edit))
+                        ChooseFromEvents[edit]("");
                 }
 
                 EditValidateEvents[edit](LastEditValue != editText.String);
@@ -650,7 +651,7 @@ namespace B1Base.View
                 Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
 
                 EditText editText = (EditText)matrixItem.Columns.Item(column).Cells.Item(row).Specific;
-                if (editText.String == string.Empty)
+                if (editText.ChooseFromListUID != string.Empty && editText.String == string.Empty)
                 {
                     try
                     {
@@ -662,7 +663,8 @@ namespace B1Base.View
                     }
                     catch { }
 
-                    ChooseFromEvents[key]("");
+                    if (ChooseFromEvents.ContainsKey(key))
+                        ChooseFromEvents[key]("");
                 }
 
                 ColumnValidateEvents[key](row, LastColumnValue != editText.String);
