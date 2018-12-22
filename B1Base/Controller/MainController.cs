@@ -351,7 +351,6 @@ namespace B1Base.Controller
         {
             bubbleEvent = true;
 
-
             if (pVal.EventType == BoEventTypes.et_ITEM_PRESSED && pVal.BeforeAction == false)
             {
                 try
@@ -367,6 +366,8 @@ namespace B1Base.Controller
                         else
                         {
                             m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Checked(pVal.ItemUID);
+
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).OptionSelect(pVal.ItemUID);
                         }
 
                         bubbleEvent = false;

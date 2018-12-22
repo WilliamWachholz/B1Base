@@ -12,7 +12,7 @@ namespace B1Base.DAO
         {
             get
             {
-                return AddOn.Instance.MainController.AddOnID + "Cnf";
+                return (AddOn.Instance.MainController.AddOnID + "Cnf").ToUpper();
             }
         }
     }

@@ -42,6 +42,7 @@ namespace B1Base.View
         public delegate void ComboSelectEventHandler(bool changed);
         public delegate void ColumnSelectEventHandler(int row, bool changed);
         public delegate void CheckEventHandler();
+        public delegate void OptionEventHandler();
         public delegate void ColumnCheckEventHandler(int row);
 
         public string LastEditValue { get; private set; }
@@ -64,7 +65,14 @@ namespace B1Base.View
             {
                 m_timerInitialize.Enabled = false;
 
-                CreateControls();
+                try
+                {
+                    CreateControls();
+                }
+                catch (Exception ex)
+                {
+                    B1Base.AddOn.Instance.ConnectionController.Application.StatusBar.SetText(ex.Message);
+                }
 
                 Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
 
@@ -111,6 +119,8 @@ namespace B1Base.View
 
         protected virtual Dictionary<string, ColumnCheckEventHandler> ColumnCheckEvents { get { return new Dictionary<string, ColumnCheckEventHandler>(); } }
 
+        protected virtual Dictionary<string, OptionEventHandler> OptionEvents { get { return new Dictionary<string, OptionEventHandler>(); } }
+
         protected virtual void CreateControls() { }
 
         protected void ControlMenus(bool enableInsert, bool enableSearch, bool enableNavigation)
@@ -121,6 +131,32 @@ namespace B1Base.View
             SAPForm.EnableMenu("1284", enableNavigation);
             SAPForm.EnableMenu("1285", enableNavigation);
             SAPForm.EnableMenu("1286", enableNavigation);
+
+            if (enableInsert)
+            {
+                //SAPForm.DataBrowser.BrowseBy = "";
+                //SAPForm.Items.Add("", BoFormItemTypes.it_EDIT);
+            }
+        }
+
+        protected void LoadCombo(Matrix matrix, string column, string sqlScript, params string[] variables)
+        {
+            bool noRow = matrix.RowCount == 0;
+
+            if (noRow)
+                matrix.AddRow();
+
+            ComboBox combo = (ComboBox)matrix.Columns.Item(column).Cells.Item(1).Specific;
+
+            List<KeyValuePair<dynamic, string>> validValues = AddOn.Instance.ConnectionController.ExecuteSqlForList<KeyValuePair<dynamic, string>>(sqlScript, variables);
+
+            foreach (KeyValuePair<dynamic, string> validValue in validValues)
+            {
+                combo.ValidValues.Add(validValue.Key.ToString(), validValue.Value);
+            }
+
+            if (noRow)
+                matrix.DeleteRow(1);
         }
 
         protected void LoadCombo(ComboBox combo, string sqlScript, params string[] variables)
@@ -239,11 +275,17 @@ namespace B1Base.View
 
                 return userDataSource.Value;
             }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_OPTION_BUTTON)
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((OptionBtn)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+
+                return userDataSource.Value == ((OptionBtn)SAPForm.Items.Item(item).Specific).ValOn;
+            }
 
             else return string.Empty;
         }
 
-        protected List<T> GetValue<T>(DataTable dataTable, Matrix matrix) where T : Model.BaseModel
+        protected List<T> GetValue<T>(DataTable dataTable, Matrix matrix, bool haveLastLine = true) where T : Model.BaseModel
         {
             List<T> result = new List<T>();
 
@@ -253,7 +295,7 @@ namespace B1Base.View
 
             matrix.FlushToDataSource();
 
-            for (int row = 0; row < dataTable.Rows.Count - 1; row++)
+            for (int row = 0; row < dataTable.Rows.Count - (haveLastLine ? 1 : 0); row++)
             {
                 T model = (T)Activator.CreateInstance(type);
 
@@ -324,23 +366,13 @@ namespace B1Base.View
 
                         UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
 
-                        if (codeDataSource.DataType == BoDataType.dt_SHORT_NUMBER || codeDataSource.DataType == BoDataType.dt_LONG_NUMBER ||
-                            codeDataSource.DataType == BoDataType.dt_MEASURE || codeDataSource.DataType == BoDataType.dt_PERCENT ||
-                            codeDataSource.DataType == BoDataType.dt_PRICE || codeDataSource.DataType == BoDataType.dt_QUANTITY ||
-                            codeDataSource.DataType == BoDataType.dt_RATE || codeDataSource.DataType == BoDataType.dt_SUM)
+                        if (codeDataSource.DataType == BoDataType.dt_SHORT_NUMBER || codeDataSource.DataType == BoDataType.dt_LONG_NUMBER)
                         {
                             if (value != 0)
                                 codeDataSource.Value = value.ToString();
                             else
                                 codeDataSource.Value = string.Empty;
-                        }
-                        else if (codeDataSource.DataType == BoDataType.dt_DATE)
-                        {
-                            if (value != DateTime.MinValue && value != new DateTime(1990, 1, 1))
-                                codeDataSource.Value = value.ToString();
-                            else
-                                codeDataSource.Value = string.Empty;
-                        }
+                        }                        
                         else
                         {
                             codeDataSource.Value = value.ToString();
@@ -358,7 +390,28 @@ namespace B1Base.View
                 else
                 {
                     UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
-                    userDataSource.Value = value.ToString();
+
+                    if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER ||
+                        userDataSource.DataType == BoDataType.dt_MEASURE || userDataSource.DataType == BoDataType.dt_PERCENT ||
+                        userDataSource.DataType == BoDataType.dt_PRICE || userDataSource.DataType == BoDataType.dt_QUANTITY ||
+                        userDataSource.DataType == BoDataType.dt_RATE || userDataSource.DataType == BoDataType.dt_SUM)
+                    {
+                        if (value != 0)
+                            userDataSource.Value = value.ToString();
+                        else
+                            userDataSource.Value = string.Empty;
+                    }
+                    else if (userDataSource.DataType == BoDataType.dt_DATE)
+                    {
+                        if (value != DateTime.MinValue && value > new DateTime(1990, 1, 1))
+                            userDataSource.Value = value.ToString("dd/MM/yyyy");
+                        else
+                            userDataSource.Value = string.Empty;
+                    }
+                    else
+                    {
+                        userDataSource.Value = value.ToString();
+                    }
                 }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_CHECK_BOX)
@@ -379,9 +432,14 @@ namespace B1Base.View
                 UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
                 userDataSource.Value = value;
             }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_OPTION_BUTTON)
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((OptionBtn)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                userDataSource.Value = value ? ((OptionBtn)SAPForm.Items.Item(item).Specific).ValOn : ((OptionBtn)SAPForm.Items.Item(item).Specific).ValOn;                
+            }
         }
 
-        protected void SetValue<T>(DataTable dataTable, Matrix matrix, List<T> list) where T : Model.BaseModel
+        protected void SetValue<T>(DataTable dataTable, Matrix matrix, List<T> list, bool addLastLine = true) where T : Model.BaseModel
         {
             dataTable.Rows.Clear();
 
@@ -417,11 +475,13 @@ namespace B1Base.View
                     }
                 }
             }
-            dataTable.Rows.Add();
+
+            if (addLastLine)
+                dataTable.Rows.Add();
 
             matrix.LoadFromDataSource();
 
-            if (matrix.RowCount == 0)
+            if (matrix.RowCount == 0 && addLastLine)
                 matrix.AddRow();
         }
 
@@ -747,6 +807,13 @@ namespace B1Base.View
             }
         }
 
+        public void OptionSelect(string option)
+        {
+            if (OptionEvents.ContainsKey(option))
+            {
+                OptionEvents[option]();
+            }
+        }
     }
     
 }
