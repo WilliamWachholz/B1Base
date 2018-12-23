@@ -147,6 +147,11 @@ namespace B1Base.View
                 matrix.AddRow();
 
             ComboBox combo = (ComboBox)matrix.Columns.Item(column).Cells.Item(1).Specific;
+            
+            for (int value = combo.ValidValues.Count - 1; value >= 0; value--)
+            {
+                combo.ValidValues.Remove(value, BoSearchKey.psk_Index);
+            }
 
             List<KeyValuePair<dynamic, string>> validValues = AddOn.Instance.ConnectionController.ExecuteSqlForList<KeyValuePair<dynamic, string>>(sqlScript, variables);
 
