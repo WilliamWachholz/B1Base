@@ -15,7 +15,7 @@ namespace B1Base.View
         public string FormUID { get; private set; }
         public string FormType { get; private set; }
 
-        Timer m_timerInitialize = new Timer(1000);
+        Timer m_timerInitialize = new Timer(2000);
 
         public BaseView(string formUID, string formType)
         {
@@ -408,10 +408,17 @@ namespace B1Base.View
                     }
                     else if (userDataSource.DataType == BoDataType.dt_DATE)
                     {
-                        if (value != DateTime.MinValue && value > new DateTime(1990, 1, 1))
-                            userDataSource.Value = value.ToString("dd/MM/yyyy");
-                        else
-                            userDataSource.Value = string.Empty;
+                        try
+                        {
+                            if (value != DateTime.MinValue && value > new DateTime(1990, 1, 1))
+                                userDataSource.Value = value.ToString("dd/MM/yyyy");
+                            else
+                                userDataSource.Value = string.Empty;
+                        }
+                        catch
+                        {
+                            userDataSource.Value = DateTime.Now.ToString("dd/MM/yyyy");
+                        }
                     }
                     else
                     {
@@ -687,6 +694,7 @@ namespace B1Base.View
             if (EditValidateEvents.ContainsKey(edit))
             {
                 EditText editText = ((EditText)SAPForm.Items.Item(edit).Specific);
+                
                 if (editText.ChooseFromListUID != string.Empty && editText.String == string.Empty)
                 {
                     try
@@ -716,21 +724,26 @@ namespace B1Base.View
                 Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
 
                 EditText editText = (EditText)matrixItem.Columns.Item(column).Cells.Item(row).Specific;
-                if (editText.ChooseFromListUID != string.Empty && editText.String == string.Empty)
+
+                try
                 {
-                    try
+                    if (editText.ChooseFromListUID != string.Empty && editText.String == string.Empty)
                     {
-                        UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
-                        codeDataSource.Value = "";
+                        try
+                        {
+                            UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
+                            codeDataSource.Value = "";
 
-                        UserDataSource valueDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
-                        valueDataSource.Value = "";
+                            UserDataSource valueDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
+                            valueDataSource.Value = "";
+                        }
+                        catch { }
+
+                        if (ChooseFromEvents.ContainsKey(key))
+                            ChooseFromEvents[key]("");
                     }
-                    catch { }
-
-                    if (ChooseFromEvents.ContainsKey(key))
-                        ChooseFromEvents[key]("");
                 }
+                catch { }
 
                 ColumnValidateEvents[key](row, LastColumnValue != editText.String);
 

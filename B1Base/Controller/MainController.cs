@@ -206,17 +206,39 @@ namespace B1Base.Controller
             {
                 try
                 {
-                    Assembly dll = Assembly.LoadFile(AddOn.Instance.CurrentDirectory + "\\" + pVal.FormTypeEx.Split('.')[0] + ".dll");
+                    if (pVal.FormUID.StartsWith("RW"))
+                    {
+                        Assembly assembly = Assembly.LoadFile(AddOn.Instance.CurrentDirectory + "\\" + pVal.FormTypeEx.Split('.')[0] + ".dll");
 
-                    Type type = dll.GetType(pVal.FormTypeEx);
+                        Type type = assembly.GetType(pVal.FormTypeEx);
 
-                    if (type == null)
-                        return;
+                        if (type == null)
+                            return;
 
-                    ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
-                    object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+                        ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
+                        object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
 
-                    m_Views.Add((View.BaseView)formView);
+                        m_Views.Add((View.BaseView)formView);
+                    }
+                    else
+                    {
+                        string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
+
+                        foreach (string dll in dlls)
+                        {
+                            Assembly assembly = Assembly.LoadFile(dll);
+
+                            Type type = assembly.GetType(assembly.GetName().Name + ".View.Form" + pVal.FormTypeEx + "View");
+
+                            if (type != null)
+                            {
+                                ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
+                                object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+
+                                m_Views.Add((View.BaseView)formView);
+                            }
+                        }
+                    }
                 }
                 catch (Exception e)
                 {

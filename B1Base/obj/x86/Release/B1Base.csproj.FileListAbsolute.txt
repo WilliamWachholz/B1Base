@@ -45,3 +45,10 @@ C:\AddOn\B1Base\B1Base\obj\x86\Release\B1Base.pdb
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\SQLSERVER\GetListModel.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\SQLSERVER\GetAttachmentFolder.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\SQLSERVER\GetImageFolder.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\GetListModel.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\GetLastCode.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\GetChooseValue.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\GetAttachmentFolder.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\GetImageFolder.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\GetComboValues.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\UpdateBusinessPartnerAgentCode.sql
