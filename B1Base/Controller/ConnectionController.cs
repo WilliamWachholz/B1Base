@@ -161,11 +161,16 @@ namespace B1Base.Controller
             CreateMetadata(fieldMetadata.Table, fieldMetadata.Field, fieldMetadata.FieldType, fieldMetadata.Size);
         }
 
-        public void CreateMetadata(string table, string field, FieldTypeEnum fieldType, int size = 10, Dictionary<string, string> validValues = null, string defaultValue = "")
+        public void CreateMetadata(string table, string field, FieldTypeEnum fieldType, string fieldTitle)
         {
-            bool tableExists = ExecuteSqlForObject<bool>("GetTableExists", table);
+            CreateMetadata(table, field, fieldType, 10, null, "", fieldTitle);
+        }
 
-            if (!tableExists)
+        public void CreateMetadata(string table, string field, FieldTypeEnum fieldType, int size = 10, Dictionary<string, string> validValues = null, string defaultValue = "", string fieldTitle = "")
+        {
+            int tableExists = ExecuteSqlForObject<int>("GetTableExists", table);
+
+            if (tableExists == 0)
             {
                 Application.StatusBar.SetText("Criando tabela " + table, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Warning);
 
@@ -191,6 +196,8 @@ namespace B1Base.Controller
                 }
             }
 
+            bool sapTable = tableExists == 2;
+
             bool fieldExists = ExecuteSqlForObject<bool>("GetFieldExists", table, field);
 
             if (!fieldExists)
@@ -200,8 +207,9 @@ namespace B1Base.Controller
                 UserFieldsMD userField = Company.GetBusinessObject(BoObjectTypes.oUserFields);
                 try
                 {
-                    userField.TableName = "@" + table;
+                    userField.TableName = (sapTable ? "" : "@") + table;
                     userField.Name = field;
+                    userField.Description = fieldTitle == string.Empty ? field : fieldTitle;
 
                     switch (fieldType)
                     {
