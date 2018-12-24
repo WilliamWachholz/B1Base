@@ -247,6 +247,17 @@ namespace B1Base.View
                                         DateTimeStyles.None);                                        
                                 }
                             }
+                            else if (SAPForm.DataSources.DBDataSources.Item(index).Fields.Item(column).Type == BoFieldsType.ft_Integer)
+                            {
+                                if (SAPForm.DataSources.DBDataSources.Item(index).GetValue(column, SAPForm.DataSources.DBDataSources.Item(index).Offset) == string.Empty)
+                                {
+                                    return 0;
+                                }
+                                else
+                                {
+                                    return Convert.ToInt32(SAPForm.DataSources.DBDataSources.Item(index).GetValue(column, SAPForm.DataSources.DBDataSources.Item(index).Offset));
+                                }
+                            }
                             else
                             {
                                 return SAPForm.DataSources.DBDataSources.Item(index).GetValue(column, SAPForm.DataSources.DBDataSources.Item(index).Offset);
@@ -383,7 +394,7 @@ namespace B1Base.View
             return result;
         }
 
-        public void SetValue(string item, dynamic value, int column = 0, int row = 0, bool toDataSource = false)
+        public void SetValue(string item, dynamic value, string column = "", int row = 0, bool toDataSource = false)
         {
             if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_MATRIX)
             {
