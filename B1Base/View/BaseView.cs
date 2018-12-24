@@ -212,9 +212,37 @@ namespace B1Base.View
             }
         }
 
-        protected dynamic GetValue(string item) 
+        /// <summary>
+        /// Busca valor de um componente na tela ou direto de um dataSource
+        /// </summary>
+        /// <param name="item">ID do componente ou do dataSource. Para o caso do dataSource ser um DBDataSources, separar o nome da tabela e o nome da coluna com ponto (".")</param>
+        /// <param name="fromDataSource">Caso o valor deve ser buscado direto do dataSource associado</param>
+        /// <returns></returns>
+        public dynamic GetValue(string item, bool fromDataSource = false) 
         {
-            if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
+            if (fromDataSource)
+            {
+                if (item.Contains("."))
+                {
+                    string tableName = item.Split('.')[0];
+                    string column = item.Split('.')[1];
+
+                    for (int index = 0; index < SAPForm.DataSources.DBDataSources.Count; index++)
+                    {
+                        if (SAPForm.DataSources.DBDataSources.Item(index).TableName == tableName)
+                        {
+                            return SAPForm.DataSources.DBDataSources.Item(index).GetValue(column, SAPForm.DataSources.DBDataSources.Item(index).Offset);
+                        }
+                    }                    
+                }
+                else
+                {
+                    return SAPForm.DataSources.UserDataSources.Item(item).Value;
+                }
+
+                return string.Empty;
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
             {
                 UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((ComboBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
 
@@ -336,9 +364,23 @@ namespace B1Base.View
             return result;
         }
 
-        protected void SetValue(string item, dynamic value)
+        public void SetValue(string item, dynamic value, int column = 0, int row = 0, bool toDataSource = false)
         {
-            if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
+            if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_MATRIX)
+            {
+                Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
+
+                if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_EDIT)
+                {
+                    EditText edit = (EditText)matrix.Columns.Item(column).Cells.Item(row).Specific;
+
+                    if (value.GetType() == typeof(DateTime))
+                    {
+                        edit.String = value.ToString("dd/MM/yyyy");
+                    }
+                }
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
             {
                 UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((ComboBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
 
@@ -346,7 +388,7 @@ namespace B1Base.View
 
                 if (type.IsEnum)
                 {
-                    userDataSource.Value = ((int) value).ToString();
+                    userDataSource.Value = ((int)value).ToString();
                 }
                 else if (type == typeof(Int32))
                 {
@@ -354,7 +396,7 @@ namespace B1Base.View
                         userDataSource.Value = string.Empty;
                     else
                         userDataSource.Value = value.ToString();
-                }       
+                }
                 else
                 {
                     userDataSource.Value = value.ToString();
@@ -363,7 +405,7 @@ namespace B1Base.View
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
             {
                 EditText editText = (EditText)SAPForm.Items.Item(item).Specific;
-                
+
                 if (editText.ChooseFromListUID != string.Empty)
                 {
                     try
@@ -380,7 +422,7 @@ namespace B1Base.View
                                 codeDataSource.Value = value.ToString();
                             else
                                 codeDataSource.Value = string.Empty;
-                        }                        
+                        }
                         else
                         {
                             codeDataSource.Value = value.ToString();
@@ -389,12 +431,12 @@ namespace B1Base.View
                         UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
                         userDataSource.Value = descValue;
                     }
-                    catch 
+                    catch
                     {
                         UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
                         userDataSource.Value = value.ToString();
                     }
-                }                
+                }
                 else
                 {
                     UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
@@ -450,7 +492,7 @@ namespace B1Base.View
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_OPTION_BUTTON)
             {
                 UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((OptionBtn)SAPForm.Items.Item(item).Specific).DataBind.Alias);
-                userDataSource.Value = value ? ((OptionBtn)SAPForm.Items.Item(item).Specific).ValOn : ((OptionBtn)SAPForm.Items.Item(item).Specific).ValOn;                
+                userDataSource.Value = value ? ((OptionBtn)SAPForm.Items.Item(item).Specific).ValOn : ((OptionBtn)SAPForm.Items.Item(item).Specific).ValOn;
             }
         }
 
@@ -498,29 +540,6 @@ namespace B1Base.View
 
             if (matrix.RowCount == 0 && addLastLine)
                 matrix.AddRow();
-        }
-
-        public void SetValue(dynamic value, string item, int column = 0, int row = 0)
-        {
-            if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_MATRIX)
-            {
-                Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
-
-                if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_EDIT)
-                {
-                    EditText edit = (EditText)matrix.Columns.Item(column).Cells.Item(row).Specific;
-
-                    if (value.GetType() == typeof(DateTime))
-                    {
-                        edit.String = value.ToString("dd/MM/yyyy");
-                    }
-                }
-            }
-        }
-
-        public void SetValue(dynamic value, string dataSource)
-        {
-
         }
 
         public virtual void GotFormData() { }
