@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using System.ComponentModel;
+using System.Globalization;
 using System.Reflection;
 using SAPbouiCOM;
 
@@ -231,7 +232,25 @@ namespace B1Base.View
                     {
                         if (SAPForm.DataSources.DBDataSources.Item(index).TableName == tableName)
                         {
-                            return SAPForm.DataSources.DBDataSources.Item(index).GetValue(column, SAPForm.DataSources.DBDataSources.Item(index).Offset);
+                            if (SAPForm.DataSources.DBDataSources.Item(index).Fields.Item(column).Type == BoFieldsType.ft_Date)
+                            {
+                                if (SAPForm.DataSources.DBDataSources.Item(index).GetValue(column, SAPForm.DataSources.DBDataSources.Item(index).Offset) == string.Empty)
+                                {
+                                    return new DateTime(1990, 1, 1);
+                                }
+                                else
+                                {
+                                    return
+                                        DateTime.ParseExact(SAPForm.DataSources.DBDataSources.Item(index).GetValue(column, SAPForm.DataSources.DBDataSources.Item(index).Offset), 
+                                        "yyyyMMdd", 
+                                        CultureInfo.InvariantCulture, 
+                                        DateTimeStyles.None);                                        
+                                }
+                            }
+                            else
+                            {
+                                return SAPForm.DataSources.DBDataSources.Item(index).GetValue(column, SAPForm.DataSources.DBDataSources.Item(index).Offset);
+                            }
                         }
                     }                    
                 }
