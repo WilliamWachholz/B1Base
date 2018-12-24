@@ -191,7 +191,7 @@ namespace B1Base.Controller
             }
 
             return m_Views.First(r => r.FormUID == formUID && r.FormType == formType);
-        }
+        }       
 
         public void OpenMenu(string menu)
         {
@@ -356,6 +356,11 @@ namespace B1Base.Controller
                     if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
                         m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonPress(pVal.ItemUID);
+                    }
+
+                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    {
+                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).LinkPress(pVal.ItemUID, m_Views[m_Views.Count - 1]);
                     }
                 }
                 catch (Exception e)

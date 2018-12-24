@@ -44,6 +44,7 @@ namespace B1Base.View
         public delegate void CheckEventHandler();
         public delegate void OptionEventHandler();
         public delegate void ColumnCheckEventHandler(int row);
+        public delegate void LinkEventHandler(View.BaseView linkedView);
 
         public string LastEditValue { get; private set; }
         public string LastComboValue { get; private set; }
@@ -120,6 +121,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, ColumnCheckEventHandler> ColumnCheckEvents { get { return new Dictionary<string, ColumnCheckEventHandler>(); } }
 
         protected virtual Dictionary<string, OptionEventHandler> OptionEvents { get { return new Dictionary<string, OptionEventHandler>(); } }
+
+        public virtual Dictionary<string, LinkEventHandler> LinkEvents { get { return new Dictionary<string, LinkEventHandler>(); } }
 
         protected virtual void CreateControls() { }
 
@@ -497,6 +500,29 @@ namespace B1Base.View
                 matrix.AddRow();
         }
 
+        public void SetValue(dynamic value, string item, int column = 0, int row = 0)
+        {
+            if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_MATRIX)
+            {
+                Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
+
+                if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_EDIT)
+                {
+                    EditText edit = (EditText)matrix.Columns.Item(column).Cells.Item(row).Specific;
+
+                    if (value.GetType() == typeof(DateTime))
+                    {
+                        edit.String = value.ToString("dd/MM/yyyy");
+                    }
+                }
+            }
+        }
+
+        public void SetValue(dynamic value, string dataSource)
+        {
+
+        }
+
         public virtual void GotFormData() { }
 
         public virtual void AddFormData() { }
@@ -830,6 +856,14 @@ namespace B1Base.View
             if (OptionEvents.ContainsKey(option))
             {
                 OptionEvents[option]();
+            }
+        }
+
+        public void LinkPress(string link, View.BaseView linkedView)
+        {
+            if (LinkEvents.ContainsKey(link))
+            {
+                LinkEvents[link](linkedView);
             }
         }
     }
