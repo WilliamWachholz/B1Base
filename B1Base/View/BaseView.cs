@@ -16,7 +16,7 @@ namespace B1Base.View
         public string FormUID { get; private set; }
         public string FormType { get; private set; }
 
-        Timer m_timerInitialize = new Timer(2000);
+        Timer m_timerInitialize = new Timer(700);
 
         public BaseView(string formUID, string formType)
         {
@@ -69,7 +69,15 @@ namespace B1Base.View
 
                 try
                 {
-                    CreateControls();
+                    try
+                    {
+                        CreateControls();
+                    }
+                    catch
+                    {
+                        System.Threading.Thread.Sleep(500);
+                        CreateControls();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -365,26 +373,25 @@ namespace B1Base.View
             {
                 T model = (T)Activator.CreateInstance(type);
 
-                foreach (var prop in props)
+                for (int col = 0; col < dataTable.Columns.Count; col++)
                 {
-                    for (int col = 0; col < dataTable.Columns.Count; col++)
+                    if (props.Where(r => r.Name == dataTable.Columns.Item(col).Name).Count() > 0)
                     {
-                        if (dataTable.Columns.Item(col).Name == prop.Name)
+                        var prop = props.First(r => r.Name == dataTable.Columns.Item(col).Name);
+
+                        if (prop.PropertyType == typeof(Boolean))
                         {
-                            if (prop.PropertyType == typeof(Boolean))
-                            {
-                                prop.SetValue(model, dataTable.GetValue(col, row).ToString().Equals("Y"), null);
-                            }
-                            else if (prop.PropertyType.IsEnum)
-                            {
-                                prop.SetValue(model, Convert.ChangeType(dataTable.GetValue(col, row), Enum.GetUnderlyingType(prop.PropertyType)), null);
-                            }
-                            else
-                            {
-                                prop.SetValue(model, dataTable.GetValue(col, row));
-                            }
-                            break;
+                            prop.SetValue(model, dataTable.GetValue(col, row).ToString().Equals("Y"), null);
                         }
+                        else if (prop.PropertyType.IsEnum)
+                        {
+                            prop.SetValue(model, Convert.ChangeType(dataTable.GetValue(col, row), Enum.GetUnderlyingType(prop.PropertyType)), null);
+                        }
+                        else
+                        {
+                            prop.SetValue(model, dataTable.GetValue(col, row));
+                        }
+                        break;
                     }
                 }
 
@@ -392,6 +399,176 @@ namespace B1Base.View
             }
 
             return result;
+        }
+
+        public void SetFastEdit(string item, string value)
+        {
+            EditText edit = (EditText) SAPForm.Items.Item(item).Specific;                
+            if (edit.ChooseFromListUID != string.Empty)
+            {
+                try
+                {
+                    ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
+
+                    string descValue = AddOn.Instance.ConnectionController.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
+
+                    UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + edit.DataBind.Alias);
+
+                    codeDataSource.Value = value;
+
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
+                    userDataSource.Value = descValue;
+                }
+                catch
+                {
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
+                    userDataSource.Value = value;
+                }
+            }
+            else
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
+                userDataSource.Value = value;
+            }
+        }
+
+        public void SetFastEdit(string item, int value)
+        {
+            EditText edit = (EditText)SAPForm.Items.Item(item).Specific; 
+            if (edit.ChooseFromListUID != string.Empty)
+            {
+                try
+                {
+                    ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
+
+                    string descValue = AddOn.Instance.ConnectionController.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
+
+                    UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + edit.DataBind.Alias);
+
+                    if (value != 0)
+                        codeDataSource.Value = value.ToString();
+                    else
+                        codeDataSource.Value = string.Empty;
+
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
+                    userDataSource.Value = descValue;
+                }
+                catch
+                {
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
+
+                    if (value != 0)
+                        userDataSource.Value = value.ToString();
+                    else
+                        userDataSource.Value = string.Empty;
+                }
+            }
+            else
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
+
+                if (value != 0)
+                    userDataSource.Value = value.ToString();
+                else
+                    userDataSource.Value = string.Empty;
+            }
+        }
+
+        public void SetFastEdit(string item, double value)
+        {
+            EditText edit = (EditText)SAPForm.Items.Item(item).Specific; 
+            if (edit.ChooseFromListUID != string.Empty)
+            {
+                try
+                {
+                    ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
+
+                    string descValue = AddOn.Instance.ConnectionController.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
+
+                    UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + edit.DataBind.Alias);
+
+                    if (value != 0)
+                        codeDataSource.Value = value.ToString();
+                    else
+                        codeDataSource.Value = string.Empty;
+
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
+                    userDataSource.Value = descValue;
+                }
+                catch
+                {
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
+
+                    if (value != 0)
+                        userDataSource.Value = value.ToString();
+                    else
+                        userDataSource.Value = string.Empty;
+                }
+            }
+            else
+            {
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
+
+                if (value != 0)
+                    userDataSource.Value = value.ToString();
+                else
+                    userDataSource.Value = string.Empty;
+            }
+        }
+
+        public void SetFastEdit(string item, DateTime value)
+        {
+            EditText edit = (EditText)SAPForm.Items.Item(item).Specific; 
+            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
+            try
+            {
+                if (value != DateTime.MinValue && value > new DateTime(1990, 1, 1))
+                    userDataSource.Value = value.ToString("dd/MM/yyyy");
+                else
+                    userDataSource.Value = string.Empty;
+            }
+            catch
+            {
+                userDataSource.Value = DateTime.Now.ToString("dd/MM/yyyy");
+            }
+        }
+
+        public void SetFastCombo(string item, string value)
+        {
+            ComboBox combo = (ComboBox)SAPForm.Items.Item(item).Specific;
+
+            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(combo.DataBind.Alias);
+
+            userDataSource.Value = value;
+        }
+
+        public void SetFastCombo(string item, int value)
+        {
+            ComboBox combo = (ComboBox)SAPForm.Items.Item(item).Specific;
+
+            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(combo.DataBind.Alias);
+
+            if (value == 0)
+                userDataSource.Value = string.Empty;
+            else
+                userDataSource.Value = value.ToString();
+        }
+
+        public void SetFastCombo(string item, dynamic enumValue)
+        {
+            ComboBox combo = (ComboBox)SAPForm.Items.Item(item).Specific;
+
+            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(combo.DataBind.Alias);
+
+            userDataSource.Value = ((int)enumValue).ToString();
+        }
+
+        public void SetFastCheck(string item, bool value)
+        {
+            CheckBox check = (CheckBox)SAPForm.Items.Item(item).Specific;
+
+            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(check.DataBind.Alias);
+            userDataSource.Value = value ? "Y" : "N";
         }
 
         public void SetValue(string item, dynamic value, string column = "", int row = 0, bool toDataSource = false)
@@ -470,7 +647,7 @@ namespace B1Base.View
                 else
                 {
                     UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
-
+                    
                     if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER ||
                         userDataSource.DataType == BoDataType.dt_MEASURE || userDataSource.DataType == BoDataType.dt_PERCENT ||
                         userDataSource.DataType == BoDataType.dt_PRICE || userDataSource.DataType == BoDataType.dt_QUANTITY ||
@@ -538,27 +715,26 @@ namespace B1Base.View
             {
                 dataTable.Rows.Add();
 
-                foreach (var prop in props)
+                for (int col = 0; col < dataTable.Columns.Count; col++)
                 {
-                    for (int col = 0; col < dataTable.Columns.Count; col++)
+                    if (props.Where(r => r.Name == dataTable.Columns.Item(col).Name).Count() > 0)
                     {
-                        if (dataTable.Columns.Item(col).Name == prop.Name)
+                        var prop = props.First(r => r.Name == dataTable.Columns.Item(col).Name);
+
+                        if (prop.PropertyType == typeof(Boolean))
                         {
-                            if (prop.PropertyType == typeof(Boolean))
-                            {
-                                dataTable.SetValue(col, dataTable.Rows.Count - 1, (bool) prop.GetValue(model) ? "Y" : "N");
-                            }
-                            else if (prop.PropertyType.IsEnum)
-                            {
-                                dataTable.SetValue(col, dataTable.Rows.Count - 1, (int) prop.GetValue(model));;
-                            }
-                            else
-                            {
-                                dataTable.SetValue(col, dataTable.Rows.Count - 1, prop.GetValue(model));
-                            }
-                            
-                            break;
+                            dataTable.SetValue(col, dataTable.Rows.Count - 1, (bool)prop.GetValue(model) ? "Y" : "N");
                         }
+                        else if (prop.PropertyType.IsEnum)
+                        {
+                            dataTable.SetValue(col, dataTable.Rows.Count - 1, (int)prop.GetValue(model)); ;
+                        }
+                        else
+                        {
+                            dataTable.SetValue(col, dataTable.Rows.Count - 1, prop.GetValue(model));
+                        }
+
+                        break;
                     }
                 }
             }
