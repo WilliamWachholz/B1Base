@@ -25,8 +25,7 @@ namespace B1Base
         {
             this.MainController = mainController;
             this.MainController.Initialize();
-        }
-
+        }        
 
         public string CurrentDirectory
         {

@@ -170,7 +170,7 @@ namespace B1Base.Controller
                     }
                 }
 
-                formUID = string.Format("RW{0}", count);
+                formUID = string.Format("RW{0}-{1}", count, new Random().Next(999));
 
                 string srfPath = AddOn.Instance.CurrentDirectory + "\\SRF\\" + formType.Split('.')[2] + ".srf";
 

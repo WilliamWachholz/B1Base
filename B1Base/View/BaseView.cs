@@ -820,7 +820,13 @@ namespace B1Base.View
                 }
                 catch { }
 
-                ColumnValidateEvents[key](row, LastColumnValue != editText.String);
+                bool changed = LastColumnValue != editText.String;
+
+                LastColumnValue = editText.String;
+
+                ColumnValidateEvents[key](row, changed);
+
+                
 
                 if (MatrixCanAddEvents.ContainsKey(key) && row == matrixItem.RowCount)
                 {
