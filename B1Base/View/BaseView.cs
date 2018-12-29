@@ -73,10 +73,17 @@ namespace B1Base.View
                     {
                         CreateControls();
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        System.Threading.Thread.Sleep(500);
-                        CreateControls();
+                        if (ex.Message.ToUpper().Contains("INVALID ITEM"))
+                        {
+                            System.Threading.Thread.Sleep(500);
+                            CreateControls();
+                        }
+                        else
+                        {
+                            throw ex;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -178,6 +185,11 @@ namespace B1Base.View
 
         protected void LoadCombo(ComboBox combo, string sqlScript, params string[] variables)
         {
+            for (int value = combo.ValidValues.Count - 1; value >= 0; value--)
+            {
+                combo.ValidValues.Remove(value, BoSearchKey.psk_Index);
+            }
+
             List<KeyValuePair<dynamic, string>> validValues = AddOn.Instance.ConnectionController.ExecuteSqlForList<KeyValuePair<dynamic, string>>(sqlScript, variables);
 
             foreach (KeyValuePair<dynamic, string> validValue in validValues)
