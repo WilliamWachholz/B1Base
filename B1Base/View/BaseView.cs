@@ -397,6 +397,27 @@ namespace B1Base.View
                 {
                     return ((CheckBox)matrix.Columns.Item(column).Cells.Item(row).Specific).Checked;
                 }
+                else if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_COMBO_BOX)
+                {
+                    ComboBox combo = (ComboBox)matrix.Columns.Item(column).Cells.Item(row).Specific;
+
+                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(combo.DataBind.TableName);
+
+                    BoFieldsType fieldType = dataTable.Columns.Item(combo.DataBind.Alias).Type;
+
+                    if (fieldType == BoFieldsType.ft_Integer)
+                    {
+                        if (combo.Selected == null)
+                            return 0;
+                        else return Convert.ToInt32(combo.Selected.Value);
+                    }
+                    else
+                    {
+                        if (combo.Selected == null)
+                            return string.Empty;
+                        else return combo.Selected.Value;
+                    }
+                }
                 else return string.Empty;
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
