@@ -789,29 +789,42 @@ namespace B1Base.Controller
         {
             bubbleEvent = true;
 
-            if (pVal.MenuUID == "1281" && pVal.BeforeAction == false)
+            if (pVal.MenuUID == "1281")
             {
-                try
+                string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
+                string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
+
+                if (pVal.BeforeAction)
                 {
-                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
-                    string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
-
-                    if (formId.Contains("F_"))
+                    if (!formId.Contains("F_"))
                     {
-                        formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
-                    }
-
-                    if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
-                    {
-                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuSearch();
+                        if (AddOn.Instance.ConnectionController.Application.MessageBox("Dados não gravados serão perdidos. Continuar?", 1, "Sim", "Não") != 1)
+                        {
+                            bubbleEvent = false;
+                        }
                     }
                 }
-                catch (Exception e)
+                else
                 {
-                    if (LogIsActive)
+                    try
+                    {                        
+                        if (formId.Contains("F_"))
+                        {
+                            formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
+                        }
+
+                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuSearch();
+                        }
+                    }
+                    catch (Exception e)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("414 - " + e.Message);
-                        throw e;
+                        if (LogIsActive)
+                        {
+                            ConnectionController.Instance.Application.StatusBar.SetText("414 - " + e.Message);
+                            throw e;
+                        }
                     }
                 }
             }

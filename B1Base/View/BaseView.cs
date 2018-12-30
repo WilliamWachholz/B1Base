@@ -53,6 +53,9 @@ namespace B1Base.View
         public int LastSortedColPos { get; private set; }
         public Dictionary<string, int> LastRows { get; private set; }
 
+        private string m_BrowseItem = string.Empty;
+        private string m_DefaultItem = string.Empty;
+
         protected Form SAPForm
         {
             get
@@ -143,7 +146,16 @@ namespace B1Base.View
 
         protected virtual void CreateControls() { }
 
-        protected void ControlMenus(bool enableInsert, bool enableSearch, bool enableNavigation)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="enableInsert">Caso true, informar browseTable e browseItem</param>
+        /// <param name="enableSearch"></param>
+        /// <param name="enableNavigation"></param>
+        /// <param name="browseTable">tabela de usuário, sem @</param>
+        /// <param name="browseItem">nome do item do Code da tabela</param>
+        /// <param name="defaultItem">nome do item que recebe o primeiro focus</param>
+        protected void ControlMenus(bool enableInsert, bool enableSearch, bool enableNavigation, string browseTable = "", string browseItem = "", string defaultItem = "")
         {
             SAPForm.EnableMenu("1282", enableInsert);
             SAPForm.EnableMenu("1281", enableSearch);
@@ -154,11 +166,27 @@ namespace B1Base.View
 
             if (enableInsert)
             {
-                //SAPForm.DataBrowser.BrowseBy = "";
-                //SAPForm.Items.Add("", BoFormItemTypes.it_EDIT);
+                SAPForm.DataSources.DBDataSources.Add(string.Format("@{0}", browseTable));
+                
+                SAPForm.Items.Add("BACKCODE", BoFormItemTypes.it_EDIT).Visible = false;
+
+                ((EditText)SAPForm.Items.Item("BACKCODE").Specific).DataBind.SetBound(true, string.Format("@{0}", browseTable), "U_Code");
+
+                SAPForm.DataBrowser.BrowseBy = "BACKCODE";
+
+                m_BrowseItem = browseItem;
+
+                m_DefaultItem = defaultItem;
+
+                AddOn.Instance.ConnectionController.Application.ActivateMenuItem("1282");
             }
         }
 
+        protected void ControlItem(bool enableInsert, bool enableUpdate, bool enableSearch, params string[] itemList)
+        {
+
+        }
+        
         protected void LoadCombo(Matrix matrix, string column, string sqlScript, params string[] variables)
         {
             bool noRow = matrix.RowCount == 0;
@@ -803,9 +831,35 @@ namespace B1Base.View
 
         public virtual void AddFormData() { }
 
-        public virtual void MenuInsert() { }
+        public virtual void MenuInsert() 
+        {
+            if (m_BrowseItem != string.Empty)
+            {
+                SAPForm.Items.Item(m_DefaultItem).Enabled = true;
 
-        public virtual void MenuSearch() { }
+                SAPForm.ActiveItem = m_DefaultItem;
+
+                SAPForm.Items.Item(m_BrowseItem).Enabled = false;
+
+                SAPForm.EnableMenu("1282", false);
+                SAPForm.EnableMenu("1281", true);
+            }        
+        }
+
+        public virtual void MenuSearch() 
+        {
+            if (m_BrowseItem != string.Empty)
+            {
+                SAPForm.Items.Item(m_BrowseItem).Enabled = true;
+
+                SAPForm.ActiveItem = m_BrowseItem;
+
+                ((EditText)SAPForm.Items.Item(m_BrowseItem).Specific).String = "";
+
+                SAPForm.EnableMenu("1281", false);
+                SAPForm.EnableMenu("1282", true);
+            }
+        }
 
         public virtual void MenuDuplicate() { }
 
