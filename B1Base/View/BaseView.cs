@@ -302,7 +302,7 @@ namespace B1Base.View
                     EditText editText = (EditText)matrix.Columns.Item(column).Cells.Item(row).Specific;
 
                     DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
-                    
+
                     BoFieldsType fieldType = dataTable.Columns.Item(editText.DataBind.Alias).Type;
 
                     if (fieldType == BoFieldsType.ft_Integer)
@@ -315,6 +315,10 @@ namespace B1Base.View
                     {
                         return editText.String;
                     }
+                }
+                else if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_CHECK_BOX)
+                {
+                    return ((CheckBox)matrix.Columns.Item(column).Cells.Item(row).Specific).Checked;
                 }
                 else return string.Empty;
             }
