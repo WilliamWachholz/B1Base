@@ -34,7 +34,7 @@ namespace B1Base.View
         public delegate void FolderSelectEventHandler();
         public delegate void ChooseFromEventHandler(params string[] values);
         public delegate void ColChooseFromEventHandler(int row, Dictionary<string, string> values);        
-        public delegate void MatixRowClickEventHandler(int row, string column, bool rowChanged, bool rowSelected);        
+        public delegate void MatixRowEnterEventHandler(int row, string column, bool rowChanged, bool rowSelected);        
         public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void MatrixSortEventHandler(string column);
         public delegate bool MatrixCanAddEventHandler(int row);
@@ -115,7 +115,7 @@ namespace B1Base.View
 
         protected virtual Dictionary<string, ColChooseFromEventHandler> ColChooseFromEvents { get { return new Dictionary<string, ColChooseFromEventHandler>(); } }
 
-        protected virtual Dictionary<string, MatixRowClickEventHandler> MatrixRowClickEvents { get { return new Dictionary<string, MatixRowClickEventHandler>(); } }
+        protected virtual Dictionary<string, MatixRowEnterEventHandler> MatrixRowEnterEvents { get { return new Dictionary<string, MatixRowEnterEventHandler>(); } }
 
         protected virtual Dictionary<string, MatrixRowRemoveEventHandler> MatrixRowRemoveEvents { get { return new Dictionary<string, MatrixRowRemoveEventHandler>(); } }
 
@@ -890,9 +890,9 @@ namespace B1Base.View
             }
         }
 
-        public void MatrixRowClick(string matrix, int row, string column)
+        public void MatrixRowEnter(string matrix, int row, string column)
         {
-            if (MatrixRowClickEvents.ContainsKey(matrix))
+            if (MatrixRowEnterEvents.ContainsKey(matrix))
             {
                 bool rowChanged = LastRows.ContainsKey(matrix) ? row != LastRows[matrix] : true;
 
@@ -915,7 +915,7 @@ namespace B1Base.View
                 }
                 catch{ }
 
-                MatrixRowClickEvents[matrix](row, column, rowChanged, selectedRow == row);
+                MatrixRowEnterEvents[matrix](row, column, rowChanged, selectedRow == row);
             }
         }
 
