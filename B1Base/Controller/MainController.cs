@@ -88,7 +88,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixRowClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixSort;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixKeyDown;
-            Controller.ConnectionController.Instance.Application.FormDataEvent += HandleFormDataLoad;
+            Controller.ConnectionController.Instance.Application.FormDataEvent += HandleFormData;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuInsert;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSearch;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuDuplicate;
@@ -323,23 +323,51 @@ namespace B1Base.Controller
         {
             bubbleEvent = true;
 
-            if (pVal.EventType == BoEventTypes.et_CLICK && pVal.BeforeAction == false)
+            if (pVal.EventType == BoEventTypes.et_CLICK)
             {
-                try
-                {
-                    string formType = pVal.FormTypeEx;
+                string formId = pVal.FormUID;
+                string formType = pVal.FormTypeEx;
 
-                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                if (pVal.BeforeAction)
+                {
+                    try
                     {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonClick(pVal.ItemUID);
+                        if (!formId.Contains("F_"))
+                        {
+                            if (pVal.ItemUID == "1")
+                            {
+                                if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                                {
+                                    m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonOkClick();
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        if (LogIsActive)
+                        {
+                            ConnectionController.Instance.Application.StatusBar.SetText("187 - " + e.Message);
+                            throw e;
+                        }
                     }
                 }
-                catch (Exception e)
+                else
                 {
-                    if (LogIsActive)
+                    try
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("187 - " + e.Message);
-                        throw e;
+                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonClick(pVal.ItemUID);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        if (LogIsActive)
+                        {
+                            ConnectionController.Instance.Application.StatusBar.SetText("187 - " + e.Message);
+                            throw e;
+                        }
                     }
                 }
             }
@@ -720,7 +748,7 @@ namespace B1Base.Controller
             }
         }
 
-        private void HandleFormDataLoad(ref BusinessObjectInfo objectInfo, out bool bubbleEvent)
+        private void HandleFormData(ref BusinessObjectInfo objectInfo, out bool bubbleEvent)
         {
             bubbleEvent = true;
             if (objectInfo.ActionSuccess)
@@ -739,6 +767,14 @@ namespace B1Base.Controller
                         if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_ADD)
                         {
                             m_Views.First(r => r.FormUID == formId && r.FormType == formType).AddFormData();
+                        }
+                        if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_UPDATE)
+                        {
+                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).UpdateFormData();
+                        }
+                        if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_DELETE)
+                        {
+                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).DeleteFormData();
                         }
                     }
                 }

@@ -53,9 +53,9 @@ namespace B1Base.View
         public int LastSortedColPos { get; private set; }
         public Dictionary<string, int> LastRows { get; private set; }
 
+        private string m_BrowseTable = string.Empty;
         private string m_BrowseItem = string.Empty;
-        private string m_DefaultItem = string.Empty;
-
+        
         protected Form SAPForm
         {
             get
@@ -110,6 +110,9 @@ namespace B1Base.View
             }
         }
 
+        /// <summary>
+        /// Não atribuir a esse evento o botão OK (uid=1). Para esses casos, usar as sobrecargas correspondentes (FindFormData, GotFormData, AddFormData, UpdateFormData e DeleteFormData)
+        /// </summary>
         protected virtual Dictionary<string, ButtonClickEventHandler> ButtonClickEvents { get { return new Dictionary<string, ButtonClickEventHandler>(); } }
 
         protected virtual Dictionary<string, ButtonPressEventHandler> ButtonPressEvents { get { return new Dictionary<string, ButtonPressEventHandler>(); } }
@@ -153,9 +156,8 @@ namespace B1Base.View
         /// <param name="enableSearch"></param>
         /// <param name="enableNavigation"></param>
         /// <param name="browseTable">tabela de usuário, sem @</param>
-        /// <param name="browseItem">nome do item do Code da tabela</param>
-        /// <param name="defaultItem">nome do item que recebe o primeiro focus</param>
-        protected void ControlMenus(bool enableInsert, bool enableSearch, bool enableNavigation, string browseTable = "", string browseItem = "", string defaultItem = "")
+        /// <param name="browseItem">nome do item do Code da tabela</param>        
+        protected void ControlMenus(bool enableInsert, bool enableSearch, bool enableNavigation, string browseTable = "", string browseItem = "")
         {
             SAPForm.EnableMenu("1282", enableInsert);
             SAPForm.EnableMenu("1281", enableSearch);
@@ -168,25 +170,21 @@ namespace B1Base.View
             {
                 SAPForm.DataSources.DBDataSources.Add(string.Format("@{0}", browseTable));
                 
-                SAPForm.Items.Add("BACKCODE", BoFormItemTypes.it_EDIT).Visible = false;
+                SAPForm.Items.Add("BACKCODE", BoFormItemTypes.it_EDIT).Left = 9999;
+
+                SAPForm.Items.Add("DUMMY", BoFormItemTypes.it_EDIT).Left = 9999;
 
                 ((EditText)SAPForm.Items.Item("BACKCODE").Specific).DataBind.SetBound(true, string.Format("@{0}", browseTable), "U_Code");
 
                 SAPForm.DataBrowser.BrowseBy = "BACKCODE";
 
                 m_BrowseItem = browseItem;
-
-                m_DefaultItem = defaultItem;
+                m_BrowseTable = browseTable;
 
                 AddOn.Instance.ConnectionController.Application.ActivateMenuItem("1282");
             }
         }
 
-        protected void ControlItem(bool enableInsert, bool enableUpdate, bool enableSearch, params string[] itemList)
-        {
-
-        }
-        
         protected void LoadCombo(Matrix matrix, string column, string sqlScript, params string[] variables)
         {
             bool noRow = matrix.RowCount == 0;
@@ -270,7 +268,58 @@ namespace B1Base.View
         /// <returns></returns>
         public dynamic GetValue(string item, string column = "", int row = 0, bool fromDataSource = false) 
         {
-            if (fromDataSource)
+            if (SAPForm.Mode == BoFormMode.fm_FIND_MODE)
+            {
+                if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
+                {
+                    ComboBox combo = ((ComboBox)SAPForm.Items.Item(item).Specific);
+
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(combo.DataBind.Alias);
+
+                    if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER)
+                    {
+                        if (combo.Selected == null)
+                            return 0;
+                        else return Convert.ToInt32(combo.Selected.Value);
+                    }
+                    else
+                    {
+                        if (combo.Selected == null)
+                            return string.Empty;
+                        else return combo.Selected.Value;
+                    }
+                }
+                else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
+                {
+                    EditText editText = (EditText)SAPForm.Items.Item(item).Specific;
+
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
+
+                    if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER)
+                    {
+                        if (editText.String == string.Empty)
+                            return 0;
+                        else return Convert.ToInt32(editText.String);
+                    }
+                    else if (userDataSource.DataType == BoDataType.dt_MEASURE || userDataSource.DataType == BoDataType.dt_PERCENT ||
+                        userDataSource.DataType == BoDataType.dt_PRICE || userDataSource.DataType == BoDataType.dt_QUANTITY ||
+                        userDataSource.DataType == BoDataType.dt_RATE || userDataSource.DataType == BoDataType.dt_SUM)
+                    {
+                        if (editText.String == string.Empty)
+                            return 0;
+                        else return Convert.ToDouble(editText.String);
+                    }
+                    else if (userDataSource.DataType == BoDataType.dt_DATE)
+                    {
+                        if (editText.String == string.Empty)
+                            return new DateTime(1990, 1, 1);
+                        else return Convert.ToDateTime(editText.String);
+                    }
+                    else return editText.String;
+                }
+                else return string.Empty;
+            }
+            else if (fromDataSource)
             {
                 if (item.Contains("."))
                 {
@@ -281,7 +330,7 @@ namespace B1Base.View
                     {
                         if (SAPForm.DataSources.DBDataSources.Item(index).TableName == tableName)
                         {
-                            if (SAPForm.DataSources.DBDataSources.Item(index).Fields.Item(column).Type == BoFieldsType.ft_Date)
+                            if (SAPForm.DataSources.DBDataSources.Item(index).Fields.Item(tableCol).Type == BoFieldsType.ft_Date)
                             {
                                 if (SAPForm.DataSources.DBDataSources.Item(index).GetValue(tableCol, SAPForm.DataSources.DBDataSources.Item(index).Offset) == string.Empty)
                                 {
@@ -290,10 +339,10 @@ namespace B1Base.View
                                 else
                                 {
                                     return
-                                        DateTime.ParseExact(SAPForm.DataSources.DBDataSources.Item(index).GetValue(tableCol, SAPForm.DataSources.DBDataSources.Item(index).Offset), 
-                                        "yyyyMMdd", 
-                                        CultureInfo.InvariantCulture, 
-                                        DateTimeStyles.None);                                        
+                                        DateTime.ParseExact(SAPForm.DataSources.DBDataSources.Item(index).GetValue(tableCol, SAPForm.DataSources.DBDataSources.Item(index).Offset),
+                                        "yyyyMMdd",
+                                        CultureInfo.InvariantCulture,
+                                        DateTimeStyles.None);
                                 }
                             }
                             else if (SAPForm.DataSources.DBDataSources.Item(index).Fields.Item(tableCol).Type == BoFieldsType.ft_Integer)
@@ -312,7 +361,7 @@ namespace B1Base.View
                                 return SAPForm.DataSources.DBDataSources.Item(index).GetValue(tableCol, SAPForm.DataSources.DBDataSources.Item(index).Offset);
                             }
                         }
-                    }                    
+                    }
                 }
                 else
                 {
@@ -425,7 +474,6 @@ namespace B1Base.View
 
                 return userDataSource.Value == ((OptionBtn)SAPForm.Items.Item(item).Specific).ValOn;
             }
-
             else return string.Empty;
         }
 
@@ -827,17 +875,40 @@ namespace B1Base.View
             }
         }
 
-        public virtual void GotFormData() { }
+        public virtual int FindFormData()
+        {
+            return 0;
+        }
+
+        /// <summary>
+        /// Em caso de formulário customizado, chamar base.GotFormData() para realizar as operações necessárias no campo de browse
+        /// </summary>
+        public virtual void GotFormData() 
+        {
+            if (m_BrowseItem != string.Empty)
+            {
+                int code = GetValue(string.Format("@{0}.U_Code", m_BrowseTable), "", 0, true);
+
+                SetValue(m_BrowseItem, code);
+            }
+        }
 
         public virtual void AddFormData() { }
 
+        public virtual void UpdateFormData() { }
+
+        public virtual void DeleteFormData() { }
+
+        /// <summary>
+        /// Em caso de formulário customizado, chamar base.MenuInsert() para realizar as operações necessárias no campo de browse
+        /// </summary>
         public virtual void MenuInsert() 
         {
             if (m_BrowseItem != string.Empty)
             {
-                SAPForm.Items.Item(m_DefaultItem).Enabled = true;
+                SAPForm.ActiveItem = "DUMMY";
 
-                SAPForm.ActiveItem = m_DefaultItem;
+                SetValue(m_BrowseItem, AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetLastCode", m_BrowseTable)); 
 
                 SAPForm.Items.Item(m_BrowseItem).Enabled = false;
 
@@ -846,6 +917,9 @@ namespace B1Base.View
             }        
         }
 
+        /// <summary>
+        /// Em caso de formulário customizado, chamar base.MenuSearch() para realizar as operações necessárias no campo de browse
+        /// </summary>
         public virtual void MenuSearch() 
         {
             if (m_BrowseItem != string.Empty)
@@ -868,6 +942,34 @@ namespace B1Base.View
         public virtual void GotFocus() { }
 
         public virtual void Close() { }
+
+        public void ButtonOkClick()
+        {
+            if (SAPForm.Mode == BoFormMode.fm_FIND_MODE)
+            {
+               int code = FindFormData();
+
+               if (code != 0)
+               {
+                   ((EditText)SAPForm.Items.Item("BACKCODE").Specific).String = code.ToString();
+
+                   SAPForm.ActiveItem = "DUMMY";
+
+                   SAPForm.Items.Item(m_BrowseItem).Enabled = false;
+
+                   SAPForm.EnableMenu("1282", true);
+                   SAPForm.EnableMenu("1281", true);
+               }
+               else
+               {
+                   AddOn.Instance.ConnectionController.Application.StatusBar.SetText("Nenhum registro concordante encontrado");
+               }
+            }
+            else if (SAPForm.Mode == BoFormMode.fm_ADD_MODE)
+            {
+                UpdateFormData();
+            }
+        }
 
         public void ButtonClick(string button)
         {
