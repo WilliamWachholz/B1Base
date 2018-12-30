@@ -1,1 +1,1 @@
-﻿select * from {0}
+﻿select {1} from [@{0}]

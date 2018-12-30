@@ -34,7 +34,7 @@ namespace B1Base.View
         public delegate void FolderSelectEventHandler();
         public delegate void ChooseFromEventHandler(params string[] values);
         public delegate void ColChooseFromEventHandler(int row, Dictionary<string, string> values);        
-        public delegate void MatixRowClickEventHandler(int row, string column);
+        public delegate void MatixRowClickEventHandler(int row, string column, bool rowChanged, bool rowSelected);        
         public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void MatrixSortEventHandler(string column);
         public delegate bool MatrixCanAddEventHandler(int row);
@@ -51,6 +51,7 @@ namespace B1Base.View
         public string LastComboValue { get; private set; }
         public string LastColumnValue { get; private set; }
         public int LastSortedColPos { get; private set; }
+        public Dictionary<string, int> LastRows { get; private set; }
 
         protected Form SAPForm
         {
@@ -62,7 +63,6 @@ namespace B1Base.View
 
         private void Initialize(object sender, ElapsedEventArgs e)
         {
-            
             try
             {
                 m_timerInitialize.Enabled = false;
@@ -99,6 +99,7 @@ namespace B1Base.View
                 LastEditValue = string.Empty;
                 LastComboValue = string.Empty;
                 LastSortedColPos = 1;
+                LastRows = new Dictionary<string, int>();
             }
             finally
             {
@@ -239,14 +240,14 @@ namespace B1Base.View
         /// <param name="item">ID do componente ou do dataSource. Para o caso do dataSource ser um DBDataSources, separar o nome da tabela e o nome da coluna com ponto (".")</param>
         /// <param name="fromDataSource">Caso o valor deve ser buscado direto do dataSource associado</param>
         /// <returns></returns>
-        public dynamic GetValue(string item, bool fromDataSource = false) 
+        public dynamic GetValue(string item, string column = "", int row = 0, bool fromDataSource = false) 
         {
             if (fromDataSource)
             {
                 if (item.Contains("."))
                 {
                     string tableName = item.Split('.')[0];
-                    string column = item.Split('.')[1];
+                    string tableCol = item.Split('.')[1];
 
                     for (int index = 0; index < SAPForm.DataSources.DBDataSources.Count; index++)
                     {
@@ -254,33 +255,33 @@ namespace B1Base.View
                         {
                             if (SAPForm.DataSources.DBDataSources.Item(index).Fields.Item(column).Type == BoFieldsType.ft_Date)
                             {
-                                if (SAPForm.DataSources.DBDataSources.Item(index).GetValue(column, SAPForm.DataSources.DBDataSources.Item(index).Offset) == string.Empty)
+                                if (SAPForm.DataSources.DBDataSources.Item(index).GetValue(tableCol, SAPForm.DataSources.DBDataSources.Item(index).Offset) == string.Empty)
                                 {
                                     return new DateTime(1990, 1, 1);
                                 }
                                 else
                                 {
                                     return
-                                        DateTime.ParseExact(SAPForm.DataSources.DBDataSources.Item(index).GetValue(column, SAPForm.DataSources.DBDataSources.Item(index).Offset), 
+                                        DateTime.ParseExact(SAPForm.DataSources.DBDataSources.Item(index).GetValue(tableCol, SAPForm.DataSources.DBDataSources.Item(index).Offset), 
                                         "yyyyMMdd", 
                                         CultureInfo.InvariantCulture, 
                                         DateTimeStyles.None);                                        
                                 }
                             }
-                            else if (SAPForm.DataSources.DBDataSources.Item(index).Fields.Item(column).Type == BoFieldsType.ft_Integer)
+                            else if (SAPForm.DataSources.DBDataSources.Item(index).Fields.Item(tableCol).Type == BoFieldsType.ft_Integer)
                             {
-                                if (SAPForm.DataSources.DBDataSources.Item(index).GetValue(column, SAPForm.DataSources.DBDataSources.Item(index).Offset) == string.Empty)
+                                if (SAPForm.DataSources.DBDataSources.Item(index).GetValue(tableCol, SAPForm.DataSources.DBDataSources.Item(index).Offset) == string.Empty)
                                 {
                                     return 0;
                                 }
                                 else
                                 {
-                                    return Convert.ToInt32(SAPForm.DataSources.DBDataSources.Item(index).GetValue(column, SAPForm.DataSources.DBDataSources.Item(index).Offset));
+                                    return Convert.ToInt32(SAPForm.DataSources.DBDataSources.Item(index).GetValue(tableCol, SAPForm.DataSources.DBDataSources.Item(index).Offset));
                                 }
                             }
                             else
                             {
-                                return SAPForm.DataSources.DBDataSources.Item(index).GetValue(column, SAPForm.DataSources.DBDataSources.Item(index).Offset);
+                                return SAPForm.DataSources.DBDataSources.Item(index).GetValue(tableCol, SAPForm.DataSources.DBDataSources.Item(index).Offset);
                             }
                         }
                     }                    
@@ -292,6 +293,31 @@ namespace B1Base.View
 
                 return string.Empty;
             }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_MATRIX)
+            {
+                Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
+
+                if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_EDIT)
+                {
+                    EditText editText = (EditText)matrix.Columns.Item(column).Cells.Item(row).Specific;
+
+                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
+                    
+                    BoFieldsType fieldType = dataTable.Columns.Item(editText.DataBind.Alias).Type;
+
+                    if (fieldType == BoFieldsType.ft_Integer)
+                    {
+                        if (editText.String == string.Empty)
+                            return 0;
+                        else return Convert.ToInt32(editText.String);
+                    }
+                    else
+                    {
+                        return editText.String;
+                    }
+                }
+                else return string.Empty;
+            }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
             {
                 UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((ComboBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
@@ -302,14 +328,14 @@ namespace B1Base.View
                         return 0;
                     else return Convert.ToInt32(userDataSource.Value);
                 }
-                else return userDataSource.Value;                
+                else return userDataSource.Value;
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
             {
-                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
-                
                 EditText editText = (EditText)SAPForm.Items.Item(item).Specific;
-                
+
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
+
                 if (editText.ChooseFromListUID != string.Empty)
                 {
                     try
@@ -318,7 +344,7 @@ namespace B1Base.View
                     }
                     catch { }
                 }
-                
+
                 if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER)
                 {
                     if (userDataSource.Value == string.Empty)
@@ -403,7 +429,6 @@ namespace B1Base.View
                         {
                             prop.SetValue(model, dataTable.GetValue(col, row));
                         }
-                        break;
                     }
                 }
 
@@ -745,8 +770,6 @@ namespace B1Base.View
                         {
                             dataTable.SetValue(col, dataTable.Rows.Count - 1, prop.GetValue(model));
                         }
-
-                        break;
                     }
                 }
             }
@@ -756,8 +779,20 @@ namespace B1Base.View
 
             matrix.LoadFromDataSource();
 
-            if (matrix.RowCount == 0 && addLastLine)
-                matrix.AddRow();
+            if (addLastLine)
+            {
+                if (matrix.RowCount == 0)
+                {
+                    matrix.AddRow();
+                }
+
+                try
+                {
+                    if (matrix.Columns.Item(0).DataBind.Alias == "Pos")
+                        ((EditText)matrix.Columns.Item(0).Cells.Item(matrix.RowCount).Specific).String = matrix.RowCount.ToString();
+                }
+                catch { }
+            }
         }
 
         public virtual void GotFormData() { }
@@ -859,7 +894,56 @@ namespace B1Base.View
         {
             if (MatrixRowClickEvents.ContainsKey(matrix))
             {
-                MatrixRowClickEvents[matrix](row, column);
+                bool rowChanged = LastRows.ContainsKey(matrix) ? row != LastRows[matrix] : true;
+
+                if (LastRows.ContainsKey(matrix))
+                {
+                    LastRows[matrix] = row;
+                }
+                else
+                {
+                    LastRows.Add(matrix, row);
+                }
+
+                Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                int selectedRow = 0;
+               
+                try                
+                {
+                    selectedRow = matrixItem.GetNextSelectedRow();
+                }
+                catch{ }
+
+                MatrixRowClickEvents[matrix](row, column, rowChanged, selectedRow == row);
+            }
+        }
+
+        public void MatrixTabPressed(string matrix, int row, string column)
+        {
+            string key = string.Format("{0}.{1}", matrix, column);
+
+            if (MatrixCanAddEvents.ContainsKey(key))
+            {
+                Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                if (row == matrixItem.RowCount)
+                {
+                    if (MatrixCanAddEvents[key](row))
+                    {                                                    
+                        matrixItem.AddRow();
+
+                        try
+                        {
+                            if (matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
+                                ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
+                        }
+                        catch { }
+                        
+                        if (matrixItem.Columns.Item(column).Width >= matrixItem.Item.Width - 60)
+                            matrixItem.SetCellFocus(row + 1, matrixItem.GetCellFocus().ColumnIndex);
+                    }
+                }
             }
         }
 
@@ -1021,6 +1105,13 @@ namespace B1Base.View
                     if (MatrixCanAddEvents[key](row))
                     {
                         matrixItem.AddRow();
+
+                        try
+                        {
+                            if (matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
+                                ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
+                        }
+                        catch { }
                     }
                 }
             }
@@ -1061,6 +1152,13 @@ namespace B1Base.View
                     if (MatrixCanAddEvents[key](row))
                     {
                         matrixItem.AddRow();
+
+                        try
+                        {
+                            if (matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
+                                ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
+                        }
+                        catch { }
                     }
                 }
             }

@@ -27,7 +27,13 @@ namespace B1Base.Controller
 
             var model = (T)Activator.CreateInstance(modelType);
 
-            return AddOn.Instance.ConnectionController.ExecuteSqlForList<T>("GetListModel", modelType.Name.Replace("Model", ""));
+            List<string> fieldList = AddOn.Instance.ConnectionController.ExecuteSqlForList<string>("GetListField", modelType.Name.Replace("Model", ""));
+
+            string fields = string.Join(",", fieldList.ToArray());
+
+            //fields = fields.Substring(0, fields.Length - 1);
+
+            return AddOn.Instance.ConnectionController.ExecuteSqlForList<T>("GetListModel", modelType.Name.Replace("Model", ""), fields);
         }
 
         public void Save<T>(T model) where T : Model.BaseModel

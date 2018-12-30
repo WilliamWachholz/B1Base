@@ -87,6 +87,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormResize;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixRowClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixSort;
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixKeyDown;
             Controller.ConnectionController.Instance.Application.FormDataEvent += HandleFormDataLoad;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuInsert;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSearch;
@@ -675,6 +676,36 @@ namespace B1Base.Controller
                     if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
                         m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixSort(pVal.ItemUID, pVal.ColUID);
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);
+                        throw e;
+                    }
+                }
+            }
+        }
+
+        private void HandleMatrixKeyDown(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
+        {
+            bubbleEvent = true;
+
+            if (pVal.EventType == BoEventTypes.et_KEY_DOWN && pVal.BeforeAction == false)
+            {
+                try
+                {
+                    if (pVal.Row > 0)
+                    {
+                        string formType = pVal.FormTypeEx;
+
+                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                        {
+                            if (pVal.CharPressed == 9)
+                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixTabPressed(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                        }
                     }
                 }
                 catch (Exception e)
