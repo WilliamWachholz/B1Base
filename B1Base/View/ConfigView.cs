@@ -42,7 +42,7 @@ namespace B1Base.View
             }
             catch (Exception e)
             {
-                AddOn.Instance.ConnectionController.Application.StatusBar.SetText(e.Message);
+                Controller.ConnectionController.Instance.Application.StatusBar.SetText(e.Message);
             }
         }
 

@@ -23,7 +23,7 @@ namespace B1Base.Controller
             }
             catch (Exception e)
             {
-                AddOn.Instance.ConnectionController.Application.StatusBar.SetText(e.Message);
+                Controller.ConnectionController.Instance.Application.StatusBar.SetText(e.Message);
             }
 
             return new Model.ConfigModel();
@@ -37,7 +37,7 @@ namespace B1Base.Controller
             }
             catch (Exception e)
             {
-                AddOn.Instance.ConnectionController.Application.StatusBar.SetText(e.Message);
+                Controller.ConnectionController.Instance.Application.StatusBar.SetText(e.Message);
             }
         }
     }

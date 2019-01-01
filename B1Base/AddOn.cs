@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace B1Base
 {
+    /// <summary>
+    /// Não usar essa classe para aplicativos externos que somente conectam pela DI. 
+    /// Para esses casos utilizar a classe App
+    /// </summary>
     public class AddOn
     {
         AddOn() { }

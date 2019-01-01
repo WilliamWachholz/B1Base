@@ -323,54 +323,38 @@ namespace B1Base.Controller
         {
             bubbleEvent = true;
 
-            if (pVal.EventType == BoEventTypes.et_CLICK)
-            {
-                string formId = pVal.FormUID;
-                string formType = pVal.FormTypeEx;
+            if (pVal.EventType == BoEventTypes.et_CLICK && pVal.BeforeAction == false)
+            {                
+                try
+                {
+                    string formId = pVal.FormUID;
+                    string formType = pVal.FormTypeEx;
 
-                if (pVal.BeforeAction)
-                {
-                    try
+                    if (pVal.ItemUID == "1" && !formId.Contains("F_"))
                     {
-                        if (!formId.Contains("F_"))
+                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
-                            if (pVal.ItemUID == "1")
-                            {
-                                if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                                {
-                                    m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonOkClick();
-                                }
-                            }
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonOkClick();
                         }
                     }
-                    catch (Exception e)
+                    else
                     {
-                        if (LogIsActive)
-                        {
-                            ConnectionController.Instance.Application.StatusBar.SetText("187 - " + e.Message);
-                            throw e;
-                        }
-                    }
-                }
-                else
-                {
-                    try
-                    {
+
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
                             m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonClick(pVal.ItemUID);
                         }
                     }
-                    catch (Exception e)
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
                     {
-                        if (LogIsActive)
-                        {
-                            ConnectionController.Instance.Application.StatusBar.SetText("187 - " + e.Message);
-                            throw e;
-                        }
+                        ConnectionController.Instance.Application.StatusBar.SetText("187 - " + e.Message);
+                        throw e;
                     }
                 }
-            }
+            }            
         }
 
         private void HandleButtonPress(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
@@ -382,15 +366,26 @@ namespace B1Base.Controller
                 try
                 {
                     string formType = pVal.FormTypeEx;
+                    string formId = pVal.FormUID;
 
-                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    if (pVal.ItemUID == "1" && !formId.Contains("F_"))
                     {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonPress(pVal.ItemUID);
+                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonOkPress();
+                        }
                     }
-
-                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    else
                     {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).LinkPress(pVal.ItemUID, m_Views[m_Views.Count - 1]);
+                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonPress(pVal.ItemUID);
+                        }
+
+                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).LinkPress(pVal.ItemUID, m_Views[m_Views.Count - 1]);
+                        }
                     }
                 }
                 catch (Exception e)
@@ -834,7 +829,7 @@ namespace B1Base.Controller
                 {
                     if (!formId.Contains("F_"))
                     {
-                        if (AddOn.Instance.ConnectionController.Application.MessageBox("Dados não gravados serão perdidos. Continuar?", 1, "Sim", "Não") != 1)
+                        if (Controller.ConnectionController.Instance.Application.MessageBox("Dados não gravados serão perdidos. Continuar?", 1, "Sim", "Não") != 1)
                         {
                             bubbleEvent = false;
                         }

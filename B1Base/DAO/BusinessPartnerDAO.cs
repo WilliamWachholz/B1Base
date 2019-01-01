@@ -12,7 +12,7 @@ namespace B1Base.DAO
     {
         public void Save(Model.BusinessPartnerModel businessPartnerModel)
         {
-            BusinessPartners businessPartner = AddOn.Instance.ConnectionController.Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
+            BusinessPartners businessPartner = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
             try
             {
                 if (businessPartner.GetByKey(businessPartnerModel.CardCode))
@@ -24,9 +24,9 @@ namespace B1Base.DAO
 
                     businessPartner.Update();
 
-                    AddOn.Instance.ConnectionController.VerifyBussinesObjectSuccess();
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
 
-                    AddOn.Instance.ConnectionController.ExecuteStatement("UpdateBusinessPartnerAgentCode", businessPartnerModel.AgentCode, businessPartnerModel.CardCode);
+                    Controller.ConnectionController.Instance.ExecuteStatement("UpdateBusinessPartnerAgentCode", businessPartnerModel.AgentCode, businessPartnerModel.CardCode);
                 }
             }
             finally

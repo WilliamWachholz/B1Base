@@ -91,7 +91,7 @@ namespace B1Base.View
                 }
                 catch (Exception ex)
                 {
-                    B1Base.AddOn.Instance.ConnectionController.Application.StatusBar.SetText(ex.Message);
+                    B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText(ex.Message);
                 }
 
                 Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
@@ -115,6 +115,9 @@ namespace B1Base.View
         /// </summary>
         protected virtual Dictionary<string, ButtonClickEventHandler> ButtonClickEvents { get { return new Dictionary<string, ButtonClickEventHandler>(); } }
 
+        /// <summary>
+        /// Não atribuir a esse evento o botão OK (uid=1). Para esses casos, usar as sobrecargas correspondentes (FindFormData, GotFormData, AddFormData, UpdateFormData e DeleteFormData)
+        /// </summary>
         protected virtual Dictionary<string, ButtonPressEventHandler> ButtonPressEvents { get { return new Dictionary<string, ButtonPressEventHandler>(); } }
 
         protected virtual Dictionary<string, ChooseFromEventHandler> ChooseFromEvents { get { return new Dictionary<string, ChooseFromEventHandler>(); } }
@@ -181,7 +184,7 @@ namespace B1Base.View
                 m_BrowseItem = browseItem;
                 m_BrowseTable = browseTable;
 
-                AddOn.Instance.ConnectionController.Application.ActivateMenuItem("1282");
+                Controller.ConnectionController.Instance.Application.ActivateMenuItem("1282");
             }
         }
 
@@ -199,7 +202,7 @@ namespace B1Base.View
                 combo.ValidValues.Remove(value, BoSearchKey.psk_Index);
             }
 
-            List<KeyValuePair<dynamic, string>> validValues = AddOn.Instance.ConnectionController.ExecuteSqlForList<KeyValuePair<dynamic, string>>(sqlScript, variables);
+            List<KeyValuePair<dynamic, string>> validValues = Controller.ConnectionController.Instance.ExecuteSqlForList<KeyValuePair<dynamic, string>>(sqlScript, variables);
 
             foreach (KeyValuePair<dynamic, string> validValue in validValues)
             {
@@ -217,7 +220,7 @@ namespace B1Base.View
                 combo.ValidValues.Remove(value, BoSearchKey.psk_Index);
             }
 
-            List<KeyValuePair<dynamic, string>> validValues = AddOn.Instance.ConnectionController.ExecuteSqlForList<KeyValuePair<dynamic, string>>(sqlScript, variables);
+            List<KeyValuePair<dynamic, string>> validValues = Controller.ConnectionController.Instance.ExecuteSqlForList<KeyValuePair<dynamic, string>>(sqlScript, variables);
 
             foreach (KeyValuePair<dynamic, string> validValue in validValues)
             {
@@ -257,6 +260,77 @@ namespace B1Base.View
                 condition.CondVal = value;
 
                 choose.SetConditions(conditions);
+            }
+        }
+
+        public void ClearValue(string item)
+        {
+            if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
+            {
+                ComboBox combo = (ComboBox)SAPForm.Items.Item(item).Specific;
+
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(combo.DataBind.Alias);
+
+                //if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER ||
+                //        userDataSource.DataType == BoDataType.dt_MEASURE || userDataSource.DataType == BoDataType.dt_PERCENT ||
+                //        userDataSource.DataType == BoDataType.dt_PRICE || userDataSource.DataType == BoDataType.dt_QUANTITY ||
+                //        userDataSource.DataType == BoDataType.dt_RATE || userDataSource.DataType == BoDataType.dt_SUM)
+                //{
+                //    
+                //}
+
+                userDataSource.Value = "";
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
+            {
+                EditText editText = (EditText)SAPForm.Items.Item(item).Specific;
+
+                if (editText.ChooseFromListUID != string.Empty)
+                {
+                    try
+                    {
+                        ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(editText.ChooseFromListUID);
+
+                        UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
+
+                        //if (codeDataSource.DataType == BoDataType.dt_SHORT_NUMBER || codeDataSource.DataType == BoDataType.dt_LONG_NUMBER)
+                        //{
+                        //    if (value != 0)
+                        //        codeDataSource.Value = value.ToString();
+                        //    else
+                        //        codeDataSource.Value = string.Empty;
+                        //}
+                        //else
+                        //{
+                        //    codeDataSource.Value = value.ToString();
+                        //}
+
+                        UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                        userDataSource.Value = "";
+                        codeDataSource.Value = "";
+                    }
+                    catch
+                    {
+                        UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                        userDataSource.Value = "";
+                    }
+                }
+                else
+                {
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+
+                    if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER ||
+                        userDataSource.DataType == BoDataType.dt_MEASURE || userDataSource.DataType == BoDataType.dt_PERCENT ||
+                        userDataSource.DataType == BoDataType.dt_PRICE || userDataSource.DataType == BoDataType.dt_QUANTITY ||
+                        userDataSource.DataType == BoDataType.dt_RATE || userDataSource.DataType == BoDataType.dt_SUM)
+                    {
+                        userDataSource.Value = "";
+                    }
+                    else
+                    {
+                        userDataSource.Value = "";
+                    }
+                }
             }
         }
 
@@ -548,7 +622,7 @@ namespace B1Base.View
                 {
                     ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
 
-                    string descValue = AddOn.Instance.ConnectionController.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
+                    string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
 
                     UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + edit.DataBind.Alias);
 
@@ -579,7 +653,7 @@ namespace B1Base.View
                 {
                     ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
 
-                    string descValue = AddOn.Instance.ConnectionController.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
+                    string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
 
                     UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + edit.DataBind.Alias);
 
@@ -621,7 +695,7 @@ namespace B1Base.View
                 {
                     ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
 
-                    string descValue = AddOn.Instance.ConnectionController.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
+                    string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
 
                     UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + edit.DataBind.Alias);
 
@@ -757,7 +831,7 @@ namespace B1Base.View
                     {
                         ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(editText.ChooseFromListUID);
 
-                        string descValue = AddOn.Instance.ConnectionController.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
+                        string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
 
                         UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
 
@@ -911,6 +985,9 @@ namespace B1Base.View
                 int code = GetValue(string.Format("@{0}.U_Code", m_BrowseTable), "", 0, true);
 
                 SetValue(m_BrowseItem, code);
+
+                SAPForm.EnableMenu("1282", true);
+                SAPForm.EnableMenu("1281", true);
             }
         }
 
@@ -929,7 +1006,7 @@ namespace B1Base.View
             {
                 SAPForm.ActiveItem = "DUMMY";
 
-                SetValue(m_BrowseItem, AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetLastCode", m_BrowseTable)); 
+                SetValue(m_BrowseItem, Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", m_BrowseTable)); 
 
                 SAPForm.Items.Item(m_BrowseItem).Enabled = false;
 
@@ -983,12 +1060,24 @@ namespace B1Base.View
                }
                else
                {
-                   AddOn.Instance.ConnectionController.Application.StatusBar.SetText("Nenhum registro concordante encontrado");
+                   Controller.ConnectionController.Instance.Application.StatusBar.SetText("Nenhum registro concordante encontrado");
                }
             }
-            else if (SAPForm.Mode == BoFormMode.fm_ADD_MODE)
+        }
+
+        public void ButtonOkPress()
+        {
+            if (SAPForm.Mode == BoFormMode.fm_ADD_MODE)
             {
-                UpdateFormData();
+                AddFormData();
+
+                SAPForm.Mode = BoFormMode.fm_OK_MODE;
+
+                SAPForm.EnableMenu("1282", true);
+            }
+            else if (SAPForm.Mode == BoFormMode.fm_UPDATE_MODE)
+            {
+                UpdateFormData();                
             }
         }
 
@@ -1170,8 +1259,8 @@ namespace B1Base.View
                 {
                     string menuID = string.Format("MNUREM{0}{1}{2}-{3}", SAPForm.TypeEx, SAPForm.UniqueID, item, row);
 
-                    if (AddOn.Instance.ConnectionController.Application.Menus.Exists(menuID))
-                        AddOn.Instance.ConnectionController.Application.Menus.RemoveEx(menuID);
+                    if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
+                        Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
 
                     SAPbouiCOM.Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
 
@@ -1184,14 +1273,14 @@ namespace B1Base.View
                         Menus menu = null;
                         MenuCreationParams creationPackage = null;
 
-                        creationPackage = ((MenuCreationParams)(AddOn.Instance.ConnectionController.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
+                        creationPackage = ((MenuCreationParams)(Controller.ConnectionController.Instance.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
 
                         creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
                         creationPackage.UniqueID = menuID;
                         creationPackage.String = "Eliminar linha";
                         creationPackage.Enabled = true;
 
-                        menuItem = AddOn.Instance.ConnectionController.Application.Menus.Item("1280");
+                        menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
                         menu = menuItem.SubMenus;
                         menu.AddEx(creationPackage);
                     }

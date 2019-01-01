@@ -17,7 +17,7 @@ namespace B1Base.DAO
 
         public void Save(Model.ItemModel itemModel)
         {
-            Items item = AddOn.Instance.ConnectionController.Company.GetBusinessObject(BoObjectTypes.oItems);
+            Items item = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
             try
             {
                 item.set_Properties(1, itemModel.QryGroup1 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);

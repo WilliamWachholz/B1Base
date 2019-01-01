@@ -27,7 +27,7 @@ namespace B1Base.DAO
 
             T model = (T)Activator.CreateInstance(type);
 
-            UserTable userTable = (UserTable)AddOn.Instance.ConnectionController.Company.UserTables.Item(TableName);
+            UserTable userTable = (UserTable)Controller.ConnectionController.Instance.Company.UserTables.Item(TableName);
             try
             {
                 if (userTable.GetByKey(code.ToString()))
@@ -76,7 +76,7 @@ namespace B1Base.DAO
 
             var props = type.GetProperties().Where(r => r.Name != "Changed");
 
-            UserTable userTable = (UserTable)AddOn.Instance.ConnectionController.Company.UserTables.Item(TableName);
+            UserTable userTable = (UserTable)Controller.ConnectionController.Instance.Company.UserTables.Item(TableName);
             try
             {
                 if (userTable.GetByKey(model.Code.ToString()))
@@ -101,7 +101,7 @@ namespace B1Base.DAO
                 }
                 else
                 {
-                    model.Code = AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetLastCode", TableName);
+                    model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName);
 
                     userTable.Code = model.Code.ToString();
                     userTable.Name = model.Code.ToString();
@@ -125,7 +125,7 @@ namespace B1Base.DAO
                     userTable.Add();
                 }
 
-                AddOn.Instance.ConnectionController.VerifyBussinesObjectSuccess();
+                Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
             }
             finally
             {
@@ -137,7 +137,7 @@ namespace B1Base.DAO
         {
             Type type = typeof(T);
 
-            UserTable userTable = (UserTable)AddOn.Instance.ConnectionController.Company.UserTables.Item(TableName);
+            UserTable userTable = (UserTable)Controller.ConnectionController.Instance.Company.UserTables.Item(TableName);
             try
             {
                 if (userTable.GetByKey(model.Code.ToString()))
@@ -145,7 +145,7 @@ namespace B1Base.DAO
                     userTable.Remove();
                 }
 
-                AddOn.Instance.ConnectionController.VerifyBussinesObjectSuccess();
+                Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
             }
             finally
             {

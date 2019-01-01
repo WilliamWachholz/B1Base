@@ -15,7 +15,7 @@ namespace B1Base.DAO
         {
             Model.AttachmentModel result = new Model.AttachmentModel();
 
-             Attachments2 attachment = (Attachments2)AddOn.Instance.ConnectionController.Company.GetBusinessObject(BoObjectTypes.oAttachments2);
+             Attachments2 attachment = (Attachments2)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oAttachments2);
              try
              {
                  if (attachment.GetByKey(atcEntry))
@@ -37,7 +37,7 @@ namespace B1Base.DAO
 
         public void Insert(Model.AttachmentModel attachmentModel)
         {
-            Attachments2 attachment = (Attachments2)AddOn.Instance.ConnectionController.Company.GetBusinessObject(BoObjectTypes.oAttachments2);
+            Attachments2 attachment = (Attachments2)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oAttachments2);
             try
             {
                 if (attachment.GetByKey(attachmentModel.AbsEntry))
@@ -53,7 +53,7 @@ namespace B1Base.DAO
 
                     attachment.Update();
 
-                    AddOn.Instance.ConnectionController.VerifyBussinesObjectSuccess();
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
                 }
                 else
                 {
@@ -64,9 +64,9 @@ namespace B1Base.DAO
 
                     attachment.Add();
 
-                    AddOn.Instance.ConnectionController.VerifyBussinesObjectSuccess();
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
 
-                    attachmentModel.AbsEntry = Convert.ToInt32(AddOn.Instance.ConnectionController.Company.GetNewObjectKey());
+                    attachmentModel.AbsEntry = Convert.ToInt32(Controller.ConnectionController.Instance.Company.GetNewObjectKey());
                 }                
             }
             finally
@@ -77,7 +77,7 @@ namespace B1Base.DAO
 
         public void Delete(Model.AttachmentModel attachmentModel)
         {
-            Attachments2 attachment = (Attachments2)AddOn.Instance.ConnectionController.Company.GetBusinessObject(BoObjectTypes.oAttachments2);
+            Attachments2 attachment = (Attachments2)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oAttachments2);
             try
             {
                 if (attachment.GetByKey(attachmentModel.AbsEntry))
@@ -90,7 +90,7 @@ namespace B1Base.DAO
 
                     attachment.Update();
 
-                    AddOn.Instance.ConnectionController.VerifyBussinesObjectSuccess();
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
                 }               
             }
             finally
@@ -101,12 +101,12 @@ namespace B1Base.DAO
 
         public string GetAttachmentFolder()
         {
-            return AddOn.Instance.ConnectionController.ExecuteSqlForObject<string>("GetAttachmentFolder");
+            return Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetAttachmentFolder");
         }
 
         public string GetImageFolder()
         {
-            return AddOn.Instance.ConnectionController.ExecuteSqlForObject<string>("GetImageFolder");            
+            return Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetImageFolder");            
         }
     }
 }
