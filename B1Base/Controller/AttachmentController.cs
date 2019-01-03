@@ -50,6 +50,35 @@ namespace B1Base.Controller
             }
         }
 
+        public List<Model.AttachmentModel> Get(int atcEntry)
+        {
+            return new DAO.AttachmentDAO().Get(atcEntry);
+        }
+
+        public int Duplicate(int atcEntry)
+        {
+            int absEntry = 0;
+
+            DAO.AttachmentDAO attachmentDAO = new DAO.AttachmentDAO();
+
+            List<Model.AttachmentModel> attachmentList = Get(atcEntry);
+
+            attachmentList.Select(r => r.AbsEntry = 0).ToList();
+
+            for (int line = 0; line < attachmentList.Count; line++)
+            {
+                Model.AttachmentModel attachmentModel = attachmentList[line];
+                attachmentModel.AbsEntry = absEntry;
+
+                attachmentDAO.Insert(attachmentModel);
+
+                if (line == 0)
+                    absEntry = attachmentModel.AbsEntry;
+            }
+
+            return absEntry;
+        }
+
         public void Open(int atcEntry, int line)
         {
             Model.AttachmentModel attachmentModel = new DAO.AttachmentDAO().Get(atcEntry, line);

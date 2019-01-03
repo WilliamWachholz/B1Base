@@ -35,6 +35,36 @@ namespace B1Base.DAO
             return result;
         }
 
+        public List<Model.AttachmentModel> Get(int atcEntry)
+        {
+            List<Model.AttachmentModel> result = new List<Model.AttachmentModel>();
+
+            Attachments2 attachment = (Attachments2)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oAttachments2);
+            try
+            {
+                if (attachment.GetByKey(atcEntry))
+                {
+                    for (int line = 0; line < attachment.Lines.Count; line++)
+                    {
+                        attachment.Lines.SetCurrentLine(line);
+
+                        result.Add(new Model.AttachmentModel() 
+                        {   
+                            AbsEntry = attachment.AbsoluteEntry,
+                            Line = line,
+                            Path = Path.ChangeExtension(Path.Combine(GetAttachmentFolder(), attachment.Lines.FileName), attachment.Lines.FileExtension)
+                        });
+                    } 
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(attachment);
+            }
+
+            return result;
+        }
+
         public void Insert(Model.AttachmentModel attachmentModel)
         {
             Attachments2 attachment = (Attachments2)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oAttachments2);

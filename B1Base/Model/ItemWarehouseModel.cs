@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace B1Base.Model
 {
-    class ItemWarehouseModel
+    public class ItemWarehouseModel
     {
+        public string ItemCode { get; set; }
+        public string WhsCode { get; set; }        
+        public string WhsName { get; set; }
+        public bool Locked { get; set; }
     }
 }
