@@ -71,7 +71,7 @@ namespace B1Base.DAO
             item.ItemName = itemModel.ItemName;
             //item.AttachmentEntry = itemModel.AtcEntry;
             //item.PriceList. = itemModel.ListNum;
-            item.Valid = itemModel.ValidFor ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            item.Valid = (itemModel.ValidFor || itemModel.FrozenFor == false) ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
             item.ValidFrom = itemModel.ValidFrom;
             item.ValidTo = itemModel.ValidTo;
             item.ValidRemarks = itemModel.ValidComm;
