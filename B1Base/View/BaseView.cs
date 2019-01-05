@@ -481,10 +481,26 @@ namespace B1Base.View
                 if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_EDIT)
                 {
                     EditText editText = (EditText)matrix.Columns.Item(column).Cells.Item(row).Specific;
-
+                    
                     DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
 
-                    BoFieldsType fieldType = dataTable.Columns.Item(editText.DataBind.Alias).Type;
+                    BoFieldsType fieldType = BoFieldsType.ft_AlphaNumeric;
+
+                    try
+                    {
+                        fieldType = dataTable.Columns.Item(editText.DataBind.Alias).Type;
+                    }
+                    catch
+                    {
+                        for (int col = 0; col < matrix.Columns.Count; col++)
+                        {
+                            if (matrix.Columns.Item(column).UniqueID ==  matrix.Columns.Item(col).UniqueID)
+                            {
+                                fieldType = dataTable.Columns.Item(col).Type;
+                                break;
+                            }
+                        }
+                    }
 
                     if (fieldType == BoFieldsType.ft_Integer)
                     {
@@ -826,6 +842,10 @@ namespace B1Base.View
                     if (value.GetType() == typeof(DateTime))
                     {
                         edit.String = value.ToString("dd/MM/yyyy");
+                    }
+                    else
+                    {
+                        edit.String = value.ToString();
                     }
                 }
             }
@@ -1192,7 +1212,7 @@ namespace B1Base.View
 
         public void MatrixRowEnter(string matrix, int row, string column)
         {
-            if (MatrixRowEnterEvents.ContainsKey(matrix))
+            if (MatrixRowEnterEvents.ContainsKey(matrix) && !Frozen)
             {
                 bool rowChanged = LastRows.ContainsKey(matrix) ? row != LastRows[matrix] : true;
 
@@ -1223,7 +1243,7 @@ namespace B1Base.View
         {
             string key = string.Format("{0}.{1}", matrix, column);
 
-            if (MatrixCanAddEvents.ContainsKey(key))
+            if (MatrixCanAddEvents.ContainsKey(key) && !Frozen)
             {
                 Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
 
