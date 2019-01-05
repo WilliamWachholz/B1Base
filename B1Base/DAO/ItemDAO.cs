@@ -150,7 +150,8 @@ namespace B1Base.DAO
                 item.PreferredVendors.BPCode = itemModel.CardCodes[line];
             }
             
-            item.Mainsupplier = itemModel.CardCode;
+            if (itemModel.CardCode != string.Empty)
+                item.Mainsupplier = itemModel.CardCode;
 
             
 

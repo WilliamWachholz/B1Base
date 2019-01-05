@@ -606,7 +606,11 @@ namespace B1Base.Controller
 
                                     for (int value = 0; value < chooseFromListEvent.SelectedObjects.Columns.Count - 1; value++)
                                     {
-                                        values.Add(chooseFromListEvent.SelectedObjects.Columns.Item(value).Name, chooseFromListEvent.SelectedObjects.GetValue(value, 0).ToString());
+                                        try
+                                        {
+                                            values.Add(chooseFromListEvent.SelectedObjects.Columns.Item(value).Name, chooseFromListEvent.SelectedObjects.GetValue(value, 0).ToString());
+                                        }
+                                        catch { }
                                     }
 
                                     m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColChooseFrom(pVal.ItemUID, 
@@ -620,7 +624,11 @@ namespace B1Base.Controller
 
                                     for (int value = 0; value < values.Count() - 1; value++)
                                     {
-                                        values[value] = chooseFromListEvent.SelectedObjects.GetValue(value, 0).ToString();
+                                        try
+                                        {
+                                            values[value] = chooseFromListEvent.SelectedObjects.GetValue(value, 0).ToString();
+                                        }
+                                        catch { }
                                     }
 
                                     m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(pVal.ItemUID,
