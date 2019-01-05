@@ -59,7 +59,7 @@ namespace B1Base.View
         private string m_BrowseTable = string.Empty;
         private string m_BrowseItem = string.Empty;
         
-        protected Form SAPForm
+        public Form SAPForm
         {
             get
             {
@@ -277,7 +277,7 @@ namespace B1Base.View
             }
         }
 
-        protected void FilterChoose(EditText edit, string column, BoConditionOperation operation, string value)
+        protected void FilterChoose(EditText edit, string field, BoConditionOperation operation, string value)
         {
             if (edit.ChooseFromListUID != string.Empty)
             {
@@ -287,7 +287,27 @@ namespace B1Base.View
 
                 Condition condition = conditions.Add();
 
-                condition.Alias = column;
+                condition.Alias = field;
+                condition.Operation = operation;
+                condition.CondVal = value;
+
+                choose.SetConditions(conditions);
+            }
+        }
+
+        protected void FilterChoose(Matrix matrix, string column, string field, BoConditionOperation operation, string value)
+        {
+            Column edit = matrix.Columns.Item(column);
+
+            if (edit.ChooseFromListUID != string.Empty)
+            {
+                ChooseFromList choose = (ChooseFromList)SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
+
+                Conditions conditions = new Conditions();
+
+                Condition condition = conditions.Add();
+
+                condition.Alias = field;
                 condition.Operation = operation;
                 condition.CondVal = value;
 
@@ -967,7 +987,7 @@ namespace B1Base.View
             }
         }
 
-        protected void SetValue<T>(DataTable dataTable, Matrix matrix, List<T> list, bool addLastLine = true) where T : Model.BaseModel
+        public void SetValue<T>(DataTable dataTable, Matrix matrix, List<T> list, bool addLastLine = true) where T : Model.BaseModel
         {
             dataTable.Rows.Clear();
 
