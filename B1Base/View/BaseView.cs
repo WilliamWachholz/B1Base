@@ -52,6 +52,7 @@ namespace B1Base.View
         public string LastColumnValue { get; private set; }
         public int LastSortedColPos { get; private set; }
         public Dictionary<string, int> LastRows { get; private set; }
+        public bool Frozen { get; private set; }
 
         private string m_BrowseTable = string.Empty;
         private string m_BrowseItem = string.Empty;
@@ -74,6 +75,11 @@ namespace B1Base.View
                 {
                     try
                     {
+                        LastEditValue = string.Empty;
+                        LastComboValue = string.Empty;
+                        LastSortedColPos = 1;
+                        LastRows = new Dictionary<string, int>();
+
                         CreateControls();
                     }
                     catch (Exception ex)
@@ -98,11 +104,6 @@ namespace B1Base.View
 
                 SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
                 SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
-
-                LastEditValue = string.Empty;
-                LastComboValue = string.Empty;
-                LastSortedColPos = 1;
-                LastRows = new Dictionary<string, int>();
             }
             finally
             {
@@ -186,6 +187,35 @@ namespace B1Base.View
 
                 Controller.ConnectionController.Instance.Application.ActivateMenuItem("1282");
             }
+        }
+
+        /// <summary>
+        /// Chama o SAPForm.Freeze(true) e não passa por nenhum evento de Validate dos compontens
+        /// </summary>
+        protected void Freeze()
+        {
+            SAPForm.Freeze(true);
+            Frozen = true;
+        }
+
+        protected void Unfreeze()
+        {
+            SAPForm.Freeze(false);
+            Frozen = false;
+        }
+
+        /// <summary>
+        /// Usar no lugar do Form.ActiveItem pois controla o LastValue do evento Validate(changed)
+        /// </summary>
+        /// <param name="item"></param>
+        protected void FocusItem(string item)
+        {
+            if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
+            {
+                LastEditValue = ((EditText)SAPForm.Items.Item(item).Specific).String;                
+            }
+
+            SAPForm.ActiveItem = item;
         }
 
         protected void LoadCombo(Matrix matrix, string column, string sqlScript, params string[] variables)
@@ -1290,7 +1320,7 @@ namespace B1Base.View
 
         public void Checked(string check)
         {
-            if (CheckEvents.ContainsKey(check))
+            if (CheckEvents.ContainsKey(check) && !Frozen)
             {
                 CheckEvents[check]();
             }
@@ -1300,7 +1330,7 @@ namespace B1Base.View
         {
             string key = string.Format("{0}.{1}", matrix, column);
 
-            if (ColumnCheckEvents.ContainsKey(key))
+            if (ColumnCheckEvents.ContainsKey(key) && !Frozen)
             {
                 ColumnCheckEvents[key](row);
             }
@@ -1308,7 +1338,7 @@ namespace B1Base.View
 
         public void EditValidate(string edit)
         {
-            if (EditValidateEvents.ContainsKey(edit))
+            if (EditValidateEvents.ContainsKey(edit) && !Frozen)
             {
                 EditText editText = ((EditText)SAPForm.Items.Item(edit).Specific);
                 
@@ -1336,7 +1366,7 @@ namespace B1Base.View
         {
             string key = string.Format("{0}.{1}", matrix, column);
 
-            if (ColumnValidateEvents.ContainsKey(key))
+            if (ColumnValidateEvents.ContainsKey(key) && !Frozen)
             {
                 Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
 
@@ -1389,7 +1419,7 @@ namespace B1Base.View
 
         public void EditFocus(string edit)
         {
-            if (EditValidateEvents.ContainsKey(edit))
+            if (EditValidateEvents.ContainsKey(edit) && !Frozen)
             {
                 LastEditValue = ((EditText)SAPForm.Items.Item(edit).Specific).String;
             }
@@ -1397,7 +1427,7 @@ namespace B1Base.View
 
         public void ComboSelect(string combo)
         {
-            if (ComboSelectEvents.ContainsKey(combo))
+            if (ComboSelectEvents.ContainsKey(combo) && !Frozen)
             {
                 ComboSelectEvents[combo](LastComboValue !=
                     (((ComboBox)SAPForm.Items.Item(combo).Specific).Selected == null ? string.Empty :
@@ -1409,7 +1439,7 @@ namespace B1Base.View
         {
             string key = string.Format("{0}.{1}", matrix, column);
 
-            if (ColumnSelectEvents.ContainsKey(key))
+            if (ColumnSelectEvents.ContainsKey(key) && !Frozen)
             {
                 Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
 
@@ -1436,7 +1466,7 @@ namespace B1Base.View
 
         public void ComboFocus(string combo)
         {
-            if (ComboSelectEvents.ContainsKey(combo))
+            if (ComboSelectEvents.ContainsKey(combo) && !Frozen)
             {
                 LastComboValue = (((ComboBox)SAPForm.Items.Item(combo).Specific).Selected == null ? string.Empty :
                     ((ComboBox)SAPForm.Items.Item(combo).Specific).Selected.Value);
@@ -1446,7 +1476,7 @@ namespace B1Base.View
         public void ColumnFocus(string matrix, int row, string column)
         {
             string key = string.Format("{0}.{1}", matrix, column);
-            if (ColumnValidateEvents.ContainsKey(key))
+            if (ColumnValidateEvents.ContainsKey(key) && !Frozen)
             {
                 Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
 
@@ -1464,7 +1494,7 @@ namespace B1Base.View
 
         public void OptionSelect(string option)
         {
-            if (OptionEvents.ContainsKey(option))
+            if (OptionEvents.ContainsKey(option) && !Frozen)
             {
                 OptionEvents[option]();
             }
@@ -1472,7 +1502,7 @@ namespace B1Base.View
 
         public void LinkPress(string link, View.BaseView linkedView)
         {
-            if (LinkEvents.ContainsKey(link))
+            if (LinkEvents.ContainsKey(link) && !Frozen)
             {
                 LinkEvents[link](linkedView);
             }

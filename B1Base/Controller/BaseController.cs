@@ -27,13 +27,11 @@ namespace B1Base.Controller
 
             var model = (T)Activator.CreateInstance(modelType);
 
-            List<string> fieldList = Controller.ConnectionController.Instance.ExecuteSqlForList<string>("GetListField", modelType.Name.Replace("Model", ""));
+            List<string> fieldList = Controller.ConnectionController.Instance.ExecuteSqlForList<string>("GetListField", modelType.Name.Replace("Model", "").ToUpper());
 
             string fields = string.Join(",", fieldList.ToArray());
 
-            //fields = fields.Substring(0, fields.Length - 1);
-
-            return Controller.ConnectionController.Instance.ExecuteSqlForList<T>("GetListModel", modelType.Name.Replace("Model", ""), fields);
+            return Controller.ConnectionController.Instance.ExecuteSqlForList<T>("GetListModel", modelType.Name.Replace("Model", "").ToUpper(), fields);
         }
 
         public void Save<T>(T model) where T : Model.BaseModel

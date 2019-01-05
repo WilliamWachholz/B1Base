@@ -12,7 +12,24 @@ namespace B1Base.DAO
     {
         public Model.ItemModel Get(string itemCode)
         {
-            return new Model.ItemModel();
+            Model.ItemModel itemModel = new Model.ItemModel();
+
+            Items item = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
+            try
+            {
+                if (item.GetByKey(itemCode))
+                {
+                    itemModel.ItemCode = item.ItemCode;
+                    itemModel.ItemName = item.ItemName;
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(item);
+                GC.Collect();
+            }
+
+            return itemModel;
         }
 
         public void Save(Model.ItemModel itemModel)
@@ -54,14 +71,14 @@ namespace B1Base.DAO
             item.ItemName = itemModel.ItemName;
             //item.AttachmentEntry = itemModel.AtcEntry;
             //item.PriceList. = itemModel.ListNum;
-            //item.Valid = itemModel.ValidFor ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
-            //item.ValidFrom = itemModel.ValidFrom;
-            //item.ValidTo = itemModel.ValidTo;
-            //item.ValidRemarks = itemModel.ValidComm;
-            //item.Frozen = itemModel.FrozenFor ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
-            //item.FrozenFrom = itemModel.FrozenFrom;
-            //item.FrozenTo = itemModel.FrozenTo;
-            //item.FrozenRemarks = itemModel.FrozenComm;
+            item.Valid = itemModel.ValidFor ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            item.ValidFrom = itemModel.ValidFrom;
+            item.ValidTo = itemModel.ValidTo;
+            item.ValidRemarks = itemModel.ValidComm;
+            item.Frozen = itemModel.FrozenFor ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            item.FrozenFrom = itemModel.FrozenFrom;
+            item.FrozenTo = itemModel.FrozenTo;
+            item.FrozenRemarks = itemModel.FrozenComm;
             //item.Manufacturer = itemModel.FirmCode;
             //item.UoMGroupEntry = itemModel.UgpEntry;
             //item.ShipType = itemModel.ShipType;
