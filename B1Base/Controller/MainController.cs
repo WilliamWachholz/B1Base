@@ -130,13 +130,23 @@ namespace B1Base.Controller
 
             ConnectionController.Instance.Application.StatusBar.SetText(string.Format("AddOn {0} conectado.", AddOnName), SAPbouiCOM.BoMessageTime.bmt_Long, SAPbouiCOM.BoStatusBarMessageType.smt_Success); 
         }
-
+        
         public View.BaseView OpenView(string formType)
         {
-            return OpenView(false, formType);
+            return OpenView(false, formType, null);
         }
 
         public View.BaseView OpenView(bool unique, string formType)
+        {
+            return OpenView(unique, formType, null);
+        }
+
+        public View.BaseView OpenView(string formType, View.BaseView parentView)
+        {
+            return OpenView(false, formType, parentView);
+        }
+
+        public View.BaseView OpenView(bool unique, string formType, View.BaseView parentView)
         {
             bool notExists = false;
 
@@ -191,8 +201,12 @@ namespace B1Base.Controller
                 Controller.ConnectionController.Instance.Application.LoadBatchActions(ref xml);
             }
 
+            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ParentView = parentView;
+
             return m_Views.First(r => r.FormUID == formUID && r.FormType == formType);
         }       
+
+
 
         public void OpenMenu(string menu)
         {

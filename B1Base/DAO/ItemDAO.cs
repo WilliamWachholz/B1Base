@@ -106,14 +106,28 @@ namespace B1Base.DAO
 
             
             item.PurchaseUnit = itemModel.BuyUnitMsr;
-            item.PurchaseItemsPerUnit = itemModel.NumInBuy;
+            if (itemModel.NumInBuy > 0)
+                item.PurchaseItemsPerUnit = itemModel.NumInBuy;
+            else
+                item.PurchaseItemsPerUnit = 1;
+
             item.PurchasePackagingUnit = itemModel.PurPackMsr;
-            item.PurchaseQtyPerPackUnit = itemModel.PurPackUn;
+
+            if (itemModel.PurPackUn > 0)
+                item.PurchaseQtyPerPackUnit = itemModel.PurPackUn;
+            else
+                item.PurchaseQtyPerPackUnit = 1; 
+
             item.PurchaseUnitLength1 = itemModel.BLength1;
             item.PurchaseUnitWidth1 = itemModel.BWidth1;
             item.PurchaseUnitHeight1 = itemModel.BHeigth1;
             item.PurchaseUnitVolume = itemModel.BVolume1;
-            item.PurchaseVolumeUnit = itemModel.BVolUnit;
+
+            if (itemModel.BVolUnit > 0)
+                item.PurchaseVolumeUnit = itemModel.BVolUnit;
+            else
+                item.PurchaseVolumeUnit = 4;
+
             item.PurchaseUnitWeight1 = itemModel.BWeight1;
             item.PurchaseFactor1 = itemModel.PurFactor1;
             item.PurchaseFactor2 = itemModel.PurFactor2;
@@ -123,9 +137,16 @@ namespace B1Base.DAO
             //item.PriceList. = itemModel.ListNum;
 
 
+            for (int line = 0; line < itemModel.CardCodes.Count; line++)
+            {
+                if (item.PreferredVendors.Count - 1 < line)
+                    item.PreferredVendors.Add();
 
-            //item.PreferredVendors = itemModel.CardCode;
-
+                item.PreferredVendors.SetCurrentLine(line);
+                item.PreferredVendors.BPCode = itemModel.CardCodes[line];
+            }
+            
+            item.Mainsupplier = itemModel.CardCode;
 
             
             

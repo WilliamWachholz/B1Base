@@ -45,6 +45,9 @@ namespace B1Base.Model
             }
         }
 
-        
+        public class NonDB : Attribute
+        {
+
+        }
     }
 }

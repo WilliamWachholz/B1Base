@@ -459,7 +459,7 @@ namespace B1Base.Controller
             {
                 string name = oRs.Fields.Item(i).Name;
                 object value = oRs.Fields.Item(i).Value;
-                var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
                 if (prop == null)
                 {
                     String errMsg = String.Format("Object {0} does not have property {1}", type, name);
@@ -498,104 +498,109 @@ namespace B1Base.Controller
 
             foreach (var prop in props)
             {
-                FieldMetadata fieldMetadata = new FieldMetadata();
-                fieldMetadata.Table = table;
-                fieldMetadata.Field = prop.Name;
+                Model.BaseModel.NonDB nonDB = prop.GetCustomAttribute(typeof(Model.BaseModel.NonDB)) as Model.BaseModel.NonDB;
 
-                if (prop.PropertyType == typeof(Boolean))
+                if (nonDB == null)
                 {
-                    fieldMetadata.FieldType = FieldTypeEnum.Alphanumeric;
-                    fieldMetadata.Size = 1;
-                    fieldMetadata.ValidValues.Add("Y", "Sim");
-                    fieldMetadata.ValidValues.Add("N", "Não");
-                }
-                else if (prop.PropertyType == typeof(String))
-                {
-                    Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+                    FieldMetadata fieldMetadata = new FieldMetadata();
+                    fieldMetadata.Table = table;
+                    fieldMetadata.Field = prop.Name;
 
-                    if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Phone)
-                    {
-                        fieldMetadata.FieldType = FieldTypeEnum.Phone;
-                    }
-                    else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Memo)
-                    {
-                        fieldMetadata.FieldType = FieldTypeEnum.Memo;
-                    }
-                    else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Image)
-                    {
-                        fieldMetadata.FieldType = FieldTypeEnum.Image;
-                    }
-                    else
+                    if (prop.PropertyType == typeof(Boolean))
                     {
                         fieldMetadata.FieldType = FieldTypeEnum.Alphanumeric;
+                        fieldMetadata.Size = 1;
+                        fieldMetadata.ValidValues.Add("Y", "Sim");
+                        fieldMetadata.ValidValues.Add("N", "Não");
+                    }
+                    else if (prop.PropertyType == typeof(String))
+                    {
+                        Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
 
-                        Model.BaseModel.Size size = prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size;
-
-                        if (size != null)
-                            fieldMetadata.Size = size.Value;
+                        if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Phone)
+                        {
+                            fieldMetadata.FieldType = FieldTypeEnum.Phone;
+                        }
+                        else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Memo)
+                        {
+                            fieldMetadata.FieldType = FieldTypeEnum.Memo;
+                        }
+                        else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Image)
+                        {
+                            fieldMetadata.FieldType = FieldTypeEnum.Image;
+                        }
                         else
-                            fieldMetadata.Size = 1;
-                    }
-                }
-                else if (prop.PropertyType == typeof(Int32))
-                {
-                    fieldMetadata.FieldType = FieldTypeEnum.Integer;
-                }
-                else if (prop.PropertyType.IsEnum)
-                {
-                    fieldMetadata.FieldType = FieldTypeEnum.Integer;
+                        {
+                            fieldMetadata.FieldType = FieldTypeEnum.Alphanumeric;
 
-                    var enumValues = Enum.GetValues(prop.PropertyType);
+                            Model.BaseModel.Size size = prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size;
 
-                    foreach (var enumValue in enumValues)
-                    {
-                        fieldMetadata.ValidValues.Add(enumValue.ToString(), Model.EnumOperation.GetEnumDescription(enumValue));
+                            if (size != null)
+                                fieldMetadata.Size = size.Value;
+                            else
+                                fieldMetadata.Size = 1;
+                        }
                     }
+                    else if (prop.PropertyType == typeof(Int32))
+                    {
+                        fieldMetadata.FieldType = FieldTypeEnum.Integer;
+                    }
+                    else if (prop.PropertyType.IsEnum)
+                    {
+                        fieldMetadata.FieldType = FieldTypeEnum.Integer;
+
+                        var enumValues = Enum.GetValues(prop.PropertyType);
+
+                        foreach (var enumValue in enumValues)
+                        {
+                            fieldMetadata.ValidValues.Add(enumValue.ToString(), Model.EnumOperation.GetEnumDescription(enumValue));
+                        }
+                    }
+                    else if (prop.PropertyType == typeof(DateTime))
+                    {
+                        Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+
+                        if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
+                        {
+                            fieldMetadata.FieldType = FieldTypeEnum.Time;
+                        }
+                        else
+                        {
+                            fieldMetadata.FieldType = FieldTypeEnum.Date;
+                        }
+                    }
+                    else if (prop.PropertyType == typeof(Double))
+                    {
+                        Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+
+                        if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Quantity)
+                        {
+                            fieldMetadata.FieldType = FieldTypeEnum.Quantity;
+                        }
+                        else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Percent)
+                        {
+                            fieldMetadata.FieldType = FieldTypeEnum.Percentage;
+                        }
+                        else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Price)
+                        {
+                            fieldMetadata.FieldType = FieldTypeEnum.Price;
+                        }
+                        else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Rate)
+                        {
+                            fieldMetadata.FieldType = FieldTypeEnum.Rate;
+                        }
+                        else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Measurement)
+                        {
+                            fieldMetadata.FieldType = FieldTypeEnum.Measurement;
+                        }
+                        else
+                        {
+                            fieldMetadata.FieldType = FieldTypeEnum.Quantity;
+                        }
+                    }
+
+                    result.Add(fieldMetadata);
                 }
-                else if (prop.PropertyType == typeof(DateTime))
-                {
-                    Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
-
-                    if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
-                    {
-                        fieldMetadata.FieldType = FieldTypeEnum.Time;
-                    }
-                    else
-                    {
-                        fieldMetadata.FieldType = FieldTypeEnum.Date;
-                    }
-                }
-                else if (prop.PropertyType == typeof(Double))
-                {
-                    Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
-
-                    if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Quantity)
-                    {
-                        fieldMetadata.FieldType = FieldTypeEnum.Quantity;
-                    }
-                    else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Percent)
-                    {
-                        fieldMetadata.FieldType = FieldTypeEnum.Percentage;
-                    }
-                    else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Price)
-                    {
-                        fieldMetadata.FieldType = FieldTypeEnum.Price;
-                    }
-                    else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Rate)
-                    {
-                        fieldMetadata.FieldType = FieldTypeEnum.Rate;
-                    }
-                    else if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Measurement)
-                    {
-                        fieldMetadata.FieldType = FieldTypeEnum.Measurement;
-                    }
-                    else
-                    {
-                        fieldMetadata.FieldType = FieldTypeEnum.Quantity;
-                    }
-                }
-
-                result.Add(fieldMetadata);
             }
 
             return result;

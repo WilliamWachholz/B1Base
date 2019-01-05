@@ -35,6 +35,7 @@ namespace B1Base.Model
         public bool PrchseItem { get; set; }
         public bool NoDiscount { get; set; }
         public string CardCode { get; set; }
+        public List<string> CardCodes { get; set; }
         public string SuppCatNum { get; set; }
         public string BuyUnitMsr { get; set; }
         public double NumInBuy { get; set; }
@@ -153,7 +154,8 @@ namespace B1Base.Model
 
         public ItemModel()
         {
-            UserFields = new Dictionary<string, dynamic>();
+            CardCodes = new List<string>();
+            UserFields = new Dictionary<string, dynamic>();            
         }
     }
 }

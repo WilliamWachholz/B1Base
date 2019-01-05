@@ -29,4 +29,3 @@ C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetComboValues.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\UpdateBusinessPartnerAgentCode.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetListField.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetListField.sql
-C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csprojResolveAssemblyReference.cache

@@ -54,6 +54,8 @@ namespace B1Base.View
         public Dictionary<string, int> LastRows { get; private set; }
         public bool Frozen { get; private set; }
 
+        public View.BaseView ParentView { get; set; }
+
         private string m_BrowseTable = string.Empty;
         private string m_BrowseItem = string.Empty;
         
