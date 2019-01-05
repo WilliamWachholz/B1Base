@@ -69,8 +69,31 @@ namespace B1Base.DAO
         private void SetItemFields(SAPbobsCOM.Items item, Model.ItemModel itemModel)
         {
             item.ItemName = itemModel.ItemName;
-            //item.AttachmentEntry = itemModel.AtcEntry;
-            //item.PriceList. = itemModel.ListNum;
+
+            item.SupplierCatalogNo = itemModel.SuppCatNum;
+            
+            if (itemModel.AtcEntry > 0)
+                item.AttachmentEntry = itemModel.AtcEntry;
+
+            if (itemModel.ItmsGrpCod > 0)
+                item.ItemsGroupCode = itemModel.ItmsGrpCod;
+            else
+                item.ItemsGroupCode = 100;
+
+            if (itemModel.FirmCode > 0)
+                item.Manufacturer = itemModel.FirmCode;
+            else
+                item.Manufacturer = -1;
+
+            if (itemModel.NCMCode > 0)
+                item.NCMCode = itemModel.NCMCode;
+            else item.NCMCode = -1;
+
+            
+            item.InventoryItem = itemModel.InvntItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            item.SalesItem = itemModel.SellItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            item.PurchaseItem = itemModel.PrchseItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+
             item.Valid = (itemModel.ValidFor || itemModel.FrozenFor == false) ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
             item.ValidFrom = itemModel.ValidFrom;
             item.ValidTo = itemModel.ValidTo;
@@ -79,26 +102,49 @@ namespace B1Base.DAO
             item.FrozenFrom = itemModel.FrozenFrom;
             item.FrozenTo = itemModel.FrozenTo;
             item.FrozenRemarks = itemModel.FrozenComm;
-            //item.Manufacturer = itemModel.FirmCode;
+
+
+            
+            item.PurchaseUnit = itemModel.BuyUnitMsr;
+            item.PurchaseItemsPerUnit = itemModel.NumInBuy;
+            item.PurchasePackagingUnit = itemModel.PurPackMsr;
+            item.PurchaseQtyPerPackUnit = itemModel.PurPackUn;
+            item.PurchaseUnitLength1 = itemModel.BLength1;
+            item.PurchaseUnitWidth1 = itemModel.BWidth1;
+            item.PurchaseUnitHeight1 = itemModel.BHeigth1;
+            item.PurchaseUnitVolume = itemModel.BVolume1;
+            item.PurchaseVolumeUnit = itemModel.BVolUnit;
+            item.PurchaseUnitWeight1 = itemModel.BWeight1;
+            item.PurchaseFactor1 = itemModel.PurFactor1;
+            item.PurchaseFactor2 = itemModel.PurFactor2;
+            item.PurchaseFactor3 = itemModel.PurFactor3;
+            item.PurchaseFactor4 = itemModel.PurFactor4;
+
+            //item.PriceList. = itemModel.ListNum;
+
+
+
+            //item.PreferredVendors = itemModel.CardCode;
+
+
+            
+            
             //item.UoMGroupEntry = itemModel.UgpEntry;
             //item.ShipType = itemModel.ShipType;
             //item.IssuePrimarilyBy = (IssuePrimarilyByEnum) itemModel.IssuePriBy;
             //item.SWW = itemModel.SWW;
             //item.MaterialType = (BoMaterialTypes)itemModel.MatType;
-            if (itemModel.NCMCode > 0)
-                item.NCMCode = itemModel.NCMCode;
+
+
+            //item.NoDiscounts = itemModel.NoDiscount ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+
+
+
             if (itemModel.DNFEntry > 0)
                 item.DNFEntry = itemModel.DNFEntry;
-            if (itemModel.ItmsGrpCod > 0)
-                item.ItemsGroupCode = itemModel.ItmsGrpCod;
             
-            //item.InventoryItem = itemModel.InvntItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
-            //item.SalesItem = itemModel.SellItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
-            //item.PurchaseItem = itemModel.PrchseItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
-            //item.NoDiscounts = itemModel.NoDiscount ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
-            //item.PreferredVendors = itemModel.CardCode;
-            item.SupplierCatalogNo = itemModel.SuppCatNum;
-            //item.UnitOfMeasurements. = itemModel.BuyUnitMsr;
+
+            
             //item.GLMethod = itemModel.GLMethod == "" ? BoGLMethods.glm_WH : BoGLMethods.glm_ItemClass;
             //item.InventoryUOM = itemModel.InvntryUom;
             //item.InventoryWeight1 = itemModel.IWeight1;
