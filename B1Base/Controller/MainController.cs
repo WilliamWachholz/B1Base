@@ -563,15 +563,19 @@ namespace B1Base.Controller
                     {
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
-                            if (chooseFromListEvent.SelectedObjects.Columns.Count > 9)
+                            if (chooseFromListEvent.SelectedObjects.Columns.Count > 33)
                             {
                                 if (pVal.ColUID != string.Empty)
                                 {
                                     Dictionary<string, string> values = new Dictionary<string, string>();
 
-                                    for (int value = 0; value < 9; value++)
+                                    for (int value = 0; value < 33; value++)
                                     {
-                                        values.Add(chooseFromListEvent.SelectedObjects.Columns.Item(value).Name, chooseFromListEvent.SelectedObjects.GetValue(value, 0).ToString());
+                                        try
+                                        {
+                                            values.Add(chooseFromListEvent.SelectedObjects.Columns.Item(value).Name, chooseFromListEvent.SelectedObjects.GetValue(value, 0).ToString());
+                                        }
+                                        catch { }
                                     }
 
                                     m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColChooseFrom(pVal.ItemUID, 

@@ -89,7 +89,11 @@ namespace B1Base.DAO
                 item.NCMCode = itemModel.NCMCode;
             else item.NCMCode = -1;
 
+            //if (itemModel.DNFEntry > 0)
+            //    item.DNFEntry = itemModel.DNFEntry;
             
+
+
             item.InventoryItem = itemModel.InvntItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
             item.SalesItem = itemModel.SellItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
             item.PurchaseItem = itemModel.PrchseItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
@@ -149,41 +153,89 @@ namespace B1Base.DAO
             item.Mainsupplier = itemModel.CardCode;
 
             
-            
-            //item.UoMGroupEntry = itemModel.UgpEntry;
-            //item.ShipType = itemModel.ShipType;
-            //item.IssuePrimarilyBy = (IssuePrimarilyByEnum) itemModel.IssuePriBy;
-            //item.SWW = itemModel.SWW;
+
+            //item.IssuePrimarilyBy = (IssuePrimarilyByEnum)itemModel.IssuePriBy;
+
             //item.MaterialType = (BoMaterialTypes)itemModel.MatType;
 
+            
+            //switch (itemModel.GLMethod)
+            //{
+            //    case "W":
+            //        item.GLMethod = BoGLMethods.glm_WH;
+            //        break;
+            //    case "G":
+            //        item.GLMethod = BoGLMethods.glm_ItemClass;
+            //        break;
+            //    case "L":
+            //        item.GLMethod = BoGLMethods.glm_ItemLevel;
+            //        break;
+            //}
 
+            //switch (itemModel.EvalSystem)
+            //{ 
+            //    case "F":
+            //        item.CostAccountingMethod = BoInventorySystem.bis_FIFO;
+            //        break;
+            //    case "A":
+            //        item.CostAccountingMethod = BoInventorySystem.bis_MovingAverage;
+            //        break;
+            //    case "S":
+            //        item.CostAccountingMethod = BoInventorySystem.bis_Standard;
+            //        break;
+            //}
+
+            //switch (itemModel.PlaningSys)
+            //{
+            //    case "N":
+            //        item.PlanningSystem = BoPlanningSystem.bop_None;
+            //        break;
+            //    case "M":
+            //        item.PlanningSystem = BoPlanningSystem.bop_MRP;
+            //        break;
+            //}
+
+            //switch (itemModel.IssueMthd)
+            //{ 
+            //    case "B":
+            //        item.IssueMethod = BoIssueMethod.im_Backflush;
+            //        break;
+            //    case "M":
+            //        item.IssueMethod = BoIssueMethod.im_Manual;
+            //        break;
+            //}
+
+
+
+            //switch (itemModel.PrcrmntMtd)
+            //{
+            //    case "A":
+            //        item.ProcurementMethod = BoProcurementMethod.bom_Buy;
+            //        break;
+            //    case "R":
+            //        item.ProcurementMethod = BoManageMethod.;
+            //        break;
+            //}
+
+
+
+            //item.UoMGroupEntry = itemModel.UgpEntry;
+            //item.ShipType = itemModel.ShipType;
             //item.NoDiscounts = itemModel.NoDiscount ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
-
-
-
-            if (itemModel.DNFEntry > 0)
-                item.DNFEntry = itemModel.DNFEntry;
-            
-
-            
-            //item.GLMethod = itemModel.GLMethod == "" ? BoGLMethods.glm_WH : BoGLMethods.glm_ItemClass;
+            //item.SWW = itemModel.SWW;
             //item.InventoryUOM = itemModel.InvntryUom;
-            //item.InventoryWeight1 = itemModel.IWeight1;
-            //item.CostAccountingMethod = itemModel.EvalSystem == "" ? BoInventorySystem.bis_FIFO : BoInventorySystem.bis_Standard;
+            //item.InventoryWeight1 = itemModel.IWeight1;            
             //item.AvgStdPrice = itemModel.AvgPrice;
             //item.ManageStockByWarehouse = itemModel.ByWh ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
             //item.DesiredInventory = itemModel.ReorderQty;
             //item.MinInventory = itemModel.MinLevel;
             //item.MaxInventory = itemModel.MaxLevel;
-            //item.DefaultWarehouse = itemModel.DfltWH;
-            //item.PlanningSystem = itemModel.PlaningSys == "" ? BoPlanningSystem.bop_MRP : BoPlanningSystem.bop_None;
-            //item.ProcurementMethod = itemModel.PrcrmntMtd == "" ? BoProcurementMethod.bom_Buy : BoProcurementMethod.bom_Make;
+            //item.DefaultWarehouse = itemModel.DfltWH;            
             //item.OrderIntervals = itemModel.OrdrIntrvl.ToString();
             //item.OrderMultiple = itemModel.OrdrMulti;
             //item.MinOrderQuantity = itemModel.MinOrdrQty;
             //item.LeadTime = itemModel.LeadTime;
-            //item.ToleranceDays = itemModel.ToleranDay;
-            //item.IssueMethod = itemModel.IssueMthd == "" ? BoIssueMethod.im_Backflush : BoIssueMethod.im_Manual;
+            //item.ToleranceDays = itemModel.ToleranDay;            
             //item.Picture = itemModel.PicturName;
             //item.User_Text = itemModel.UserText;
 

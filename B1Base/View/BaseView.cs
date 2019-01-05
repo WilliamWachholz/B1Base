@@ -265,6 +265,11 @@ namespace B1Base.View
             LoadCombo(combo, "GetComboValues", table, codeField, nameField);
         }
 
+        protected void LoadCombo(string table, string codeField, string nameField, Matrix matrix, string column)
+        {
+            LoadCombo(matrix, column, "GetComboValues", table, codeField, nameField);
+        }
+
         protected void LoadCombo<T>(ComboBox combo)
         {
             var type = typeof(T);
@@ -870,6 +875,12 @@ namespace B1Base.View
                         edit.String = value.ToString();
                     }
                 }
+                else if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_COMBO_BOX)
+                {
+                    ComboBox combo = (ComboBox)matrix.Columns.Item(column).Cells.Item(row).Specific;
+
+                    combo.Select(value.ToString(), BoSearchKey.psk_ByValue);
+                }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
             {
@@ -1221,6 +1232,24 @@ namespace B1Base.View
                 }
 
                 ColChooseFromEvents[key](row, values);
+
+                if (MatrixCanAddEvents.ContainsKey(key) && !Frozen)
+                {
+                    if (row == matrixItem.RowCount)
+                    {
+                        if (MatrixCanAddEvents[key](row))
+                        {
+                            matrixItem.AddRow();
+
+                            try
+                            {
+                                if (matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
+                                    ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
+                            }
+                            catch { }
+                        }
+                    }
+                }
             }
         }
 
