@@ -137,10 +137,54 @@ namespace B1Base.DAO
             else
                 item.DNFEntry = -1;
 
+            if (itemModel.DfltWH != string.Empty)
+                item.DefaultWarehouse = itemModel.DfltWH;
+
+            if (itemModel.UgpEntry > 0)
+                item.UoMGroupEntry = itemModel.UgpEntry;
+            else
+                item.UoMGroupEntry = -1;
+
+
+            //item.ShipType = itemModel.ShipType;
+            //item.SWW = itemModel.SWW;
+            //item.InventoryUOM = itemModel.InvntryUom;
+            //item.InventoryWeight1 = itemModel.IWeight1;            
+            //item.AvgStdPrice = itemModel.AvgPrice;            
+            //item.DesiredInventory = itemModel.ReorderQty;
+            //item.MinInventory = itemModel.MinLevel;
+            //item.MaxInventory = itemModel.MaxLevel;                  
+            //item.OrderIntervals = itemModel.OrdrIntrvl.ToString();
+            //item.OrderMultiple = itemModel.OrdrMulti;
+            //item.MinOrderQuantity = itemModel.MinOrdrQty;
+            //item.LeadTime = itemModel.LeadTime;
+            //item.ToleranceDays = itemModel.ToleranDay;            
+            //item.Picture = itemModel.PicturName;
+            //item.User_Text = itemModel.UserText;
+
+
+            item.IssuePrimarilyBy = (IssuePrimarilyByEnum)itemModel.IssuePriBy;
+            item.MaterialType = (BoMaterialTypes)itemModel.MatType;
+
+            item.NoDiscounts = itemModel.NoDiscount ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            item.ManageStockByWarehouse = itemModel.ByWh ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+
             item.InventoryItem = itemModel.InvntItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
             item.SalesItem = itemModel.SellItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
             item.PurchaseItem = itemModel.PrchseItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
 
+            if (itemModel.CardCode != string.Empty)
+                item.Mainsupplier = itemModel.CardCode;
+
+            for (int line = 0; line < itemModel.CardCodes.Count; line++)
+            {
+                if (item.PreferredVendors.Count - 1 < line)
+                    item.PreferredVendors.Add();
+
+                item.PreferredVendors.SetCurrentLine(line);
+                item.PreferredVendors.BPCode = itemModel.CardCodes[line];
+            }
+            
             item.Valid = (itemModel.ValidFor || itemModel.FrozenFor == false) ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
             item.ValidFrom = itemModel.ValidFrom;
             item.ValidTo = itemModel.ValidTo;
@@ -240,73 +284,52 @@ namespace B1Base.DAO
             else
                 item.SalesFactor4 = 4;
 
-            for (int line = 0; line < itemModel.CardCodes.Count; line++)
+
+            switch (itemModel.GLMethod)
             {
-                if (item.PreferredVendors.Count - 1 < line)
-                    item.PreferredVendors.Add();
-
-                item.PreferredVendors.SetCurrentLine(line);
-                item.PreferredVendors.BPCode = itemModel.CardCodes[line];
+                case "W":
+                    item.GLMethod = BoGLMethods.glm_WH;
+                    break;
+                case "G":
+                    item.GLMethod = BoGLMethods.glm_ItemClass;
+                    break;
+                case "L":
+                    item.GLMethod = BoGLMethods.glm_ItemLevel;
+                    break;
             }
-            
-            if (itemModel.CardCode != string.Empty)
-                item.Mainsupplier = itemModel.CardCode;
 
-            
-            item.NoDiscounts = itemModel.NoDiscount ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
-            //item.ManageStockByWarehouse = itemModel.ByWh ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            switch (itemModel.EvalSystem)
+            {
+                case "F":
+                    item.CostAccountingMethod = BoInventorySystem.bis_FIFO;
+                    break;
+                case "A":
+                    item.CostAccountingMethod = BoInventorySystem.bis_MovingAverage;
+                    break;
+                case "S":
+                    item.CostAccountingMethod = BoInventorySystem.bis_Standard;
+                    break;
+            }
 
-            //item.IssuePrimarilyBy = (IssuePrimarilyByEnum)itemModel.IssuePriBy;
+            switch (itemModel.PlaningSys)
+            {
+                case "N":
+                    item.PlanningSystem = BoPlanningSystem.bop_None;
+                    break;
+                case "M":
+                    item.PlanningSystem = BoPlanningSystem.bop_MRP;
+                    break;
+            }
 
-            //item.MaterialType = (BoMaterialTypes)itemModel.MatType;
-
-            
-            //switch (itemModel.GLMethod)
-            //{
-            //    case "W":
-            //        item.GLMethod = BoGLMethods.glm_WH;
-            //        break;
-            //    case "G":
-            //        item.GLMethod = BoGLMethods.glm_ItemClass;
-            //        break;
-            //    case "L":
-            //        item.GLMethod = BoGLMethods.glm_ItemLevel;
-            //        break;
-            //}
-
-            //switch (itemModel.EvalSystem)
-            //{ 
-            //    case "F":
-            //        item.CostAccountingMethod = BoInventorySystem.bis_FIFO;
-            //        break;
-            //    case "A":
-            //        item.CostAccountingMethod = BoInventorySystem.bis_MovingAverage;
-            //        break;
-            //    case "S":
-            //        item.CostAccountingMethod = BoInventorySystem.bis_Standard;
-            //        break;
-            //}
-
-            //switch (itemModel.PlaningSys)
-            //{
-            //    case "N":
-            //        item.PlanningSystem = BoPlanningSystem.bop_None;
-            //        break;
-            //    case "M":
-            //        item.PlanningSystem = BoPlanningSystem.bop_MRP;
-            //        break;
-            //}
-
-            //switch (itemModel.IssueMthd)
-            //{ 
-            //    case "B":
-            //        item.IssueMethod = BoIssueMethod.im_Backflush;
-            //        break;
-            //    case "M":
-            //        item.IssueMethod = BoIssueMethod.im_Manual;
-            //        break;
-            //}
-
+            switch (itemModel.IssueMthd)
+            {
+                case "B":
+                    item.IssueMethod = BoIssueMethod.im_Backflush;
+                    break;
+                case "M":
+                    item.IssueMethod = BoIssueMethod.im_Manual;
+                    break;
+            }
 
 
             //switch (itemModel.PrcrmntMtd)
@@ -319,92 +342,71 @@ namespace B1Base.DAO
             //        break;
             //}
 
-            if (itemModel.DfltWH != string.Empty)
-                item.DefaultWarehouse = itemModel.DfltWH;      
 
-
-            //item.UoMGroupEntry = itemModel.UgpEntry;
-            //item.ShipType = itemModel.ShipType;
-            
-            //item.SWW = itemModel.SWW;
-            //item.InventoryUOM = itemModel.InvntryUom;
-            //item.InventoryWeight1 = itemModel.IWeight1;            
-            //item.AvgStdPrice = itemModel.AvgPrice;            
-            //item.DesiredInventory = itemModel.ReorderQty;
-            //item.MinInventory = itemModel.MinLevel;
-            //item.MaxInventory = itemModel.MaxLevel;                  
-            //item.OrderIntervals = itemModel.OrdrIntrvl.ToString();
-            //item.OrderMultiple = itemModel.OrdrMulti;
-            //item.MinOrderQuantity = itemModel.MinOrdrQty;
-            //item.LeadTime = itemModel.LeadTime;
-            //item.ToleranceDays = itemModel.ToleranDay;            
-            //item.Picture = itemModel.PicturName;
-            //item.User_Text = itemModel.UserText;
-
-            //item.set_Properties(1, itemModel.QryGroup1 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(2, itemModel.QryGroup2 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(3, itemModel.QryGroup3 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(4, itemModel.QryGroup4 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(5, itemModel.QryGroup5 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(6, itemModel.QryGroup6 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(7, itemModel.QryGroup7 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(8, itemModel.QryGroup8 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(9, itemModel.QryGroup9 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(10, itemModel.QryGroup10 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(11, itemModel.QryGroup11 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(12, itemModel.QryGroup12 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(13, itemModel.QryGroup13 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(14, itemModel.QryGroup14 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(15, itemModel.QryGroup15 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(16, itemModel.QryGroup16 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(17, itemModel.QryGroup17 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(18, itemModel.QryGroup18 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(19, itemModel.QryGroup19 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(20, itemModel.QryGroup20 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(21, itemModel.QryGroup21 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(22, itemModel.QryGroup2 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(23, itemModel.QryGroup23 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(24, itemModel.QryGroup24 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(25, itemModel.QryGroup25 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(26, itemModel.QryGroup26 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(27, itemModel.QryGroup27 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(28, itemModel.QryGroup28 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(29, itemModel.QryGroup29 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(30, itemModel.QryGroup30 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(31, itemModel.QryGroup31 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(32, itemModel.QryGroup32 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(33, itemModel.QryGroup33 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(34, itemModel.QryGroup34 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(35, itemModel.QryGroup35 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(36, itemModel.QryGroup36 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(37, itemModel.QryGroup37 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(38, itemModel.QryGroup38 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(39, itemModel.QryGroup39 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(40, itemModel.QryGroup40 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(41, itemModel.QryGroup41 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(42, itemModel.QryGroup42 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(43, itemModel.QryGroup43 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(44, itemModel.QryGroup44 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(45, itemModel.QryGroup45 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(46, itemModel.QryGroup46 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(47, itemModel.QryGroup47 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(48, itemModel.QryGroup48 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(49, itemModel.QryGroup49 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(50, itemModel.QryGroup50 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(51, itemModel.QryGroup51 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(52, itemModel.QryGroup52 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(53, itemModel.QryGroup53 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(54, itemModel.QryGroup54 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(55, itemModel.QryGroup55 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(56, itemModel.QryGroup56 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(57, itemModel.QryGroup57 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(58, itemModel.QryGroup58 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(59, itemModel.QryGroup59 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(60, itemModel.QryGroup60 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(61, itemModel.QryGroup61 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(62, itemModel.QryGroup62 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(63, itemModel.QryGroup63 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
-            //item.set_Properties(64, itemModel.QryGroup64 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(1, itemModel.QryGroup1 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(2, itemModel.QryGroup2 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(3, itemModel.QryGroup3 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(4, itemModel.QryGroup4 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(5, itemModel.QryGroup5 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(6, itemModel.QryGroup6 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(7, itemModel.QryGroup7 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(8, itemModel.QryGroup8 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(9, itemModel.QryGroup9 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(10, itemModel.QryGroup10 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(11, itemModel.QryGroup11 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(12, itemModel.QryGroup12 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(13, itemModel.QryGroup13 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(14, itemModel.QryGroup14 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(15, itemModel.QryGroup15 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(16, itemModel.QryGroup16 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(17, itemModel.QryGroup17 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(18, itemModel.QryGroup18 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(19, itemModel.QryGroup19 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(20, itemModel.QryGroup20 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(21, itemModel.QryGroup21 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(22, itemModel.QryGroup2 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(23, itemModel.QryGroup23 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(24, itemModel.QryGroup24 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(25, itemModel.QryGroup25 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(26, itemModel.QryGroup26 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(27, itemModel.QryGroup27 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(28, itemModel.QryGroup28 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(29, itemModel.QryGroup29 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(30, itemModel.QryGroup30 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(31, itemModel.QryGroup31 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(32, itemModel.QryGroup32 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(33, itemModel.QryGroup33 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(34, itemModel.QryGroup34 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(35, itemModel.QryGroup35 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(36, itemModel.QryGroup36 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(37, itemModel.QryGroup37 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(38, itemModel.QryGroup38 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(39, itemModel.QryGroup39 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(40, itemModel.QryGroup40 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(41, itemModel.QryGroup41 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(42, itemModel.QryGroup42 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(43, itemModel.QryGroup43 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(44, itemModel.QryGroup44 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(45, itemModel.QryGroup45 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(46, itemModel.QryGroup46 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(47, itemModel.QryGroup47 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(48, itemModel.QryGroup48 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(49, itemModel.QryGroup49 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(50, itemModel.QryGroup50 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(51, itemModel.QryGroup51 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(52, itemModel.QryGroup52 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(53, itemModel.QryGroup53 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(54, itemModel.QryGroup54 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(55, itemModel.QryGroup55 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(56, itemModel.QryGroup56 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(57, itemModel.QryGroup57 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(58, itemModel.QryGroup58 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(59, itemModel.QryGroup59 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(60, itemModel.QryGroup60 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(61, itemModel.QryGroup61 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(62, itemModel.QryGroup62 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(63, itemModel.QryGroup63 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
+            item.set_Properties(64, itemModel.QryGroup64 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
 
             //item.UserFields.Fields.Item("U_B1SYS_SPEDTipi").Value = itemModel.B1SYS_SPEDTipi;
 
