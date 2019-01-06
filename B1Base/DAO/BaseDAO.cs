@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Reflection;
 using System.Data;
 using SAPbobsCOM;
 
@@ -34,17 +35,22 @@ namespace B1Base.DAO
                 {
                     foreach (var prop in props)
                     {
-                        if (prop.PropertyType == typeof(Boolean))
+                        Model.BaseModel.NonDB nonDB = prop.GetCustomAttribute(typeof(Model.BaseModel.NonDB)) as Model.BaseModel.NonDB;
+
+                        if (nonDB == null)
                         {
-                            prop.SetValue(model, userTable.UserFields.Fields.Item("U_" + prop.Name).Value.ToString().Equals("Y"), null);
-                        }
-                        else if (prop.PropertyType.IsEnum)
-                        {
-                            prop.SetValue(model, Convert.ChangeType(userTable.UserFields.Fields.Item("U_" + prop.Name).Value, Enum.GetUnderlyingType(prop.PropertyType)), null);
-                        }
-                        else
-                        {
-                            prop.SetValue(model, userTable.UserFields.Fields.Item("U_" + prop.Name).Value);
+                            if (prop.PropertyType == typeof(Boolean))
+                            {
+                                prop.SetValue(model, userTable.UserFields.Fields.Item("U_" + prop.Name).Value.ToString().Equals("Y"), null);
+                            }
+                            else if (prop.PropertyType.IsEnum)
+                            {
+                                prop.SetValue(model, Convert.ChangeType(userTable.UserFields.Fields.Item("U_" + prop.Name).Value, Enum.GetUnderlyingType(prop.PropertyType)), null);
+                            }
+                            else
+                            {
+                                prop.SetValue(model, userTable.UserFields.Fields.Item("U_" + prop.Name).Value);
+                            }
                         }
                     }
 
@@ -54,9 +60,22 @@ namespace B1Base.DAO
                 {
                     foreach (var prop in props)
                     {
-                        if (prop.PropertyType == typeof(String))
+                        Model.BaseModel.NonDB nonDB = prop.GetCustomAttribute(typeof(Model.BaseModel.NonDB)) as Model.BaseModel.NonDB;
+
+                        if (nonDB == null)
                         {
-                            prop.SetValue(model, string.Empty);
+                            if (prop.PropertyType == typeof(Boolean))
+                            {
+                                prop.SetValue(model, userTable.UserFields.Fields.Item("U_" + prop.Name).Value.ToString().Equals("Y"), null);
+                            }
+                            else if (prop.PropertyType.IsEnum)
+                            {
+                                prop.SetValue(model, Convert.ChangeType(userTable.UserFields.Fields.Item("U_" + prop.Name).Value, Enum.GetUnderlyingType(prop.PropertyType)), null);
+                            }
+                            else
+                            {
+                                prop.SetValue(model, userTable.UserFields.Fields.Item("U_" + prop.Name).Value);
+                            }
                         }
                     }
 
@@ -83,17 +102,22 @@ namespace B1Base.DAO
                 {
                     foreach (var prop in props)
                     {
-                        if (prop.PropertyType == typeof(Boolean))
+                        Model.BaseModel.NonDB nonDB = prop.GetCustomAttribute(typeof(Model.BaseModel.NonDB)) as Model.BaseModel.NonDB;
+
+                        if (nonDB == null)
                         {
-                            userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (bool)prop.GetValue(model) ? "Y" : "N";
-                        }
-                        else if (prop.PropertyType.IsEnum)
-                        {
-                            userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (int)prop.GetValue(model);
-                        }
-                        else
-                        {
-                            userTable.UserFields.Fields.Item("U_" + prop.Name).Value = prop.GetValue(model);
+                            if (prop.PropertyType == typeof(Boolean))
+                            {
+                                userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (bool)prop.GetValue(model) ? "Y" : "N";
+                            }
+                            else if (prop.PropertyType.IsEnum)
+                            {
+                                userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (int)prop.GetValue(model);
+                            }
+                            else
+                            {
+                                userTable.UserFields.Fields.Item("U_" + prop.Name).Value = prop.GetValue(model);
+                            }
                         }
                     }
 
@@ -108,17 +132,22 @@ namespace B1Base.DAO
 
                     foreach (var prop in props)
                     {
-                        if (prop.PropertyType == typeof(Boolean))
+                        Model.BaseModel.NonDB nonDB = prop.GetCustomAttribute(typeof(Model.BaseModel.NonDB)) as Model.BaseModel.NonDB;
+
+                        if (nonDB == null)
                         {
-                            userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (bool)prop.GetValue(model) ? "Y" : "N";
-                        }
-                        else if (prop.PropertyType.IsEnum)
-                        {
-                            userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (int)prop.GetValue(model);
-                        }
-                        else
-                        {
-                            userTable.UserFields.Fields.Item("U_" + prop.Name).Value = prop.GetValue(model);
+                            if (prop.PropertyType == typeof(Boolean))
+                            {
+                                userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (bool)prop.GetValue(model) ? "Y" : "N";
+                            }
+                            else if (prop.PropertyType.IsEnum)
+                            {
+                                userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (int)prop.GetValue(model);
+                            }
+                            else
+                            {
+                                userTable.UserFields.Fields.Item("U_" + prop.Name).Value = prop.GetValue(model);
+                            }
                         }
                     }
 

@@ -141,12 +141,12 @@ namespace B1Base.Controller
             return OpenView(unique, formType, null);
         }
 
-        public View.BaseView OpenView(string formType, View.BaseView parentView)
+        public View.BaseView OpenView(string formType, View.BaseView parentView, bool wait = false)
         {
-            return OpenView(false, formType, parentView);
+            return OpenView(false, formType, parentView, wait);
         }
 
-        public View.BaseView OpenView(bool unique, string formType, View.BaseView parentView)
+        public View.BaseView OpenView(bool unique, string formType, View.BaseView parentView, bool wait = false)
         {
             bool notExists = false;
 
@@ -200,6 +200,9 @@ namespace B1Base.Controller
 
                 Controller.ConnectionController.Instance.Application.LoadBatchActions(ref xml);
             }
+
+            if (wait)
+                System.Threading.Thread.Sleep(1000);
 
             m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ParentView = parentView;
 
