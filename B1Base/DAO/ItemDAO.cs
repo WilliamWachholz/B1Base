@@ -253,7 +253,7 @@ namespace B1Base.DAO
                 item.Mainsupplier = itemModel.CardCode;
 
             
-            //item.NoDiscounts = itemModel.NoDiscount ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            item.NoDiscounts = itemModel.NoDiscount ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
             //item.ManageStockByWarehouse = itemModel.ByWh ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
 
             //item.IssuePrimarilyBy = (IssuePrimarilyByEnum)itemModel.IssuePriBy;
@@ -319,6 +319,8 @@ namespace B1Base.DAO
             //        break;
             //}
 
+            if (itemModel.DfltWH != string.Empty)
+                item.DefaultWarehouse = itemModel.DfltWH;      
 
 
             //item.UoMGroupEntry = itemModel.UgpEntry;
@@ -330,8 +332,7 @@ namespace B1Base.DAO
             //item.AvgStdPrice = itemModel.AvgPrice;            
             //item.DesiredInventory = itemModel.ReorderQty;
             //item.MinInventory = itemModel.MinLevel;
-            //item.MaxInventory = itemModel.MaxLevel;
-            //item.DefaultWarehouse = itemModel.DfltWH;            
+            //item.MaxInventory = itemModel.MaxLevel;                  
             //item.OrderIntervals = itemModel.OrdrIntrvl.ToString();
             //item.OrderMultiple = itemModel.OrdrMulti;
             //item.MinOrderQuantity = itemModel.MinOrdrQty;
