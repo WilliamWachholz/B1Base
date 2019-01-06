@@ -33,6 +33,14 @@ namespace B1Base.Controller
 
         public bool Desenv { get; private set; }
 
+        public int User
+        {
+            get
+            {
+                return Company.UserSignature;
+            }
+        }
+
         public void Initialize() 
         { 
             try

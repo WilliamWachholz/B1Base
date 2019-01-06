@@ -1080,6 +1080,8 @@ namespace B1Base.View
 
         public virtual void DeleteFormData() { }
 
+        public virtual bool ValidateFormData(out string msg) { msg = string.Empty; return true; }
+
         /// <summary>
         /// Em caso de formulário customizado, chamar base.MenuInsert() para realizar as operações necessárias no campo de browse
         /// </summary>
@@ -1152,11 +1154,20 @@ namespace B1Base.View
         {
             if (SAPForm.Mode == BoFormMode.fm_ADD_MODE)
             {
-                AddFormData();
+                string msg;
 
-                SAPForm.Mode = BoFormMode.fm_OK_MODE;
+                if (ValidateFormData(out msg))
+                {
+                    AddFormData();
 
-                SAPForm.EnableMenu("1282", true);
+                    SAPForm.Mode = BoFormMode.fm_OK_MODE;
+
+                    SAPForm.EnableMenu("1282", true);
+                }
+                else
+                {
+                    AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);         
+                }
             }
             else if (SAPForm.Mode == BoFormMode.fm_UPDATE_MODE)
             {
