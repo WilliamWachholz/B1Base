@@ -74,10 +74,14 @@ namespace B1Base.DAO
                     {
                         int line = 0;
 
-                        for (line = item.WhsInfo.Count; line >= 0; line--)
+                        for (line = item.WhsInfo.Count - 1; line >= 0; line--)
                         {
+                            item.WhsInfo.SetCurrentLine(line);
+
                             item.WhsInfo.Delete();
                         }
+
+                        line = 0;
 
                         foreach (Model.ItemWarehouseModel itemWarehouseModel in itemWarehouseList)
                         {
@@ -92,6 +96,8 @@ namespace B1Base.DAO
                         }
 
                         item.Update();
+
+                        Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
                     }
                 }
                 finally
@@ -246,7 +252,7 @@ namespace B1Base.DAO
             if (itemModel.CardCode != string.Empty)
                 item.Mainsupplier = itemModel.CardCode;
 
-
+            
             //item.NoDiscounts = itemModel.NoDiscount ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
             //item.ManageStockByWarehouse = itemModel.ByWh ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
 
