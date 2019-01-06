@@ -63,7 +63,20 @@ namespace B1Base.DAO
 
         public void Save(List<Model.ItemWarehouseModel> itemWarehouseList)
         {
+            if (itemWarehouseList.Count() > 0)
+            {
+                string itemCode = itemWarehouseList.First().ItemCode;
 
+                Items item = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
+                try
+                {
+                    if (item.GetByKey(itemCode))
+                    {
+
+                        item.Update();
+                    }
+                }
+            }
         }
 
         private void SetItemFields(SAPbobsCOM.Items item, Model.ItemModel itemModel)
@@ -133,10 +146,77 @@ namespace B1Base.DAO
                 item.PurchaseVolumeUnit = 4;
 
             item.PurchaseUnitWeight1 = itemModel.BWeight1;
-            item.PurchaseFactor1 = itemModel.PurFactor1;
-            item.PurchaseFactor2 = itemModel.PurFactor2;
-            item.PurchaseFactor3 = itemModel.PurFactor3;
-            item.PurchaseFactor4 = itemModel.PurFactor4;
+
+            if (itemModel.PurFactor1 > 0)
+                item.PurchaseFactor1 = itemModel.PurFactor1;
+            else
+                item.PurchaseFactor1 = 1;
+
+            if (itemModel.PurFactor2 > 0)
+                item.PurchaseFactor2 = itemModel.PurFactor2;
+            else
+                item.PurchaseFactor2 = 2;
+
+            if (itemModel.PurFactor3 > 0)
+                item.PurchaseFactor3 = itemModel.PurFactor3;
+            else
+                item.PurchaseFactor3 = 3;
+
+            if (itemModel.PurFactor4 > 0)
+                item.PurchaseFactor4 = itemModel.PurFactor4;
+            else
+                item.PurchaseFactor4 = 4;
+
+            item.SalesUnit = itemModel.SalUnitMsr;
+            if (itemModel.NumInSale > 0)
+                item.SalesItemsPerUnit = itemModel.NumInSale;
+            else
+                item.SalesItemsPerUnit = 1;
+
+            item.SalesPackagingUnit = itemModel.PurPackMsr;
+
+            if (itemModel.PurPackUn > 0)
+                item.SalesQtyPerPackUnit = itemModel.PurPackUn;
+            else
+                item.SalesQtyPerPackUnit = 1;
+
+            item.SalesUnitLength1 = itemModel.SLength1;
+            item.SalesUnitWidth1 = itemModel.SWidth1;
+            item.SalesUnitHeight1 = itemModel.SHeigth1;
+            item.SalesUnitVolume = itemModel.SVolume1;
+
+            if (itemModel.SVolUnit > 0)
+                item.SalesVolumeUnit = itemModel.SVolUnit;
+            else
+                item.SalesVolumeUnit = 4;
+
+            item.SalesUnitWeight1 = itemModel.SWeight1;
+
+            if (itemModel.SalFactor1 > 0)
+                item.SalesFactor1 = itemModel.SalFactor1;
+            else
+                item.SalesFactor1 = 1;
+
+            if (itemModel.SalFactor2 > 0)
+                item.SalesFactor2 = itemModel.SalFactor2;
+            else
+                item.SalesFactor2 = 2;
+
+            if (itemModel.SalFactor3 > 0)
+                item.SalesFactor3 = itemModel.SalFactor3;
+            else
+                item.SalesFactor3 = 3;
+
+            if (itemModel.SalFactor4 > 0)
+                item.SalesFactor4 = itemModel.SalFactor4;
+            else
+                item.SalesFactor4 = 4;
+
+
+
+
+
+
 
             //item.PriceList. = itemModel.ListNum;
 
