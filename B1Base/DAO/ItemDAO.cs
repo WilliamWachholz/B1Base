@@ -114,9 +114,9 @@ namespace B1Base.DAO
             item.ItemName = itemModel.ItemName;
 
             item.SupplierCatalogNo = itemModel.SuppCatNum;
-            
-            if (itemModel.AtcEntry > 0)
-                item.AttachmentEntry = itemModel.AtcEntry;
+
+            if (itemModel.DfltWH != string.Empty)
+                item.DefaultWarehouse = itemModel.DfltWH;
 
             if (itemModel.ItmsGrpCod > 0)
                 item.ItemsGroupCode = itemModel.ItmsGrpCod;
@@ -137,31 +137,39 @@ namespace B1Base.DAO
             else
                 item.DNFEntry = -1;
 
-            if (itemModel.DfltWH != string.Empty)
-                item.DefaultWarehouse = itemModel.DfltWH;
-
             if (itemModel.UgpEntry > 0)
                 item.UoMGroupEntry = itemModel.UgpEntry;
             else
                 item.UoMGroupEntry = -1;
 
+            if (itemModel.ShipType > 0)
+                item.ShipType = itemModel.ShipType;
 
-            //item.ShipType = itemModel.ShipType;
-            //item.SWW = itemModel.SWW;
-            //item.InventoryUOM = itemModel.InvntryUom;
-            //item.InventoryWeight1 = itemModel.IWeight1;            
-            //item.AvgStdPrice = itemModel.AvgPrice;            
-            //item.DesiredInventory = itemModel.ReorderQty;
-            //item.MinInventory = itemModel.MinLevel;
-            //item.MaxInventory = itemModel.MaxLevel;                  
+            item.SWW = itemModel.SWW;
+
+            item.InventoryUOM = itemModel.InvntryUom;            
+            item.InventoryWeight1 = itemModel.IWeight1;            
+            
+            item.AvgStdPrice = itemModel.AvgPrice;            
+            
+            item.DesiredInventory = itemModel.ReorderQty;
+            item.MinInventory = itemModel.MinLevel;
+            item.MaxInventory = itemModel.MaxLevel;                  
+            
             //item.OrderIntervals = itemModel.OrdrIntrvl.ToString();
-            //item.OrderMultiple = itemModel.OrdrMulti;
-            //item.MinOrderQuantity = itemModel.MinOrdrQty;
-            //item.LeadTime = itemModel.LeadTime;
-            //item.ToleranceDays = itemModel.ToleranDay;            
-            //item.Picture = itemModel.PicturName;
-            //item.User_Text = itemModel.UserText;
+            
+            item.OrderMultiple = itemModel.OrdrMulti;
+            item.MinOrderQuantity = itemModel.MinOrdrQty;
+            item.LeadTime = itemModel.LeadTime;
+            item.ToleranceDays = itemModel.ToleranDay;
 
+            if (itemModel.PicturName != string.Empty)
+                item.Picture = itemModel.PicturName;
+
+            item.User_Text = itemModel.UserText;
+
+            if (itemModel.AtcEntry > 0)
+                item.AttachmentEntry = itemModel.AtcEntry;
 
             item.IssuePrimarilyBy = (IssuePrimarilyByEnum)itemModel.IssuePriBy;
             item.MaterialType = (BoMaterialTypes)itemModel.MatType;
