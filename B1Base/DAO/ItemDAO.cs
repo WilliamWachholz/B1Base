@@ -420,7 +420,7 @@ namespace B1Base.DAO
 
             foreach (KeyValuePair<string, dynamic> userField in itemModel.UserFields)
             {
-
+                item.UserFields.Fields.Item(userField.Key).Value = userField.Value;
             }
         }
     }
