@@ -72,10 +72,34 @@ namespace B1Base.DAO
                 {
                     if (item.GetByKey(itemCode))
                     {
+                        int line = 0;
+
+                        for (line = item.WhsInfo.Count; line >= 0; line--)
+                        {
+                            item.WhsInfo.Delete();
+                        }
+
+                        foreach (Model.ItemWarehouseModel itemWarehouseModel in itemWarehouseList)
+                        {
+                            if (line > item.WhsInfo.Count - 1)
+                                item.WhsInfo.Add();
+
+                            item.WhsInfo.SetCurrentLine(line);
+                            item.WhsInfo.WarehouseCode = itemWarehouseModel.WhsCode;
+                            item.WhsInfo.Locked = itemWarehouseModel.Locked ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+
+                            line++;
+                        }
 
                         item.Update();
                     }
                 }
+                finally
+                {
+                    Marshal.ReleaseComObject(item);
+                    GC.Collect();
+                }
+
             }
         }
 
@@ -102,10 +126,10 @@ namespace B1Base.DAO
                 item.NCMCode = itemModel.NCMCode;
             else item.NCMCode = -1;
 
-            //if (itemModel.DNFEntry > 0)
-            //    item.DNFEntry = itemModel.DNFEntry;
-            
-
+            if (itemModel.DNFEntry > 0)
+                item.DNFEntry = itemModel.DNFEntry;
+            else
+                item.DNFEntry = -1;
 
             item.InventoryItem = itemModel.InvntItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
             item.SalesItem = itemModel.SellItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
@@ -120,8 +144,6 @@ namespace B1Base.DAO
             item.FrozenTo = itemModel.FrozenTo;
             item.FrozenRemarks = itemModel.FrozenComm;
 
-
-            
             item.PurchaseUnit = itemModel.BuyUnitMsr;
             if (itemModel.NumInBuy > 0)
                 item.PurchaseItemsPerUnit = itemModel.NumInBuy;
@@ -212,15 +234,6 @@ namespace B1Base.DAO
             else
                 item.SalesFactor4 = 4;
 
-
-
-
-
-
-
-            //item.PriceList. = itemModel.ListNum;
-
-
             for (int line = 0; line < itemModel.CardCodes.Count; line++)
             {
                 if (item.PreferredVendors.Count - 1 < line)
@@ -233,7 +246,9 @@ namespace B1Base.DAO
             if (itemModel.CardCode != string.Empty)
                 item.Mainsupplier = itemModel.CardCode;
 
-            
+
+            //item.NoDiscounts = itemModel.NoDiscount ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            //item.ManageStockByWarehouse = itemModel.ByWh ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
 
             //item.IssuePrimarilyBy = (IssuePrimarilyByEnum)itemModel.IssuePriBy;
 
@@ -302,12 +317,11 @@ namespace B1Base.DAO
 
             //item.UoMGroupEntry = itemModel.UgpEntry;
             //item.ShipType = itemModel.ShipType;
-            //item.NoDiscounts = itemModel.NoDiscount ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            
             //item.SWW = itemModel.SWW;
             //item.InventoryUOM = itemModel.InvntryUom;
             //item.InventoryWeight1 = itemModel.IWeight1;            
-            //item.AvgStdPrice = itemModel.AvgPrice;
-            //item.ManageStockByWarehouse = itemModel.ByWh ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            //item.AvgStdPrice = itemModel.AvgPrice;            
             //item.DesiredInventory = itemModel.ReorderQty;
             //item.MinInventory = itemModel.MinLevel;
             //item.MaxInventory = itemModel.MaxLevel;
