@@ -9,7 +9,7 @@ namespace B1Base.View
 {
     class ConfigView : BaseView
     {
-        const string BUTTON_OK = "1";
+        const string BUTTON_OK = "BTNOK";
         const string BUTTON_CREATE_METADATA = "BTNMETA";
         const string CHECK_AUTO_CREATE_METADATA = "CHK";
         const string CHECK_LOG = "5";
@@ -51,14 +51,14 @@ namespace B1Base.View
             get
             {
                 Dictionary<string, BaseView.ButtonClickEventHandler> result = base.ButtonClickEvents;
-                result.Add(BUTTON_OK, HandleButtonOkClick);
-                result.Add(BUTTON_CREATE_METADATA, HandleButtonCreateMetadataClick);
+                result.Add(BUTTON_OK, ButtonOkClick);
+                result.Add(BUTTON_CREATE_METADATA, ButtonCreateMetadataClick);
 
                 return result;
             }
         }
 
-        private void HandleButtonOkClick()
+        private new void ButtonOkClick()
         {   
             Model.ConfigModel configModel = new Model.ConfigModel();
             configModel.Code = 1;
@@ -66,9 +66,11 @@ namespace B1Base.View
             configModel.ActivateLog = GetValue(CHECK_LOG);
 
             new Controller.ConfigController().SaveConfig(configModel);
+
+            base.SAPForm.Close();
         }
 
-        private void HandleButtonCreateMetadataClick()
+        private void ButtonCreateMetadataClick()
         {
             AddOn.Instance.MainController.CreateMetadata();
         }

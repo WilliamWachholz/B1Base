@@ -110,7 +110,7 @@ namespace B1Base.Controller
                 this.Company.LicenseServer = licenseServer;
                 this.Company.DbUserName = dbUserName;
                 this.Company.DbPassword = dbPassword;
-                this.Company.UseTrusted = false;
+                this.Company.UseTrusted = false;                
 
                 switch (dbServerType)
                 {
@@ -361,7 +361,7 @@ namespace B1Base.Controller
                                 throw new ArgumentException(errMsg);
                             }
 
-                            return (T) ((Convert.ToInt32(obj) != 0) as object);
+                            return (T)((Convert.ToInt32(obj) != 0) as object);
                         }
                         else
                         {
@@ -371,7 +371,7 @@ namespace B1Base.Controller
                                 throw new ArgumentException(errMsg);
                             }
                             return (T)obj;
-                        }                        
+                        }
                     }
                     else
                     {
@@ -380,6 +380,10 @@ namespace B1Base.Controller
                     }
                 }
                 return default(T);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(sqlScript + " - " + e.Message);
             }
             finally
             {
@@ -422,6 +426,10 @@ namespace B1Base.Controller
                 }
                 return lst;
             }
+            catch (Exception e)
+            {
+                throw new Exception(sqlScript + " - " + e.Message);
+            }
             finally
             {
                 Marshal.ReleaseComObject(recordSet);
@@ -432,10 +440,16 @@ namespace B1Base.Controller
         public void ExecuteSQLForMatrix(string sqlScript, Matrix matrix, DataTable dataTable, params string[] variables)
         {
             string sql = GetSQL(sqlScript, variables);
-   
-            dataTable.ExecuteQuery(sql);
+            try
+            {
+                dataTable.ExecuteQuery(sql);
 
-            matrix.LoadFromDataSource();
+                matrix.LoadFromDataSource();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(sqlScript + " - " + e.Message);
+            }
         }
 
         private string GetSQL(string sqlScript, params string[] variables)

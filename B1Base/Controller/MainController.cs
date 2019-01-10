@@ -21,6 +21,7 @@ namespace B1Base.Controller
         private bool LogIsActive { get; set; }
 
         protected const string MENU_SAP = "43520";
+        protected const string MENU_CONFIG_SAP = "43525";
         protected string MENU_ADDON { get { return AddOnID;  } }
         protected string MENU_CONFIG { get { return AddOnID + "Cnf";  } }
 
@@ -98,7 +99,7 @@ namespace B1Base.Controller
 
             try
             {
-                CreateMenu(MENU_SAP, MENU_ADDON, AddOnName, "addOnLogo.png", true);
+                CreateMenu(MENU_CONFIG_SAP, MENU_ADDON, AddOnName, "", true);
                 CreateMenu(MENU_ADDON, MENU_CONFIG, "Configuração", "", false);
 
                 CreateMenus();
@@ -209,11 +210,14 @@ namespace B1Base.Controller
             return m_Views.First(r => r.FormUID == formUID && r.FormType == formType);
         }       
 
-
-
         public void OpenMenu(string menu)
         {
             Controller.ConnectionController.Instance.Application.Menus.Item(menu).Activate();
+        }
+
+        public void OpenMenuInsert()
+        {
+            Controller.ConnectionController.Instance.Application.Menus.Item("1282").Activate();
         }
 
         private void HandleFormLoad(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
@@ -784,6 +788,7 @@ namespace B1Base.Controller
                         }
                         if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_DELETE)
                         {
+                            AddOn.Instance.ConnectionController.Application.StatusBar.SetText("AA");
                             m_Views.First(r => r.FormUID == formId && r.FormType == formType).DeleteFormData();
                         }
                     }

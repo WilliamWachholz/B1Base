@@ -156,7 +156,7 @@ namespace B1Base.View
         protected virtual void CreateControls() { }
 
         /// <summary>
-        /// 
+        /// Controla os menus da barra superior do SAP
         /// </summary>
         /// <param name="enableInsert">Caso true, informar browseTable e browseItem</param>
         /// <param name="enableSearch"></param>
@@ -1331,6 +1331,26 @@ namespace B1Base.View
 
         public void MenuRightClick(string menu)
         {
+            if (menu == "1283")
+            {
+                string msg;
+
+                if (ValidateFormData(out msg))
+                {
+                    DeleteFormData();
+
+                    SAPForm.Mode = BoFormMode.fm_OK_MODE;
+
+                    SAPForm.EnableMenu("1282", true);
+                }
+                else
+                {
+                    AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+                }
+            }
+
+            AddOn.Instance.ConnectionController.Application.StatusBar.SetText(menu);
+
             foreach (KeyValuePair<string, MatrixRowRemoveEventHandler> matrixRowRemoveEvent in MatrixRowRemoveEvents)
             {
                 if (menu.StartsWith(string.Format("MNUREM{0}{1}{2}", SAPForm.TypeEx, SAPForm.UniqueID, matrixRowRemoveEvent.Key)))
