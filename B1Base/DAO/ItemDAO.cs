@@ -109,6 +109,23 @@ namespace B1Base.DAO
             }
         }
 
+        public void Delete(Model.ItemModel itemModel)
+        {
+            Items item = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
+            try
+            {
+                if (item.GetByKey(itemModel.ItemCode))
+                {
+                    item.Remove();
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(item);
+                GC.Collect();
+            }
+        }
+
         private void SetItemFields(SAPbobsCOM.Items item, Model.ItemModel itemModel)
         {
             item.ItemName = itemModel.ItemName;

@@ -1080,7 +1080,7 @@ namespace B1Base.View
 
         public virtual void DeleteFormData() { }
 
-        public virtual bool ValidateFormData(out string msg) { msg = string.Empty; return true; }
+        public virtual bool ValidateFormData(out string msg, bool delete) { msg = string.Empty; return true; }
 
         /// <summary>
         /// Em caso de formulário customizado, chamar base.MenuInsert() para realizar as operações necessárias no campo de browse
@@ -1156,7 +1156,7 @@ namespace B1Base.View
             {
                 string msg;
 
-                if (ValidateFormData(out msg))
+                if (ValidateFormData(out msg, false))
                 {
                     AddFormData();
 
@@ -1335,7 +1335,7 @@ namespace B1Base.View
             {
                 string msg;
 
-                if (ValidateFormData(out msg))
+                if (ValidateFormData(out msg, true))
                 {
                     DeleteFormData();
 
