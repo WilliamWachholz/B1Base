@@ -535,6 +535,14 @@ namespace B1Base.View
                             return 0;
                         else return Convert.ToInt32(editText.String);
                     }
+                    else if (fieldType == BoFieldsType.ft_Float || fieldType == BoFieldsType.ft_Measure || 
+                        fieldType == BoFieldsType.ft_Percent || fieldType == BoFieldsType.ft_Price ||
+                        fieldType == BoFieldsType.ft_Quantity || fieldType == BoFieldsType.ft_Rate || fieldType == BoFieldsType.ft_Sum)
+                    {
+                        if (editText.String == string.Empty)
+                            return 0;
+                        else return Convert.ToDouble(editText.String);
+                    }
                     else
                     {
                         return editText.String;
@@ -874,6 +882,10 @@ namespace B1Base.View
                     {
                         edit.String = value.ToString();
                     }
+
+                    matrix.Item.Refresh();
+                    SAPForm.Refresh();
+                    SAPForm.Update();
                 }
                 else if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_COMBO_BOX)
                 {
@@ -1348,8 +1360,6 @@ namespace B1Base.View
                     AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
                 }
             }
-
-            AddOn.Instance.ConnectionController.Application.StatusBar.SetText(menu);
 
             foreach (KeyValuePair<string, MatrixRowRemoveEventHandler> matrixRowRemoveEvent in MatrixRowRemoveEvents)
             {
