@@ -109,6 +109,35 @@ namespace B1Base.DAO
             }
         }
 
+        public void Save(Model.ItemGroupModel itemGroupModel)
+        {
+            ItemGroups itemGroup = (ItemGroups)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItemGroups);
+            try
+            {
+                if (itemGroup.GetByKey(itemGroupModel.GroupCode))
+                {
+                    itemGroup.GroupName = itemGroupModel.GroupName;
+
+                    itemGroup.Update();
+                }
+                else
+                {
+                    itemGroup.GroupName = itemGroupModel.GroupName;
+
+                    itemGroup.Add();
+
+                    itemGroupModel.GroupCode = Controller.ConnectionController.Instance.LastObjectCode;
+                }
+
+                Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+            }
+            finally
+            {
+                GC.Collect();
+                Marshal.ReleaseComObject(itemGroup);
+            }
+        }
+
         public void Delete(Model.ItemModel itemModel)
         {
             Items item = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
@@ -161,6 +190,11 @@ namespace B1Base.DAO
 
             if (itemModel.ShipType > 0)
                 item.ShipType = itemModel.ShipType;
+
+            if (itemModel.MatGrp > 0)
+                item.MaterialGroup = itemModel.MatGrp;
+            else
+                item.MaterialGroup = -1;
 
             item.SWW = itemModel.SWW;
 

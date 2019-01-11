@@ -41,6 +41,25 @@ namespace B1Base.Controller
             }
         }
 
+        public int LastObjectCode
+        {
+            get
+            {
+                return Convert.ToInt32(Company.GetNewObjectKey());
+            }
+        }
+
+        public void VerifyBussinesObjectSuccess()
+        {
+            int errorCode;
+            string errorMessage;
+
+            this.Company.GetLastError(out errorCode, out errorMessage);
+
+            if (errorCode != 0)
+                throw new Exception(string.Format("Código do erro: {0}. Mensagem: {1}.", errorCode, errorMessage));
+        }
+
         public void Initialize() 
         { 
             try
@@ -307,17 +326,6 @@ namespace B1Base.Controller
                     GC.Collect();
                 }
             }
-        }
-
-        public void VerifyBussinesObjectSuccess()
-        {
-            int errorCode;
-            string errorMessage;
-
-            this.Company.GetLastError(out errorCode, out errorMessage);
-
-            if (errorCode != 0)
-                throw new Exception(string.Format("Código do erro: {0}. Mensagem: {1}.", errorCode, errorMessage));
         }
 
         public void ExecuteStatement(string sqlScript, params string[] variables)

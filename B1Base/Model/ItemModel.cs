@@ -26,6 +26,7 @@ namespace B1Base.Model
         public int IssuePriBy { get; set; }
         public string SWW { get; set; }
         public int MatType { get; set; }
+        public int MatGrp { get; set; }
         public int NCMCode { get; set; }
         public int DNFEntry { get; set; }
         public int ItmsGrpCod { get; set; }
