@@ -328,14 +328,6 @@ namespace B1Base.View
 
                 UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(combo.DataBind.Alias);
 
-                //if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER ||
-                //        userDataSource.DataType == BoDataType.dt_MEASURE || userDataSource.DataType == BoDataType.dt_PERCENT ||
-                //        userDataSource.DataType == BoDataType.dt_PRICE || userDataSource.DataType == BoDataType.dt_QUANTITY ||
-                //        userDataSource.DataType == BoDataType.dt_RATE || userDataSource.DataType == BoDataType.dt_SUM)
-                //{
-                //    
-                //}
-
                 userDataSource.Value = "";
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
@@ -349,18 +341,6 @@ namespace B1Base.View
                         ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(editText.ChooseFromListUID);
 
                         UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
-
-                        //if (codeDataSource.DataType == BoDataType.dt_SHORT_NUMBER || codeDataSource.DataType == BoDataType.dt_LONG_NUMBER)
-                        //{
-                        //    if (value != 0)
-                        //        codeDataSource.Value = value.ToString();
-                        //    else
-                        //        codeDataSource.Value = string.Empty;
-                        //}
-                        //else
-                        //{
-                        //    codeDataSource.Value = value.ToString();
-                        //}
 
                         UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
                         userDataSource.Value = "";
@@ -388,6 +368,11 @@ namespace B1Base.View
                         userDataSource.Value = "";
                     }
                 }
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_MATRIX)
+            {
+                Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
+                matrix.Clear();
             }
         }
 
