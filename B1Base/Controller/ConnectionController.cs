@@ -460,6 +460,22 @@ namespace B1Base.Controller
             }
         }
 
+        public void ExecuteSQLForForm(string sqlScript, DataTable dataTable, params string[] variables)
+        {
+            string sql = GetSQL(sqlScript, variables);
+            try
+            {
+                dataTable.ExecuteQuery(sql);
+
+                if (dataTable.Rows.Count == 0)
+                    dataTable.Rows.Add();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(sqlScript + " - " + e.Message);
+            }
+        }
+
         private string GetSQL(string sqlScript, params string[] variables)
         {            
             using (var stream = new MemoryStream(File.ReadAllBytes(AddOn.Instance.CurrentDirectory + "//SQL//" + DBServerType + "//" + sqlScript + ".sql")))

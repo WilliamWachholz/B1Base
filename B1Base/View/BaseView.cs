@@ -562,78 +562,158 @@ namespace B1Base.View
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
             {
-                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((ComboBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                ComboBox combo = (ComboBox)SAPForm.Items.Item(item).Specific;
 
-                if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER)
+                if (combo.DataBind.TableName == string.Empty)
                 {
-                    if (userDataSource.Value == string.Empty)
-                        return 0;
-                    else return Convert.ToInt32(userDataSource.Value);
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(combo.DataBind.Alias);
+
+                    if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER)
+                    {
+                        if (userDataSource.Value == string.Empty)
+                            return 0;
+                        else return Convert.ToInt32(userDataSource.Value);
+                    }
+                    else return userDataSource.Value;
                 }
-                else return userDataSource.Value;
+                else
+                {
+                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(combo.DataBind.TableName);
+
+                    return dataTable.GetValue(combo.Item.Description, 0);
+                }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
             {
                 EditText editText = (EditText)SAPForm.Items.Item(item).Specific;
 
-                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
-
-                if (editText.ChooseFromListUID != string.Empty)
+                if (editText.DataBind.TableName == string.Empty)
                 {
-                    try
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
+
+                    if (editText.ChooseFromListUID != string.Empty)
                     {
-                        userDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
+                        try
+                        {
+                            userDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
+                        }
+                        catch { }
                     }
-                    catch { }
-                }
 
-                if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER)
-                {
-                    if (userDataSource.Value == string.Empty)
-                        return 0;
-                    else return Convert.ToInt32(userDataSource.Value);
+                    if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER)
+                    {
+                        if (userDataSource.Value == string.Empty)
+                            return 0;
+                        else return Convert.ToInt32(userDataSource.Value);
+                    }
+                    if (userDataSource.DataType == BoDataType.dt_MEASURE || userDataSource.DataType == BoDataType.dt_PERCENT ||
+                        userDataSource.DataType == BoDataType.dt_PRICE || userDataSource.DataType == BoDataType.dt_QUANTITY ||
+                        userDataSource.DataType == BoDataType.dt_RATE || userDataSource.DataType == BoDataType.dt_SUM)
+                    {
+                        if (userDataSource.Value == string.Empty)
+                            return 0;
+                        else return Convert.ToDouble(userDataSource.Value);
+                    }
+                    else if (userDataSource.DataType == BoDataType.dt_DATE)
+                    {
+                        if (userDataSource.Value == string.Empty)
+                            return new DateTime(1990, 1, 1);
+                        else return Convert.ToDateTime(userDataSource.Value);
+                    }
+                    else return userDataSource.Value;
                 }
-                if (userDataSource.DataType == BoDataType.dt_MEASURE || userDataSource.DataType == BoDataType.dt_PERCENT ||
-                    userDataSource.DataType == BoDataType.dt_PRICE || userDataSource.DataType == BoDataType.dt_QUANTITY ||
-                    userDataSource.DataType == BoDataType.dt_RATE || userDataSource.DataType == BoDataType.dt_SUM)
+                else
                 {
-                    if (userDataSource.Value == string.Empty)
-                        return 0;
-                    else return Convert.ToDouble(userDataSource.Value);
+                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
+
+                    if (editText.ChooseFromListUID != string.Empty)
+                    {
+                        try
+                        {
+                            return dataTable.GetValue("_" + editText.Item.Description, 0);
+                        }
+                        catch
+                        {
+                            return dataTable.GetValue(editText.Item.Description, 0);
+                        }
+                    }
+                    else
+                    {
+                        return dataTable.GetValue(editText.Item.Description, 0);
+                    }
                 }
-                else if (userDataSource.DataType == BoDataType.dt_DATE)
-                {
-                    if (userDataSource.Value == string.Empty)
-                        return new DateTime(1990, 1, 1);
-                    else return Convert.ToDateTime(userDataSource.Value);
-                }
-                else return userDataSource.Value;
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_CHECK_BOX)
             {
-                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((CheckBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                CheckBox checkBox = (CheckBox)SAPForm.Items.Item(item).Specific;
 
-                return userDataSource.Value == "Y";
+                if (checkBox.DataBind.TableName != string.Empty)
+                {
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((CheckBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+
+                    return userDataSource.Value == "Y";
+                }
+                else
+                {
+                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(checkBox.DataBind.TableName);
+
+                    return dataTable.GetValue(checkBox.Item.Description, 0).ToString() == "Y";
+                }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_PICTURE)
             {
-                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((PictureBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                PictureBox pictureBox = (PictureBox)SAPForm.Items.Item(item).Specific;
 
-                if (userDataSource.Value == string.Empty)
-                    return string.Empty;
-                else return System.IO.Path.Combine(new Controller.AttachmentController().ImageFolder, userDataSource.Value);
+                if (pictureBox.DataBind.TableName == string.Empty)
+                {
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(pictureBox.DataBind.Alias);
+
+                    if (userDataSource.Value == string.Empty)
+                        return string.Empty;
+                    else return System.IO.Path.Combine(new Controller.AttachmentController().ImageFolder, userDataSource.Value);
+                }
+                else
+                {
+                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(pictureBox.DataBind.TableName);
+
+                    if (dataTable.GetValue(pictureBox.Item.Description, 0) == string.Empty)
+                        return string.Empty;
+                    else return System.IO.Path.Combine(new Controller.AttachmentController().ImageFolder, dataTable.GetValue(pictureBox.Item.Description, 0));
+                }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EXTEDIT)
             {
-                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                EditText extEdit = (EditText)SAPForm.Items.Item(item).Specific;
 
-                return userDataSource.Value;
+                if (extEdit.DataBind.TableName == string.Empty)
+                {
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(extEdit.DataBind.Alias);
+
+                    return userDataSource.Value;
+                }
+                else
+                {
+                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(extEdit.DataBind.TableName);
+
+                    return dataTable.GetValue(extEdit.Item.Description, 0);
+                }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_OPTION_BUTTON)
             {
-                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((OptionBtn)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                OptionBtn option = (OptionBtn)SAPForm.Items.Item(item).Specific;
 
-                return userDataSource.Value == ((OptionBtn)SAPForm.Items.Item(item).Specific).ValOn;
+                if (option.DataBind.TableName == string.Empty)
+                {
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(option.DataBind.Alias);
+
+                    return userDataSource.Value == ((OptionBtn)SAPForm.Items.Item(item).Specific).ValOn;
+                }
+                else
+                {
+                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(option.DataBind.TableName);
+
+                    return dataTable.GetValue(option.Item.Description, 0);
+                }
             }
             else return string.Empty;
         }
@@ -677,176 +757,6 @@ namespace B1Base.View
             }
 
             return result;
-        }
-
-        public void SetFastEdit(string item, string value)
-        {
-            EditText edit = (EditText) SAPForm.Items.Item(item).Specific;                
-            if (edit.ChooseFromListUID != string.Empty)
-            {
-                try
-                {
-                    ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
-
-                    string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
-
-                    UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + edit.DataBind.Alias);
-
-                    codeDataSource.Value = value;
-
-                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
-                    userDataSource.Value = descValue;
-                }
-                catch
-                {
-                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
-                    userDataSource.Value = value;
-                }
-            }
-            else
-            {
-                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
-                userDataSource.Value = value;
-            }
-        }
-
-        public void SetFastEdit(string item, int value)
-        {
-            EditText edit = (EditText)SAPForm.Items.Item(item).Specific; 
-            if (edit.ChooseFromListUID != string.Empty)
-            {
-                try
-                {
-                    ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
-
-                    string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
-
-                    UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + edit.DataBind.Alias);
-
-                    if (value != 0)
-                        codeDataSource.Value = value.ToString();
-                    else
-                        codeDataSource.Value = string.Empty;
-
-                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
-                    userDataSource.Value = descValue;
-                }
-                catch
-                {
-                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
-
-                    if (value != 0)
-                        userDataSource.Value = value.ToString();
-                    else
-                        userDataSource.Value = string.Empty;
-                }
-            }
-            else
-            {
-                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
-
-                if (value != 0)
-                    userDataSource.Value = value.ToString();
-                else
-                    userDataSource.Value = string.Empty;
-            }
-        }
-
-        public void SetFastEdit(string item, double value)
-        {
-            EditText edit = (EditText)SAPForm.Items.Item(item).Specific; 
-            if (edit.ChooseFromListUID != string.Empty)
-            {
-                try
-                {
-                    ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
-
-                    string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
-
-                    UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + edit.DataBind.Alias);
-
-                    if (value != 0)
-                        codeDataSource.Value = value.ToString();
-                    else
-                        codeDataSource.Value = string.Empty;
-
-                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
-                    userDataSource.Value = descValue;
-                }
-                catch
-                {
-                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
-
-                    if (value != 0)
-                        userDataSource.Value = value.ToString();
-                    else
-                        userDataSource.Value = string.Empty;
-                }
-            }
-            else
-            {
-                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
-
-                if (value != 0)
-                    userDataSource.Value = value.ToString();
-                else
-                    userDataSource.Value = string.Empty;
-            }
-        }
-
-        public void SetFastEdit(string item, DateTime value)
-        {
-            EditText edit = (EditText)SAPForm.Items.Item(item).Specific; 
-            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(edit.DataBind.Alias);
-            try
-            {
-                if (value != DateTime.MinValue && value > new DateTime(1990, 1, 1))
-                    userDataSource.Value = value.ToString("dd/MM/yyyy");
-                else
-                    userDataSource.Value = string.Empty;
-            }
-            catch
-            {
-                userDataSource.Value = DateTime.Now.ToString("dd/MM/yyyy");
-            }
-        }
-
-        public void SetFastCombo(string item, string value)
-        {
-            ComboBox combo = (ComboBox)SAPForm.Items.Item(item).Specific;
-
-            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(combo.DataBind.Alias);
-
-            userDataSource.Value = value;
-        }
-
-        public void SetFastCombo(string item, int value)
-        {
-            ComboBox combo = (ComboBox)SAPForm.Items.Item(item).Specific;
-
-            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(combo.DataBind.Alias);
-
-            if (value == 0)
-                userDataSource.Value = string.Empty;
-            else
-                userDataSource.Value = value.ToString();
-        }
-
-        public void SetFastCombo(string item, dynamic enumValue)
-        {
-            ComboBox combo = (ComboBox)SAPForm.Items.Item(item).Specific;
-
-            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(combo.DataBind.Alias);
-
-            userDataSource.Value = ((int)enumValue).ToString();
-        }
-
-        public void SetFastCheck(string item, bool value)
-        {
-            CheckBox check = (CheckBox)SAPForm.Items.Item(item).Specific;
-
-            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(check.DataBind.Alias);
-            userDataSource.Value = value ? "Y" : "N";
         }
 
         public void SetValue(string item, dynamic value, string column = "", int row = 0, bool toDataSource = false)
@@ -1050,6 +960,38 @@ namespace B1Base.View
             }
         }
 
+        public void SetValue<T>(DataTable dataTable, T model) where T : Model.BaseModel
+        {
+            dataTable.Rows.Clear();
+            dataTable.Rows.Add();
+
+            Type type = typeof(T);
+
+            var props = type.GetProperties().Where(r => r.Name != "Changed");
+
+            for (int col = 0; col < dataTable.Columns.Count; col++)
+            {
+                try
+                {
+                    var prop = props.First(r => r.Name == dataTable.Columns.Item(col).Name);
+
+                    if (prop.PropertyType == typeof(Boolean))
+                    {
+                        dataTable.SetValue(col, dataTable.Rows.Count - 1, (bool)prop.GetValue(model) ? "Y" : "N");
+                    }
+                    else if (prop.PropertyType.IsEnum)
+                    {
+                        dataTable.SetValue(col, dataTable.Rows.Count - 1, (int)prop.GetValue(model)); ;
+                    }
+                    else
+                    {
+                        dataTable.SetValue(col, dataTable.Rows.Count - 1, prop.GetValue(model));
+                    }
+                }
+                catch { }
+            }
+        }
+
         public virtual int FindFormData()
         {
             return 0;
@@ -1192,15 +1134,44 @@ namespace B1Base.View
         {
             if (ChooseFromEvents.ContainsKey(edit))
             {
-                try
-                {
-                    UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + ((EditText)SAPForm.Items.Item(edit).Specific).DataBind.Alias);
-                    codeDataSource.Value = values[0];
 
-                    UserDataSource valueDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(edit).Specific).DataBind.Alias);
-                    valueDataSource.Value = values[1];
+                EditText editText = (EditText)SAPForm.Items.Item(edit).Specific;
+
+                if (editText.DataBind.TableName == string.Empty)
+                {
+                    try
+                    {
+                        UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
+                        codeDataSource.Value = values[0];
+
+                        UserDataSource valueDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
+                        valueDataSource.Value = values[1];
+                    }
+                    catch
+                    {
+                        SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias).Value = values[0];
+                    }
                 }
-                catch { }
+                else
+                {
+                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);                            
+                    
+                    try
+                    {
+                        if (dataTable.Columns.Item("_" + editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
+                            dataTable.SetValue("_" + editText.Item.Description, 0, values[0]);
+                        else
+                            dataTable.SetValue("_" + editText.Item.Description, 0, Convert.ToInt32(values[0]));
+                        dataTable.SetValue(editText.Item.Description, 0, values[1]);
+                    }
+                    catch
+                    {
+                        if (dataTable.Columns.Item(editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
+                            dataTable.SetValue(editText.Item.Description, 0, values[0]);
+                        else
+                            dataTable.SetValue(editText.Item.Description, 0, Convert.ToInt32(values[0]));
+                    }
+                }
 
                 ChooseFromEvents[edit](values);
             }

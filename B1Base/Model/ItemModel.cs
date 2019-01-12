@@ -29,6 +29,7 @@ namespace B1Base.Model
         public int MatGrp { get; set; }
         public int NCMCode { get; set; }
         public int DNFEntry { get; set; }
+        public string ProductSrc { get; set; }
         public int ItmsGrpCod { get; set; }
         public string B1SYS_SPEDTipi { get; set; }
         public bool InvntItem { get; set; }
@@ -83,7 +84,9 @@ namespace B1Base.Model
         public double MinOrdrQty { get; set; }
         public int LeadTime { get; set; }
         public int ToleranDay { get; set; }        
-        public string IssueMthd { get; set; }           
+        public string IssueMthd { get; set; }
+        public double PrdStdCst { get; set; }
+        public bool InCostRoll { get; set; }
         public string PicturName { get; set; }        
         public string UserText { get; set; }
         public bool QryGroup1 { get; set; }
