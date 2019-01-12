@@ -564,7 +564,7 @@ namespace B1Base.View
             {
                 ComboBox combo = (ComboBox)SAPForm.Items.Item(item).Specific;
 
-                if (combo.DataBind.TableName == string.Empty)
+                if (combo.DataBind.TableName == null)
                 {
                     UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(combo.DataBind.Alias);
 
@@ -587,7 +587,7 @@ namespace B1Base.View
             {
                 EditText editText = (EditText)SAPForm.Items.Item(item).Specific;
 
-                if (editText.DataBind.TableName == string.Empty)
+                if (editText.DataBind.TableName == null)
                 {
                     UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
 
@@ -664,7 +664,7 @@ namespace B1Base.View
             {
                 PictureBox pictureBox = (PictureBox)SAPForm.Items.Item(item).Specific;
 
-                if (pictureBox.DataBind.TableName == string.Empty)
+                if (pictureBox.DataBind.TableName == null)
                 {
                     UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(pictureBox.DataBind.Alias);
 
@@ -685,7 +685,7 @@ namespace B1Base.View
             {
                 EditText extEdit = (EditText)SAPForm.Items.Item(item).Specific;
 
-                if (extEdit.DataBind.TableName == string.Empty)
+                if (extEdit.DataBind.TableName == null)
                 {
                     UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(extEdit.DataBind.Alias);
 
@@ -702,7 +702,7 @@ namespace B1Base.View
             {
                 OptionBtn option = (OptionBtn)SAPForm.Items.Item(item).Specific;
 
-                if (option.DataBind.TableName == string.Empty)
+                if (option.DataBind.TableName == null)
                 {
                     UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(option.DataBind.Alias);
 
@@ -1137,7 +1137,7 @@ namespace B1Base.View
 
                 EditText editText = (EditText)SAPForm.Items.Item(edit).Specific;
 
-                if (editText.DataBind.TableName == string.Empty)
+                if (editText.DataBind.TableName == null)
                 {
                     try
                     {

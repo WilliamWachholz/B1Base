@@ -99,7 +99,7 @@ namespace B1Base.Controller
 
             foreach (var prop in props)
             {
-                if (prop.GetValue(source) != prop.GetValue(current))
+                if (Object.Equals(prop.GetValue(source), prop.GetValue(current)))
                 {
                     current.Changed = true;
                     break;
