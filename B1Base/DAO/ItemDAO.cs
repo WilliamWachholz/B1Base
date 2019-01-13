@@ -207,7 +207,7 @@ namespace B1Base.DAO
             item.SWW = itemModel.SWW;
 
             item.InventoryUOM = itemModel.InvntryUom;            
-            item.InventoryWeight1 = itemModel.IWeight1;            
+            item.InventoryWeight = itemModel.IWeight1;            
             
             item.AvgStdPrice = itemModel.AvgPrice;            
             
@@ -358,7 +358,7 @@ namespace B1Base.DAO
                 case "W":
                     item.GLMethod = BoGLMethods.glm_WH;
                     break;
-                case "G":
+                case "C":
                     item.GLMethod = BoGLMethods.glm_ItemClass;
                     break;
                 case "L":
