@@ -21,6 +21,7 @@ namespace B1Base.DAO
                 {
                     itemModel.ItemCode = item.ItemCode;
                     itemModel.ItemName = item.ItemName;
+                    itemModel.SuppCatNum = item.SupplierCatalogNo;
                 }
             }
             finally
@@ -474,7 +475,8 @@ namespace B1Base.DAO
             item.set_Properties(63, itemModel.QryGroup63 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
             item.set_Properties(64, itemModel.QryGroup64 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
 
-            //item.UserFields.Fields.Item("U_B1SYS_SPEDTipi").Value = itemModel.B1SYS_SPEDTipi;
+            //if (itemModel.B1SYS_SPEDTipi != string.Empty)
+            //    item.UserFields.Fields.Item("U_B1SYS_SPEDTipi").Value = itemModel.B1SYS_SPEDTipi;
 
             foreach (KeyValuePair<string, dynamic> userField in itemModel.UserFields)
             {
