@@ -118,18 +118,25 @@ namespace B1Base.DAO
                 {
                     itemGroup.GroupName = itemGroupModel.GroupName;
 
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+
                     itemGroup.Update();
                 }
                 else
                 {
                     itemGroup.GroupName = itemGroupModel.GroupName;
+                    itemGroup.InventoryAccount = "1.01.01.01.01";
+                    itemGroup.CostAccount = "1.01.01.01.01";
+                    itemGroup.TransfersAccount = "1.01.01.01.01";
+                    itemGroup.VarianceAccount = "1.01.01.01.01";
+                    itemGroup.PriceDifferencesAccount = "1.01.01.01.01";
 
                     itemGroup.Add();
 
-                    itemGroupModel.GroupCode = Controller.ConnectionController.Instance.LastObjectCode;
-                }
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
 
-                Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                    itemGroupModel.GroupCode = Controller.ConnectionController.Instance.LastObjectCode;
+                }                
             }
             finally
             {

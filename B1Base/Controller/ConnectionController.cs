@@ -45,7 +45,11 @@ namespace B1Base.Controller
         {
             get
             {
-                return Convert.ToInt32(Company.GetNewObjectKey());
+                string result = string.Empty;
+
+                Company.GetNewObjectCode(out result);
+
+                return Convert.ToInt32(result);
             }
         }
 
