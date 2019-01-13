@@ -647,7 +647,7 @@ namespace B1Base.View
             {
                 CheckBox checkBox = (CheckBox)SAPForm.Items.Item(item).Specific;
 
-                if (checkBox.DataBind.TableName != string.Empty)
+                if (checkBox.DataBind.TableName == null)
                 {
                     UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((CheckBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
 
