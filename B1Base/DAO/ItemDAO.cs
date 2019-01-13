@@ -215,7 +215,8 @@ namespace B1Base.DAO
             item.MinInventory = itemModel.MinLevel;
             item.MaxInventory = itemModel.MaxLevel;                  
             
-            //item.OrderIntervals = itemModel.OrdrIntrvl.ToString();
+            if (itemModel.OrdrIntrvl > 0)
+                item.OrderIntervals = itemModel.OrdrIntrvl.ToString();
             
             item.OrderMultiple = itemModel.OrdrMulti;
             item.MinOrderQuantity = itemModel.MinOrdrQty;
@@ -399,16 +400,16 @@ namespace B1Base.DAO
                     break;
             }
 
-
-            //switch (itemModel.PrcrmntMtd)
-            //{
-            //    case "A":
-            //        item.ProcurementMethod = BoProcurementMethod.bom_Buy;
-            //        break;
-            //    case "R":
-            //        item.ProcurementMethod = BoManageMethod.;
-            //        break;
-            //}
+            
+            switch (itemModel.PrcrmntMtd)
+            {
+                case "B":
+                    item.ProcurementMethod = BoProcurementMethod.bom_Buy;
+                    break;
+                case "M":
+                    item.ProcurementMethod = BoProcurementMethod.bom_Make;
+                    break;
+            }
 
 
             item.set_Properties(1, itemModel.QryGroup1 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
