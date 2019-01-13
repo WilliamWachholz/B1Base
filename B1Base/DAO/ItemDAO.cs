@@ -330,7 +330,7 @@ namespace B1Base.DAO
             else
                 item.SalesVolumeUnit = 4;
 
-            item.SalesUnitWeight1 = itemModel.SWeight1;
+            item.SalesUnitWeight = itemModel.SWeight1;
 
             if (itemModel.SalFactor1 > 0)
                 item.SalesFactor1 = itemModel.SalFactor1;
