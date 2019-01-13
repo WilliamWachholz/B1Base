@@ -815,68 +815,99 @@ namespace B1Base.View
             {
                 EditText editText = (EditText)SAPForm.Items.Item(item).Specific;
 
-                if (editText.ChooseFromListUID != string.Empty)
+                if (editText.DataBind.TableName == null)
                 {
-                    try
-                    {
-                        ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(editText.ChooseFromListUID);
-
-                        string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
-
-                        UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
-
-                        if (codeDataSource.DataType == BoDataType.dt_SHORT_NUMBER || codeDataSource.DataType == BoDataType.dt_LONG_NUMBER)
-                        {
-                            if (value != 0)
-                                codeDataSource.Value = value.ToString();
-                            else
-                                codeDataSource.Value = string.Empty;
-                        }
-                        else
-                        {
-                            codeDataSource.Value = value.ToString();
-                        }
-
-                        UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
-                        userDataSource.Value = descValue;
-                    }
-                    catch
-                    {
-                        UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
-                        userDataSource.Value = value.ToString();
-                    }
-                }
-                else
-                {
-                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
-                    
-                    if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER ||
-                        userDataSource.DataType == BoDataType.dt_MEASURE || userDataSource.DataType == BoDataType.dt_PERCENT ||
-                        userDataSource.DataType == BoDataType.dt_PRICE || userDataSource.DataType == BoDataType.dt_QUANTITY ||
-                        userDataSource.DataType == BoDataType.dt_RATE || userDataSource.DataType == BoDataType.dt_SUM)
-                    {
-                        if (value != 0)
-                            userDataSource.Value = value.ToString();
-                        else
-                            userDataSource.Value = string.Empty;
-                    }
-                    else if (userDataSource.DataType == BoDataType.dt_DATE)
+                    if (editText.ChooseFromListUID != string.Empty)
                     {
                         try
                         {
-                            if (value != DateTime.MinValue && value > new DateTime(1990, 1, 1))
-                                userDataSource.Value = value.ToString("dd/MM/yyyy");
+                            ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(editText.ChooseFromListUID);
+
+                            string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
+
+                            UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
+
+                            if (codeDataSource.DataType == BoDataType.dt_SHORT_NUMBER || codeDataSource.DataType == BoDataType.dt_LONG_NUMBER)
+                            {
+                                if (value != 0)
+                                    codeDataSource.Value = value.ToString();
+                                else
+                                    codeDataSource.Value = string.Empty;
+                            }
                             else
-                                userDataSource.Value = string.Empty;
+                            {
+                                codeDataSource.Value = value.ToString();
+                            }
+
+                            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                            userDataSource.Value = descValue;
                         }
                         catch
                         {
-                            userDataSource.Value = DateTime.Now.ToString("dd/MM/yyyy");
+                            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                            userDataSource.Value = value.ToString();
                         }
                     }
                     else
                     {
-                        userDataSource.Value = value.ToString();
+                        UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+
+                        if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER ||
+                            userDataSource.DataType == BoDataType.dt_MEASURE || userDataSource.DataType == BoDataType.dt_PERCENT ||
+                            userDataSource.DataType == BoDataType.dt_PRICE || userDataSource.DataType == BoDataType.dt_QUANTITY ||
+                            userDataSource.DataType == BoDataType.dt_RATE || userDataSource.DataType == BoDataType.dt_SUM)
+                        {
+                            if (value != 0)
+                                userDataSource.Value = value.ToString();
+                            else
+                                userDataSource.Value = string.Empty;
+                        }
+                        else if (userDataSource.DataType == BoDataType.dt_DATE)
+                        {
+                            try
+                            {
+                                if (value != DateTime.MinValue && value > new DateTime(1990, 1, 1))
+                                    userDataSource.Value = value.ToString("dd/MM/yyyy");
+                                else
+                                    userDataSource.Value = string.Empty;
+                            }
+                            catch
+                            {
+                                userDataSource.Value = DateTime.Now.ToString("dd/MM/yyyy");
+                            }
+                        }
+                        else
+                        {
+                            userDataSource.Value = value.ToString();
+                        }
+                    }
+                }
+                else
+                {
+                    if (editText.ChooseFromListUID != string.Empty)
+                    {
+                        DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
+
+                        ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(editText.ChooseFromListUID);
+
+                        string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
+
+                        try
+                        {                            
+                            if (dataTable.Columns.Item("_" + editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
+                                dataTable.SetValue("_" + editText.Item.Description, 0, value);
+                            else
+                                dataTable.SetValue("_" + editText.Item.Description, 0, Convert.ToInt32(value));
+
+                            dataTable.SetValue(editText.Item.Description, 0, descValue);
+                        }
+                        catch
+                        {
+                            if (dataTable.Columns.Item(editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
+                                dataTable.SetValue(editText.Item.Description, 0, value);
+                            else
+                                dataTable.SetValue(editText.Item.Description, 0, Convert.ToInt32(value));
+                        }
                     }
                 }
             }
@@ -1134,7 +1165,6 @@ namespace B1Base.View
         {
             if (ChooseFromEvents.ContainsKey(edit))
             {
-
                 EditText editText = (EditText)SAPForm.Items.Item(edit).Specific;
 
                 if (editText.DataBind.TableName == null)
@@ -1162,9 +1192,12 @@ namespace B1Base.View
                             dataTable.SetValue("_" + editText.Item.Description, 0, values[0]);
                         else
                             dataTable.SetValue("_" + editText.Item.Description, 0, Convert.ToInt32(values[0]));
-                        dataTable.SetValue(editText.Item.Description, 0, values[1]);
+                        if (dataTable.Columns.Item(editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
+                            dataTable.SetValue(editText.Item.Description, 0, values[1]);
+                        else
+                            dataTable.SetValue(editText.Item.Description, 0, Convert.ToInt32(values[1]));
                     }
-                    catch
+                    catch 
                     {
                         if (dataTable.Columns.Item(editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
                             dataTable.SetValue(editText.Item.Description, 0, values[0]);
