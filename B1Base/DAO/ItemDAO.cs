@@ -261,6 +261,7 @@ namespace B1Base.DAO
             item.FrozenTo = itemModel.FrozenTo;
             item.FrozenRemarks = itemModel.FrozenComm;
 
+
             item.PurchaseUnit = itemModel.BuyUnitMsr;
             if (itemModel.NumInBuy > 0)
                 item.PurchaseItemsPerUnit = itemModel.NumInBuy;
@@ -274,9 +275,9 @@ namespace B1Base.DAO
             else
                 item.PurchaseQtyPerPackUnit = 1; 
 
-            item.PurchaseUnitLength1 = itemModel.BLength1;
-            item.PurchaseUnitWidth1 = itemModel.BWidth1;
-            item.PurchaseUnitHeight1 = itemModel.BHeigth1;
+            item.PurchaseUnitLength = itemModel.BLength1;
+            item.PurchaseUnitWidth = itemModel.BWidth1;
+            item.PurchaseUnitHeight = itemModel.BHeigth1;
             item.PurchaseUnitVolume = itemModel.BVolume1;
 
             if (itemModel.BVolUnit > 0)
@@ -284,7 +285,7 @@ namespace B1Base.DAO
             else
                 item.PurchaseVolumeUnit = 4;
 
-            item.PurchaseUnitWeight1 = itemModel.BWeight1;
+            item.PurchaseUnitWeight = itemModel.BWeight1;
 
             if (itemModel.PurFactor1 > 0)
                 item.PurchaseFactor1 = itemModel.PurFactor1;
@@ -319,9 +320,9 @@ namespace B1Base.DAO
             else
                 item.SalesQtyPerPackUnit = 1;
 
-            item.SalesUnitLength1 = itemModel.SLength1;
-            item.SalesUnitWidth1 = itemModel.SWidth1;
-            item.SalesUnitHeight1 = itemModel.SHeigth1;
+            item.SalesUnitLength = itemModel.SLength1;
+            item.SalesUnitWidth = itemModel.SWidth1;
+            item.SalesUnitHeight = itemModel.SHeigth1;
             item.SalesUnitVolume = itemModel.SVolume1;
 
             if (itemModel.SVolUnit > 0)
