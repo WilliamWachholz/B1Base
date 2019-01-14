@@ -791,24 +791,42 @@ namespace B1Base.View
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
             {
-                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((ComboBox)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                ComboBox combo = (ComboBox)SAPForm.Items.Item(item).Specific;
 
                 Type type = value.GetType();
 
-                if (type.IsEnum)
+                if (combo.DataBind.TableName == null)
                 {
-                    userDataSource.Value = ((int)value).ToString();
-                }
-                else if (type == typeof(Int32))
-                {
-                    if (value == 0)
-                        userDataSource.Value = string.Empty;
+                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(combo.DataBind.Alias);
+
+                    if (type.IsEnum)
+                    {
+                        userDataSource.Value = ((int)value).ToString();
+                    }
+                    else if (type == typeof(Int32))
+                    {
+                        if (value == 0)
+                            userDataSource.Value = string.Empty;
+                        else
+                            userDataSource.Value = value.ToString();
+                    }
                     else
+                    {
                         userDataSource.Value = value.ToString();
+                    }
                 }
                 else
                 {
-                    userDataSource.Value = value.ToString();
+                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(combo.DataBind.TableName);
+
+                    if (type.IsEnum)
+                    {
+                        dataTable.SetValue(combo.Item.Description, 0, ((int)value));
+                    }
+                    else 
+                    {
+                        dataTable.SetValue(combo.Item.Description, 0, value);
+                    }
                 }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
@@ -884,10 +902,10 @@ namespace B1Base.View
                 }
                 else
                 {
-                    if (editText.ChooseFromListUID != string.Empty)
-                    {
-                        DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
+                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
 
+                    if (editText.ChooseFromListUID != string.Empty)
+                    {                        
                         ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(editText.ChooseFromListUID);
 
                         string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
@@ -908,6 +926,10 @@ namespace B1Base.View
                             else
                                 dataTable.SetValue(editText.Item.Description, 0, Convert.ToInt32(value));
                         }
+                    }
+                    else
+                    {
+                        dataTable.SetValue(editText.Item.Description, 0, value);
                     }
                 }
             }
@@ -1442,22 +1464,26 @@ namespace B1Base.View
             if (EditValidateEvents.ContainsKey(edit) && !Frozen)
             {
                 EditText editText = ((EditText)SAPForm.Items.Item(edit).Specific);
-                
-                if (editText.ChooseFromListUID != string.Empty && editText.String == string.Empty)
+
+                try
                 {
-                    try
+                    if (editText.ChooseFromListUID != string.Empty && editText.String == string.Empty)
                     {
-                        UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
-                        codeDataSource.Value = "";
+                        try
+                        {
+                            UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
+                            codeDataSource.Value = "";
 
-                        UserDataSource valueDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
-                        valueDataSource.Value = "";
+                            UserDataSource valueDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
+                            valueDataSource.Value = "";
+                        }
+                        catch { }
+
+                        if (ChooseFromEvents.ContainsKey(edit))
+                            ChooseFromEvents[edit]("");
                     }
-                    catch { }
-
-                    if (ChooseFromEvents.ContainsKey(edit))
-                        ChooseFromEvents[edit]("");
                 }
+                catch { }
 
                 EditValidateEvents[edit](LastEditValue != editText.String);
             }

@@ -209,7 +209,9 @@ namespace B1Base.DAO
             item.InventoryUOM = itemModel.InvntryUom;            
             item.InventoryWeight = itemModel.IWeight1;            
             
-            item.AvgStdPrice = itemModel.AvgPrice;            
+            item.AvgStdPrice = itemModel.AvgPrice;
+
+            item.ProdStdCost = itemModel.PrdStdCst;            
             
             item.DesiredInventory = itemModel.ReorderQty;
             item.MinInventory = itemModel.MinLevel;
@@ -241,6 +243,8 @@ namespace B1Base.DAO
             item.SalesItem = itemModel.SellItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
             item.PurchaseItem = itemModel.PrchseItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
 
+            item.InCostRollup = itemModel.InCostRoll ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+
             if (itemModel.CardCode != string.Empty)
                 item.Mainsupplier = itemModel.CardCode;
 
@@ -260,8 +264,7 @@ namespace B1Base.DAO
             item.Frozen = itemModel.FrozenFor ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
             item.FrozenFrom = itemModel.FrozenFrom;
             item.FrozenTo = itemModel.FrozenTo;
-            item.FrozenRemarks = itemModel.FrozenComm;
-
+            item.FrozenRemarks = itemModel.FrozenComm;            
 
             item.PurchaseUnit = itemModel.BuyUnitMsr;
             if (itemModel.NumInBuy > 0)
@@ -411,6 +414,16 @@ namespace B1Base.DAO
                     break;
             }
 
+            if (itemModel.IsPhantom)
+            {
+                item.InventoryItem = BoYesNoEnum.tNO;
+                item.IssueMethod = BoIssueMethod.im_Backflush;
+                item.IsPhantom = BoYesNoEnum.tYES;
+            }
+            else
+            {
+                item.IsPhantom = BoYesNoEnum.tNO;
+            }
 
             item.set_Properties(1, itemModel.QryGroup1 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);
             item.set_Properties(2, itemModel.QryGroup2 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO);

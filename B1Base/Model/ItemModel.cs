@@ -83,7 +83,8 @@ namespace B1Base.Model
         public double OrdrMulti { get; set; }        
         public double MinOrdrQty { get; set; }
         public int LeadTime { get; set; }
-        public int ToleranDay { get; set; }        
+        public int ToleranDay { get; set; }
+        public bool IsPhantom { get; set; }
         public string IssueMthd { get; set; }
         public double PrdStdCst { get; set; }
         public bool InCostRoll { get; set; }
