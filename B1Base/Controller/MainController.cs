@@ -69,7 +69,7 @@ namespace B1Base.Controller
         {
             try
             {
-                Controller.ConnectionController.Instance.Initialize();
+                Controller.ConnectionController.Instance.Initialize(AddOnID);
             }
             catch(Exception e)
             {
@@ -115,8 +115,12 @@ namespace B1Base.Controller
                 ConnectionController.Instance.CreateMetadata(AddOnID + "Cnf", "AutoCreateMetadata", FieldTypeEnum.Alphanumeric, 1);
                 ConnectionController.Instance.CreateMetadata(AddOnID + "Cnf", "ActivateLog", FieldTypeEnum.Alphanumeric, 1);
 
+                ConnectionController.Instance.CreateMetadata(AddOnID + "Seq", "Code", FieldTypeEnum.Integer);
+                ConnectionController.Instance.CreateMetadata(AddOnID + "Seq", "UserTable", FieldTypeEnum.Alphanumeric, 40);
+                ConnectionController.Instance.CreateMetadata(AddOnID + "Seq", "NextCode", FieldTypeEnum.Integer);
+
                 Model.ConfigModel configModel = new Model.ConfigModel();
-                configModel = new ConfigController().GetConfig(1);
+                configModel = new ConfigController().GetConfig();
 
                 LogIsActive = configModel.ActivateLog;
 

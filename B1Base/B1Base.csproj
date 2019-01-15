@@ -76,6 +76,7 @@
     <Compile Include="DAO\AttachmentDAO.cs" />
     <Compile Include="DAO\BusinessPartnerDAO.cs" />
     <Compile Include="DAO\ConfigDAO.cs" />
+    <Compile Include="DAO\ConfigSeqDAO.cs" />
     <Compile Include="DAO\ItemDAO.cs" />
     <Compile Include="DAO\BaseDAO.cs" />
     <Compile Include="Controller\ConnectionController.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Model\BaseModel.cs" />
     <Compile Include="Model\BusinessPartnerModel.cs" />
     <Compile Include="Model\ConfigModel.cs" />
+    <Compile Include="Model\ConfigSeqModel.cs" />
     <Compile Include="Model\EnumOperation.cs" />
     <Compile Include="Model\ItemGroupModel.cs" />
     <Compile Include="Model\ItemModel.cs" />
@@ -190,6 +192,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\SQLSERVER\GetLastCode.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SQL\HANA\GetListConfigSeq.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SQL\SQLSERVER\GetListConfigSeq.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\SQLSERVER\GetListField.sql">

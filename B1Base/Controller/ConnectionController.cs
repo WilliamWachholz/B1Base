@@ -29,6 +29,8 @@ namespace B1Base.Controller
 
         public SAPbouiCOM.Application Application { get; private set; }
 
+        public string AddOnID { get; private set; }
+
         public string DBServerType { get; private set; }
 
         public bool Desenv { get; private set; }
@@ -64,8 +66,9 @@ namespace B1Base.Controller
                 throw new Exception(string.Format("Código do erro: {0}. Mensagem: {1}.", errorCode, errorMessage));
         }
 
-        public void Initialize() 
-        { 
+        public void Initialize(string addOnID) 
+        {
+            AddOnID = addOnID;
             try
             {
                 SAPbouiCOM.SboGuiApi sboGuiApi = new SAPbouiCOM.SboGuiApi();
@@ -119,8 +122,10 @@ namespace B1Base.Controller
             }            
         }
 
-        public void Initialize(string server, string companyDB, string userName, string password, string licenseServer, string dbUserName, string dbPassword, string dbServerType)
+        public void Initialize(string addOnID, string server, string companyDB, string userName, string password, string licenseServer, string dbUserName, string dbPassword, string dbServerType)
         {
+            AddOnID = addOnID;
+
             this.Company = null;
             this.Company = new SAPbobsCOM.Company();
 

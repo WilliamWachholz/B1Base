@@ -39,7 +39,8 @@ namespace B1Base
         
         public void Initialize()
         {
-            B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("Server"),
+            B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("AddOnId"),
+                ConfigurationSettings.AppSettings.Get("Server"),
                 ConfigurationSettings.AppSettings.Get("CompanyDB"),
                 ConfigurationSettings.AppSettings.Get("UserName"),
                 ConfigurationSettings.AppSettings.Get("Password"),

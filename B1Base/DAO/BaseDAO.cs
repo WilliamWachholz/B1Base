@@ -125,7 +125,7 @@ namespace B1Base.DAO
                 }
                 else
                 {
-                    model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName);
+                    model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, ConfigSeqDAO.AddOnSequenceTableName);
 
                     userTable.Code = model.Code.ToString();
                     userTable.Name = model.Code.ToString();

@@ -6,20 +6,22 @@ using System.Threading.Tasks;
 
 namespace B1Base.Controller
 {
-    class ConfigController
+    class ConfigController : BaseController
     {
-        DAO.ConfigDAO _configDAO;
+        DAO.ConfigDAO m_ConfigDAO;
+        DAO.ConfigSeqDAO m_ConfigSeqDAO;
 
         public ConfigController()
         {
-            _configDAO = new DAO.ConfigDAO();
+            m_ConfigDAO = new DAO.ConfigDAO();
+            m_ConfigSeqDAO = new DAO.ConfigSeqDAO();
         }
 
-        public Model.ConfigModel GetConfig(int code)
+        public Model.ConfigModel GetConfig()
         {
             try
             {
-                return _configDAO.Get(code);
+                return m_ConfigDAO.Get(1);
             }
             catch (Exception e)
             {
@@ -33,7 +35,24 @@ namespace B1Base.Controller
         {
             try
             {
-                _configDAO.Save(configModel);
+                m_ConfigDAO.Save(configModel);
+            }
+            catch (Exception e)
+            {
+                Controller.ConnectionController.Instance.Application.StatusBar.SetText(e.Message);
+            }
+        }
+
+        public List<Model.ConfigSeqModel> GetListConfigSeq()
+        {
+            return m_ConfigSeqDAO.GetList();
+        }
+
+        public void SaveConfigSeq(List<Model.ConfigSeqModel> configSeqList)
+        {
+            try
+            {
+                Save<Model.ConfigSeqModel>(GetListConfigSeq(), configSeqList);
             }
             catch (Exception e)
             {

@@ -11,13 +11,31 @@ namespace B1Base.View
     {
         const string BUTTON_OK = "BTNOK";
         const string BUTTON_CREATE_METADATA = "BTNMETA";
+        
         const string CHECK_AUTO_CREATE_METADATA = "CHK";
         const string CHECK_LOG = "5";
-                
+
+        const string MATRIX_SEQ = "6";
+        const string DATA_SEQ = "DT_0";
+
+        const string V_USER_TABLE = "V_1";
+        const string V_NEXT_CODE = "V_0";
 
         public ConfigView(string formUID, string formType) : base(formUID, formType)        
         {
             
+        }
+
+        protected override Dictionary<string, MatrixCanAddEventHandler> MatrixCanAddEvents
+        {
+            get
+            {
+                Dictionary<string, MatrixCanAddEventHandler> result = base.MatrixCanAddEvents;
+                result.Add(MATRIX_SEQ + "." + V_USER_TABLE, MatrixSeqCanAdd);
+                result.Add(MATRIX_SEQ + "." + V_NEXT_CODE, MatrixSeqCanAdd);
+
+                return result;
+            }
         }
 
         public override void AddFormData()
@@ -35,10 +53,14 @@ namespace B1Base.View
 
                 Controller.ConfigController configController = new Controller.ConfigController();
 
-                Model.ConfigModel configModel = configController.GetConfig(1);
+                Model.ConfigModel configModel = configController.GetConfig();
 
                 SetValue(CHECK_AUTO_CREATE_METADATA, configModel.AutoCreateMetadata);
                 SetValue(CHECK_LOG, configModel.ActivateLog);
+
+                List<Model.ConfigSeqModel> configSeqList = configController.GetListConfigSeq();
+
+                SetValue<Model.ConfigSeqModel>(base.SAPForm.DataSources.DataTables.Item(DATA_SEQ), (Matrix)base.SAPForm.Items.Item(MATRIX_SEQ).Specific, configSeqList);
             }
             catch (Exception e)
             {
@@ -65,7 +87,11 @@ namespace B1Base.View
             configModel.AutoCreateMetadata = GetValue(CHECK_AUTO_CREATE_METADATA);
             configModel.ActivateLog = GetValue(CHECK_LOG);
 
-            new Controller.ConfigController().SaveConfig(configModel);
+            Controller.ConfigController configController = new Controller.ConfigController();
+
+            configController.SaveConfig(configModel);
+
+            configController.SaveConfigSeq(GetValue<Model.ConfigSeqModel>(base.SAPForm.DataSources.DataTables.Item(DATA_SEQ), (Matrix)base.SAPForm.Items.Item(MATRIX_SEQ).Specific));
 
             base.SAPForm.Close();
         }
@@ -73,6 +99,12 @@ namespace B1Base.View
         private void ButtonCreateMetadataClick()
         {
             AddOn.Instance.MainController.CreateMetadata();
+        }
+
+        private bool MatrixSeqCanAdd(int row)
+        {
+            return GetValue(MATRIX_SEQ, V_USER_TABLE, row) != string.Empty &
+                GetValue(MATRIX_SEQ, V_NEXT_CODE, row) > 0;
         }
     }
 }
