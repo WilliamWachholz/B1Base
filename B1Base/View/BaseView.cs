@@ -712,7 +712,9 @@ namespace B1Base.View
                 {
                     DataTable dataTable = SAPForm.DataSources.DataTables.Item(option.DataBind.TableName);
 
-                    return dataTable.GetValue(option.Item.Description, 0);
+                    string s = ((OptionBtn)SAPForm.Items.Item(item).Specific).ValOn;
+
+                    return dataTable.GetValue(option.Item.Description, 0).ToString() == ((OptionBtn)SAPForm.Items.Item(item).Specific).ValOn;
                 }
             }
             else return string.Empty;
