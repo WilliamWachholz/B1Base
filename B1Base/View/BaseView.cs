@@ -52,6 +52,7 @@ namespace B1Base.View
         public string LastColumnValue { get; private set; }
         public int LastSortedColPos { get; private set; }
         public Dictionary<string, int> LastRows { get; private set; }
+        public Dictionary<string, int> LastBeforeRows { get; private set; }
         public bool Frozen { get; private set; }
 
         public View.BaseView ParentView { get; set; }
@@ -81,6 +82,7 @@ namespace B1Base.View
                         LastComboValue = string.Empty;
                         LastSortedColPos = 1;
                         LastRows = new Dictionary<string, int>();
+                        LastBeforeRows = new Dictionary<string, int>();
 
                         CreateControls();
                     }
@@ -1305,10 +1307,12 @@ namespace B1Base.View
 
                 if (LastRows.ContainsKey(matrix))
                 {
+                    LastBeforeRows[matrix] = LastRows[matrix];
                     LastRows[matrix] = row;
                 }
                 else
                 {
+                    LastBeforeRows.Add(matrix, 1);
                     LastRows.Add(matrix, row);
                 }
 
