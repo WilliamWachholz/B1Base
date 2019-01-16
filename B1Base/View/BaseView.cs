@@ -1087,7 +1087,7 @@ namespace B1Base.View
             {
                 SAPForm.ActiveItem = "DUMMY";
 
-                SetValue(m_BrowseItem, Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", m_BrowseTable)); 
+                SetValue(m_BrowseItem, Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", m_BrowseTable, DAO.ConfigSeqDAO.AddOnSequenceTableName)); 
 
                 SAPForm.Items.Item(m_BrowseItem).Enabled = false;
 
