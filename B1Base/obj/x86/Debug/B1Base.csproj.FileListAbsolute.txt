@@ -31,3 +31,5 @@ C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.dll
 C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.pdb
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetListConfigSeq.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetListConfigSeq.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetItemGroupCode.sql
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csprojResolveAssemblyReference.cache

@@ -456,12 +456,30 @@ namespace B1Base.Controller
 
         public void ExecuteSQLForMatrix(string sqlScript, Matrix matrix, DataTable dataTable, params string[] variables)
         {
+            ExecuteSQLForMatrix(sqlScript, matrix, dataTable, false, variables);
+        }
+
+        public void ExecuteSQLForMatrix(string sqlScript, Matrix matrix, DataTable dataTable, bool addLastLine, params string[] variables)
+        {
             string sql = GetSQL(sqlScript, variables);
             try
             {
                 dataTable.ExecuteQuery(sql);
 
                 matrix.LoadFromDataSource();
+
+                if (addLastLine)
+                {
+                    matrix.AddRow();
+                    matrix.ClearRowData(matrix.RowCount);
+
+                    if (matrix.Columns.Item(0).Description == "Pos")
+                    {
+                        ((EditText)matrix.Columns.Item(0).Cells.Item(matrix.RowCount).Specific).String = matrix.RowCount.ToString();
+                    }
+
+                    matrix.AutoResizeColumns();
+                }
             }
             catch (Exception e)
             {

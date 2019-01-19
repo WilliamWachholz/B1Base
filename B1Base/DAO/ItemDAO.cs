@@ -112,6 +112,14 @@ namespace B1Base.DAO
 
         public void Save(Model.ItemGroupModel itemGroupModel)
         {
+            int groupCode = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetItemGroupCode", itemGroupModel.GroupName);
+
+            if (groupCode != 0)
+            {
+                itemGroupModel.GroupCode = groupCode;
+                return;
+            }
+
             ItemGroups itemGroup = (ItemGroups)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItemGroups);
             try
             {
@@ -137,13 +145,14 @@ namespace B1Base.DAO
                     Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
 
                     itemGroupModel.GroupCode = Controller.ConnectionController.Instance.LastObjectCode;
-                }                
+                }
             }
             finally
             {
                 GC.Collect();
                 Marshal.ReleaseComObject(itemGroup);
             }
+
         }
 
         public void Delete(Model.ItemModel itemModel)

@@ -74,6 +74,11 @@ namespace B1Base.View
             {
                 m_timerInitialize.Enabled = false;
 
+                Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
+
+                SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
+                SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
+
                 try
                 {
                     try
@@ -103,11 +108,6 @@ namespace B1Base.View
                 {
                     B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText(ex.Message);
                 }
-
-                Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
-
-                SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
-                SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
             }
             finally
             {
@@ -378,6 +378,11 @@ namespace B1Base.View
             }
         }
 
+        public dynamic GetValue(string item, bool fromDataSource)
+        {
+            return GetValue(item, "", 0, fromDataSource);
+        }
+
         /// <summary>
         /// Busca valor de um componente na tela ou direto de um dataSource
         /// </summary>
@@ -545,19 +550,26 @@ namespace B1Base.View
 
                     DataTable dataTable = SAPForm.DataSources.DataTables.Item(combo.DataBind.TableName);
 
-                    BoFieldsType fieldType = dataTable.Columns.Item(combo.DataBind.Alias).Type;
+                    try
+                    {
+                        BoFieldsType fieldType = dataTable.Columns.Item(combo.DataBind.Alias).Type;
 
-                    if (fieldType == BoFieldsType.ft_Integer)
-                    {
-                        if (combo.Selected == null)
-                            return 0;
-                        else return Convert.ToInt32(combo.Selected.Value);
+                        if (fieldType == BoFieldsType.ft_Integer)
+                        {
+                            if (combo.Selected == null)
+                                return 0;
+                            else return Convert.ToInt32(combo.Selected.Value);
+                        }
+                        else
+                        {
+                            if (combo.Selected == null)
+                                return string.Empty;
+                            else return combo.Selected.Value;
+                        }
                     }
-                    else
+                    catch
                     {
-                        if (combo.Selected == null)
-                            return string.Empty;
-                        else return combo.Selected.Value;
+                        return combo.Selected.Value;
                     }
                 }
                 else return string.Empty;
@@ -1010,7 +1022,7 @@ namespace B1Base.View
 
                 try
                 {
-                    if (matrix.Columns.Item(0).DataBind.Alias == "Pos")
+                    if (matrix.Columns.Item(0).Description == "Pos" || matrix.Columns.Item(0).DataBind.Alias == "Pos")
                         ((EditText)matrix.Columns.Item(0).Cells.Item(matrix.RowCount).Specific).String = matrix.RowCount.ToString();
                 }
                 catch { }
@@ -1278,10 +1290,11 @@ namespace B1Base.View
                         if (MatrixCanAddEvents[key](row))
                         {
                             matrixItem.AddRow();
+                            matrixItem.ClearRowData(matrixItem.RowCount);
 
                             try
                             {
-                                if (matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
+                                if (matrixItem.Columns.Item(0).Description == "Pos" || matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
                                     ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
                             }
                             catch { }
@@ -1343,10 +1356,11 @@ namespace B1Base.View
                     if (MatrixCanAddEvents[key](row))
                     {                                                    
                         matrixItem.AddRow();
+                        matrixItem.ClearRowData(matrixItem.RowCount);
 
                         try
                         {
-                            if (matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
+                            if (matrixItem.Columns.Item(0).Description == "Pos" || matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
                                 ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
                         }
                         catch { }
@@ -1538,10 +1552,11 @@ namespace B1Base.View
                     if (MatrixCanAddEvents[key](row))
                     {
                         matrixItem.AddRow();
+                        matrixItem.ClearRowData(matrixItem.RowCount);
 
                         try
                         {
-                            if (matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
+                            if (matrixItem.Columns.Item(0).Description == "Pos" || matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
                                 ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
                         }
                         catch { }
@@ -1585,10 +1600,11 @@ namespace B1Base.View
                     if (MatrixCanAddEvents[key](row))
                     {
                         matrixItem.AddRow();
+                        matrixItem.ClearRowData(matrixItem.RowCount);
 
                         try
                         {
-                            if (matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
+                            if (matrixItem.Columns.Item(0).Description == "Pos" || matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
                                 ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
                         }
                         catch { }
