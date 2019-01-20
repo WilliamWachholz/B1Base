@@ -43,6 +43,14 @@ namespace B1Base.Controller
             }
         }
 
+        public bool SuperUser
+        {
+            get
+            {
+                return ExecuteSqlForObject<string>("GetUserIsSuper", User.ToString()) == "Y";
+            }
+        }
+
         public int LastObjectCode
         {
             get

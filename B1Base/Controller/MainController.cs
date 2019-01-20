@@ -23,6 +23,7 @@ namespace B1Base.Controller
         protected const string MENU_SAP = "43520";
         protected const string MENU_CONFIG_SAP = "43525";
         protected string MENU_ADDON { get { return AddOnID;  } }
+        protected string MENU_ADDON_CONFIG { get { return AddOnID + "43525"; } }
         protected string MENU_CONFIG { get { return AddOnID + "Cnf";  } }
 
         protected delegate void OpenMenuEventHandler();
@@ -37,6 +38,9 @@ namespace B1Base.Controller
 
         protected void CreateMenu(string menuFather, string menuID, string menuName, string imageFile, bool popup)
         {
+            if (menuFather == MENU_ADDON)
+                CreateMenu(MENU_SAP, MENU_ADDON, AddOnName, "", true);
+
             SAPbouiCOM.Menus oMenus = null;
             SAPbouiCOM.MenuItem oMenuItem = null;
             SAPbouiCOM.MenuCreationParams oCreationPackage = null;
@@ -99,8 +103,8 @@ namespace B1Base.Controller
 
             try
             {
-                CreateMenu(MENU_CONFIG_SAP, MENU_ADDON, AddOnName, "", true);
-                CreateMenu(MENU_ADDON, MENU_CONFIG, "Configuração", "", false);
+                CreateMenu(MENU_CONFIG_SAP, MENU_ADDON_CONFIG, AddOnName, "", true);
+                CreateMenu(MENU_ADDON_CONFIG, MENU_CONFIG, "Configuração", "", false);
 
                 CreateMenus();
             }
