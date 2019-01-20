@@ -284,6 +284,33 @@ namespace B1Base.View
             }
         }
 
+        protected void LoadCombo<T>(Matrix matrix, string column)
+        {
+            bool noRow = matrix.RowCount == 0;
+
+            if (noRow)
+                matrix.AddRow();
+
+            ComboBox combo = (ComboBox)matrix.Columns.Item(column).Cells.Item(1).Specific;
+
+            for (int value = combo.ValidValues.Count - 1; value >= 0; value--)
+            {
+                combo.ValidValues.Remove(value, BoSearchKey.psk_Index);
+            }
+
+            var type = typeof(T);
+
+            var enumValues = Enum.GetValues(type);
+
+            foreach (var enumValue in enumValues)
+            {
+                combo.ValidValues.Add(((int)enumValue).ToString(), Model.EnumOperation.GetEnumDescription(enumValue));
+            }
+
+            if (noRow)
+                matrix.DeleteRow(1);
+        }
+
         protected void FilterChoose(EditText edit, string field, BoConditionOperation operation, string value)
         {
             if (edit.ChooseFromListUID != string.Empty)
