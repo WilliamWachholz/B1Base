@@ -804,7 +804,23 @@ namespace B1Base.View
 
         public void SetValue(string item, dynamic value, string column = "", int row = 0, bool toDataSource = false)
         {
-            if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_MATRIX)
+            if (item.Contains("."))
+            {
+                string tableName = item.Split('.')[0];
+                string tableCol = item.Split('.')[1];
+
+                for (int index = 0; index < SAPForm.DataSources.DBDataSources.Count; index++)
+                {
+                    if (SAPForm.DataSources.DBDataSources.Item(index).TableName == tableName)
+                    {
+                        if (SAPForm.DataSources.DBDataSources.Item(index).Fields.Item(tableCol).Type == BoFieldsType.ft_Float)
+                        {
+                            SAPForm.DataSources.DBDataSources.Item(index).SetValue(tableCol, row, value);                            
+                        }
+                    }
+                }
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_MATRIX)
             {
                 Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
 
