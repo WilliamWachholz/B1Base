@@ -243,6 +243,9 @@ namespace B1Base.DAO
                 item.AttachmentEntry = itemModel.AtcEntry;
 
             item.IssuePrimarilyBy = (IssuePrimarilyByEnum)itemModel.IssuePriBy;
+            item.ManageSerialNumbers = itemModel.IssuePriBy == 0 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            item.ManageBatchNumbers = itemModel.IssuePriBy == 1 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+
             item.MaterialType = (BoMaterialTypes)itemModel.MatType;
 
             item.NoDiscounts = itemModel.NoDiscount ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;

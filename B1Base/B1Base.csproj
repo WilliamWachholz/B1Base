@@ -86,6 +86,7 @@
     <Compile Include="Model\BusinessPartnerModel.cs" />
     <Compile Include="Model\ConfigModel.cs" />
     <Compile Include="Model\ConfigSeqModel.cs" />
+    <Compile Include="Model\EnumObjType.cs" />
     <Compile Include="Model\EnumOperation.cs" />
     <Compile Include="Model\ItemGroupModel.cs" />
     <Compile Include="Model\ItemModel.cs" />

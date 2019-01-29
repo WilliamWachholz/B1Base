@@ -359,6 +359,14 @@ namespace B1Base.View
 
                 userDataSource.Value = "";
             }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_CHECK_BOX)
+            {
+                CheckBox check = (CheckBox)SAPForm.Items.Item(item).Specific;
+
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(check.DataBind.Alias);
+
+                userDataSource.Value = "N";
+            }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
             {
                 EditText editText = (EditText)SAPForm.Items.Item(item).Specific;
@@ -397,6 +405,14 @@ namespace B1Base.View
                         userDataSource.Value = "";
                     }
                 }
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EXTEDIT)
+            {
+                EditText extEdit = (EditText)SAPForm.Items.Item(item).Specific;
+
+                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(extEdit.DataBind.Alias);
+
+                userDataSource.Value = "";
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_MATRIX)
             {
@@ -813,10 +829,18 @@ namespace B1Base.View
                 {
                     if (SAPForm.DataSources.DBDataSources.Item(index).TableName == tableName)
                     {
-                        if (SAPForm.DataSources.DBDataSources.Item(index).Fields.Item(tableCol).Type == BoFieldsType.ft_Float)
-                        {
+                        //if (SAPForm.DataSources.DBDataSources.Item(index).Fields.Item(tableCol).Type == BoFieldsType.ft_Float)
+                        //{
                             SAPForm.DataSources.DBDataSources.Item(index).SetValue(tableCol, row, value);                            
-                        }
+                        //}
+                        //else if (SAPForm.DataSources.DBDataSources.Item(index).Fields.Item(tableCol).Type == BoFieldsType.ft_Date)
+                        //{
+                        //    SAPForm.DataSources.DBDataSources.Item(index).SetValue(tableCol, row, value);
+                        //}
+                        //else if (SAPForm.DataSources.DBDataSources.Item(index).Fields.Item(tableCol).Type == BoFieldsType.ft_Integer)
+                        //{
+                        //    SAPForm.DataSources.DBDataSources.Item(index).SetValue(tableCol, row, value);
+                        //}
                     }
                 }
             }
@@ -894,11 +918,19 @@ namespace B1Base.View
 
                 if (editText.DataBind.TableName == null)
                 {
-                    if (editText.ChooseFromListUID != string.Empty)
+                    string chooseFrom = string.Empty;
+
+                    try
+                    {
+                        chooseFrom = editText.ChooseFromListUID;
+                    }
+                    catch { }
+
+                    if (chooseFrom != string.Empty)
                     {
                         try
                         {
-                            ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(editText.ChooseFromListUID);
+                            ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(chooseFrom);
 
                             string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
 
@@ -1214,6 +1246,8 @@ namespace B1Base.View
                     SAPForm.Mode = BoFormMode.fm_OK_MODE;
 
                     SAPForm.EnableMenu("1282", true);
+
+                    AddOn.Instance.MainController.OpenMenuInsert();
                 }
                 else
                 {
