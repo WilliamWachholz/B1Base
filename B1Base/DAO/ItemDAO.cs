@@ -316,17 +316,17 @@ namespace B1Base.DAO
             if (itemModel.PurFactor2 > 0)
                 item.PurchaseFactor2 = itemModel.PurFactor2;
             else
-                item.PurchaseFactor2 = 2;
+                item.PurchaseFactor2 = 1;
 
             if (itemModel.PurFactor3 > 0)
                 item.PurchaseFactor3 = itemModel.PurFactor3;
             else
-                item.PurchaseFactor3 = 3;
+                item.PurchaseFactor3 = 1;
 
             if (itemModel.PurFactor4 > 0)
                 item.PurchaseFactor4 = itemModel.PurFactor4;
             else
-                item.PurchaseFactor4 = 4;
+                item.PurchaseFactor4 = 1;
 
             item.SalesUnit = itemModel.SalUnitMsr;
             if (itemModel.NumInSale > 0)
@@ -361,17 +361,17 @@ namespace B1Base.DAO
             if (itemModel.SalFactor2 > 0)
                 item.SalesFactor2 = itemModel.SalFactor2;
             else
-                item.SalesFactor2 = 2;
+                item.SalesFactor2 = 1;
 
             if (itemModel.SalFactor3 > 0)
                 item.SalesFactor3 = itemModel.SalFactor3;
             else
-                item.SalesFactor3 = 3;
+                item.SalesFactor3 = 1;
 
             if (itemModel.SalFactor4 > 0)
                 item.SalesFactor4 = itemModel.SalFactor4;
             else
-                item.SalesFactor4 = 4;
+                item.SalesFactor4 = 1;
 
 
             switch (itemModel.GLMethod)

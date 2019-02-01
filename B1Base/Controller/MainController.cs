@@ -556,7 +556,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("259 - " + e.Message);
+                        //ConnectionController.Instance.Application.StatusBar.SetText("259 - " + e.Message);
                     }
                 }
             }
