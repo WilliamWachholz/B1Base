@@ -242,9 +242,14 @@ namespace B1Base.DAO
             if (itemModel.AtcEntry > 0)
                 item.AttachmentEntry = itemModel.AtcEntry;
 
-            item.IssuePrimarilyBy = (IssuePrimarilyByEnum)itemModel.IssuePriBy;
-            item.ManageSerialNumbers = itemModel.IssuePriBy == 0 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
-            item.ManageBatchNumbers = itemModel.IssuePriBy == 1 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            if (itemModel.IssuePriBy > 0)
+            {
+                item.IssuePrimarilyBy = (IssuePrimarilyByEnum)itemModel.IssuePriBy - 1;
+                item.ManageSerialNumbers = itemModel.IssuePriBy == 1 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+                item.ManageBatchNumbers = itemModel.IssuePriBy == 2 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+
+                item.SRIAndBatchManageMethod = (BoManageMethod)itemModel.MngMethod;
+            }
 
             item.MaterialType = (BoMaterialTypes)itemModel.MatType;
 

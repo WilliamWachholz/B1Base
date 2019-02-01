@@ -24,6 +24,7 @@ namespace B1Base.Model
         public int UgpEntry { get; set; }
         public int ShipType { get; set; }
         public int IssuePriBy { get; set; }
+        public int MngMethod { get; set; }
         public string SWW { get; set; }
         public int MatType { get; set; }
         public int MatGrp { get; set; }
