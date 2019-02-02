@@ -495,6 +495,19 @@ namespace B1Base.Controller
             }
         }
 
+        public void ExecuteSQLForGrid(string sqlScript, DataTable dataTable, params string[] variables)
+        {
+            string sql = GetSQL(sqlScript, variables);
+            try
+            {
+                dataTable.ExecuteQuery(sql);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(sqlScript + " - " + e.Message);
+            }
+        }
+
         public void ExecuteSQLForForm(string sqlScript, DataTable dataTable, params string[] variables)
         {
             string sql = GetSQL(sqlScript, variables);
