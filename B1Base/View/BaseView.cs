@@ -993,34 +993,41 @@ namespace B1Base.View
                 }
                 else
                 {
-                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
+                    try
+                    {
+                        DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
 
-                    if (editText.ChooseFromListUID != string.Empty)
-                    {                        
-                        ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(editText.ChooseFromListUID);
-
-                        string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
-
-                        try
-                        {                            
-                            if (dataTable.Columns.Item("_" + editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
-                                dataTable.SetValue("_" + editText.Item.Description, 0, value);
-                            else
-                                dataTable.SetValue("_" + editText.Item.Description, 0, Convert.ToInt32(value));
-
-                            dataTable.SetValue(editText.Item.Description, 0, descValue);
-                        }
-                        catch
+                        if (editText.ChooseFromListUID != string.Empty)
                         {
-                            if (dataTable.Columns.Item(editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
-                                dataTable.SetValue(editText.Item.Description, 0, value);
-                            else
-                                dataTable.SetValue(editText.Item.Description, 0, Convert.ToInt32(value));
+                            ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(editText.ChooseFromListUID);
+
+                            string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
+
+                            try
+                            {
+                                if (dataTable.Columns.Item("_" + editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
+                                    dataTable.SetValue("_" + editText.Item.Description, 0, value);
+                                else
+                                    dataTable.SetValue("_" + editText.Item.Description, 0, Convert.ToInt32(value));
+
+                                dataTable.SetValue(editText.Item.Description, 0, descValue);
+                            }
+                            catch
+                            {
+                                if (dataTable.Columns.Item(editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
+                                    dataTable.SetValue(editText.Item.Description, 0, value);
+                                else
+                                    dataTable.SetValue(editText.Item.Description, 0, Convert.ToInt32(value));
+                            }
+                        }
+                        else
+                        {
+                            dataTable.SetValue(editText.Item.Description, 0, value);
                         }
                     }
-                    else
+                    catch
                     {
-                        dataTable.SetValue(editText.Item.Description, 0, value);
+                        editText.String = value;
                     }
                 }
             }

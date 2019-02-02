@@ -15,5 +15,10 @@ namespace B1Base.Model
         public DateTime DueDate { get; set; }
 
         public Dictionary<string, dynamic> UserFields { get; set; }
+
+        public DocumentInstallmentModel()
+        {
+            UserFields = new Dictionary<string, dynamic>();
+        }
     }
 }

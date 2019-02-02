@@ -63,6 +63,11 @@ namespace B1Base.Controller
             }
         }
 
+        public int LastLogInstance(Model.EnumObjType objType, int code)
+        {
+            return ExecuteSqlForObject<int>("GetLastLogInstance", ((int)objType).ToString(), code.ToString());
+        }
+
         public void VerifyBussinesObjectSuccess()
         {
             int errorCode;
