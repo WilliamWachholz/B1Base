@@ -1263,7 +1263,16 @@ namespace B1Base.View
             }
             else if (SAPForm.Mode == BoFormMode.fm_UPDATE_MODE)
             {
-                UpdateFormData();                
+                string msg;
+
+                if (ValidateFormData(out msg, false))
+                {
+                    UpdateFormData();
+                }
+                else
+                {
+                    AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+                }
             }
         }
 

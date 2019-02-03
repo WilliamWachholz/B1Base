@@ -19,6 +19,7 @@ namespace B1Base.Controller
         protected abstract void ExitApp();
         protected virtual void CreateMenus() { }
         private bool LogIsActive { get; set; }
+        private string LastStatusBarMsg { get; set; }
 
         protected const string MENU_SAP = "43520";
         protected const string MENU_CONFIG_SAP = "43525";
@@ -99,6 +100,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuDuplicate;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuAny;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuRightClick;
+            Controller.ConnectionController.Instance.Application.StatusBarEvent += HandleStatusBarMessage;
             Controller.ConnectionController.Instance.Application.RightClickEvent += HandleRightClick;
 
             try
@@ -773,7 +775,46 @@ namespace B1Base.Controller
         private void HandleFormData(ref BusinessObjectInfo objectInfo, out bool bubbleEvent)
         {
             bubbleEvent = true;
-            if (objectInfo.ActionSuccess)
+            if (objectInfo.BeforeAction == true)
+            {
+                try
+                {
+                    string formId = objectInfo.FormUID;
+                    string formType = objectInfo.FormTypeEx;
+
+                    if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                    {
+                        string msg;
+
+                        if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_DELETE)
+                        {
+                            if (!m_Views.First(r => r.FormUID == formId && r.FormType == formType).ValidateFormData(out msg, true))
+                            {
+                                AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+
+                                bubbleEvent = false;
+                            }
+                        }
+                        else if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_ADD || objectInfo.EventType == BoEventTypes.et_FORM_DATA_UPDATE)
+                        {
+                            if (!m_Views.First(r => r.FormUID == formId && r.FormType == formType).ValidateFormData(out msg, false))
+                            {                                
+                                AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+
+                                bubbleEvent = false;
+                            }
+                        }                        
+                    }
+                }                 
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("344");
+                    }
+                }
+            }
+            else if (objectInfo.ActionSuccess)
             {
                 try
                 {
@@ -787,7 +828,7 @@ namespace B1Base.Controller
                             m_Views.First(r => r.FormUID == formId && r.FormType == formType).GotFormData();
                         }
                         if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_ADD)
-                        {
+                        {                            
                             m_Views.First(r => r.FormUID == formId && r.FormType == formType).AddFormData();
                         }
                         if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_UPDATE)
@@ -796,7 +837,6 @@ namespace B1Base.Controller
                         }
                         if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_DELETE)
                         {
-                            AddOn.Instance.ConnectionController.Application.StatusBar.SetText("AA");
                             m_Views.First(r => r.FormUID == formId && r.FormType == formType).DeleteFormData();
                         }
                     }
@@ -970,6 +1010,18 @@ namespace B1Base.Controller
                 case SAPbouiCOM.BoAppEventTypes.aet_ShutDown:
                     ExitApp();
                     break;
+            }
+        }
+
+        private void HandleStatusBarMessage(string text, BoStatusBarMessageType messageType)
+        {
+            if (text.Contains("Ação suspendida pelo add-on"))
+            {
+                ConnectionController.Instance.Application.StatusBar.SetText(LastStatusBarMsg, BoMessageTime.bmt_Long, BoStatusBarMessageType.smt_Error);
+            }
+            else
+            {
+                LastStatusBarMsg = text;
             }
         }
 
