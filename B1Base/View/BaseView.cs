@@ -53,6 +53,7 @@ namespace B1Base.View
         public int LastSortedColPos { get; private set; }
         public Dictionary<string, int> LastRows { get; private set; }
         public Dictionary<string, int> LastBeforeRows { get; private set; }
+        public BoFormMode LastFormMode { get; private set; }
         public bool Frozen { get; private set; }
 
         public View.BaseView ParentView { get; set; }
@@ -1170,6 +1171,18 @@ namespace B1Base.View
 
         public virtual void DeleteFormData() { }
 
+        public virtual void BeforeAddFormData() { }
+
+        public virtual void BeforeUpdateFormData() { }
+
+        public virtual void BeforeDeleteFormData() { }
+
+        public virtual void AfterAddFormData() { }
+
+        public virtual void AfterUpdateFormData() { }
+
+        public virtual void AfterDeleteFormData() { }
+
         public virtual bool ValidateFormData(out string msg, bool delete) { msg = string.Empty; return true; }
 
         /// <summary>
@@ -1218,62 +1231,94 @@ namespace B1Base.View
 
         public void ButtonOkClick()
         {
-            if (SAPForm.Mode == BoFormMode.fm_FIND_MODE)
+            if (!FormUID.Contains("F_"))
             {
-               int code = FindFormData();
+                if (SAPForm.Mode == BoFormMode.fm_FIND_MODE)
+                {
+                    int code = FindFormData();
 
-               if (code != 0)
-               {
-                   ((EditText)SAPForm.Items.Item("BACKCODE").Specific).String = code.ToString();
+                    if (code != 0)
+                    {
+                        ((EditText)SAPForm.Items.Item("BACKCODE").Specific).String = code.ToString();
 
-                   SAPForm.ActiveItem = "DUMMY";
+                        SAPForm.ActiveItem = "DUMMY";
 
-                   SAPForm.Items.Item(m_BrowseItem).Enabled = false;
+                        SAPForm.Items.Item(m_BrowseItem).Enabled = false;
 
-                   SAPForm.EnableMenu("1282", true);
-                   SAPForm.EnableMenu("1281", true);
-               }
-               else
-               {
-                   Controller.ConnectionController.Instance.Application.StatusBar.SetText("Nenhum registro concordante encontrado");
-               }
+                        SAPForm.EnableMenu("1282", true);
+                        SAPForm.EnableMenu("1281", true);
+                    }
+                    else
+                    {
+                        Controller.ConnectionController.Instance.Application.StatusBar.SetText("Nenhum registro concordante encontrado");
+                    }
+                }
+            }
+
+            LastFormMode = SAPForm.Mode;
+
+            if (SAPForm.Mode == BoFormMode.fm_ADD_MODE)
+            {                
+                BeforeAddFormData();
+            }
+            else if (SAPForm.Mode == BoFormMode.fm_UPDATE_MODE)
+            {
+                BeforeUpdateFormData();
             }
         }
 
         public void ButtonOkPress()
         {
-            if (SAPForm.Mode == BoFormMode.fm_ADD_MODE)
+            if (!FormUID.Contains("F_"))
             {
-                string msg;
-
-                if (ValidateFormData(out msg, false))
+                if (SAPForm.Mode == BoFormMode.fm_ADD_MODE)
                 {
-                    AddFormData();
+                    string msg;
 
-                    SAPForm.Mode = BoFormMode.fm_OK_MODE;
+                    if (ValidateFormData(out msg, false))
+                    {
+                        AddFormData();
 
-                    SAPForm.EnableMenu("1282", true);
+                        SAPForm.Mode = BoFormMode.fm_OK_MODE;
 
-                    AddOn.Instance.MainController.OpenMenuInsert();
+                        SAPForm.EnableMenu("1282", true);
+
+                        AddOn.Instance.MainController.OpenMenuInsert();
+                    }
+                    else
+                    {
+                        AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+
+                        return;
+                    }
                 }
-                else
+                else if (SAPForm.Mode == BoFormMode.fm_UPDATE_MODE)
                 {
-                    AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);         
+                    string msg;
+
+                    if (ValidateFormData(out msg, false))
+                    {
+                        UpdateFormData();
+                    }
+                    else
+                    {
+                        AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+                        
+                        return;
+                    }
                 }
             }
-            else if (SAPForm.Mode == BoFormMode.fm_UPDATE_MODE)
-            {
-                string msg;
 
-                if (ValidateFormData(out msg, false))
-                {
-                    UpdateFormData();
-                }
-                else
-                {
-                    AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
-                }
+            if (LastFormMode == BoFormMode.fm_ADD_MODE && SAPForm.Mode == BoFormMode.fm_OK_MODE)
+            {
+                AfterAddFormData();
             }
+            else if (LastFormMode == BoFormMode.fm_UPDATE_MODE && SAPForm.Mode == BoFormMode.fm_OK_MODE)
+            {
+                AfterUpdateFormData();
+            }
+
+            LastFormMode = SAPForm.Mode;
         }
 
         public void ButtonClick(string button)
@@ -1473,9 +1518,13 @@ namespace B1Base.View
 
                 if (ValidateFormData(out msg, true))
                 {
+                    BeforeDeleteFormData();
+
                     DeleteFormData();
 
                     SAPForm.Mode = BoFormMode.fm_OK_MODE;
+
+                    AfterDeleteFormData();
 
                     SAPForm.EnableMenu("1282", true);
                 }

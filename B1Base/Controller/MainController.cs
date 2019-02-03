@@ -358,7 +358,7 @@ namespace B1Base.Controller
                     string formId = pVal.FormUID;
                     string formType = pVal.FormTypeEx;
 
-                    if (pVal.ItemUID == "1" && !formId.Contains("F_"))
+                    if (pVal.ItemUID == "1")
                     {
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
@@ -395,7 +395,7 @@ namespace B1Base.Controller
                     string formType = pVal.FormTypeEx;
                     string formId = pVal.FormUID;
 
-                    if (pVal.ItemUID == "1" && !formId.Contains("F_"))
+                    if (pVal.ItemUID == "1")
                     {
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
