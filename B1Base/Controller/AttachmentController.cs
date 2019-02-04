@@ -50,6 +50,16 @@ namespace B1Base.Controller
             }
         }
 
+        public int Save(string file)
+        {
+            Model.AttachmentModel attachmentModel = new Model.AttachmentModel();
+            attachmentModel.Path = file;
+
+            new DAO.AttachmentDAO().Insert(attachmentModel);
+
+            return attachmentModel.AbsEntry;
+        }
+
         public List<Model.AttachmentModel> Get(int atcEntry)
         {
             return new DAO.AttachmentDAO().Get(atcEntry);

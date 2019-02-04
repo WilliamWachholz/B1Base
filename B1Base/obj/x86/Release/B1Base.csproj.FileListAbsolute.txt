@@ -59,3 +59,5 @@ C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\SQLSERVER\GetListConfigSeq.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\SQLSERVER\GetItemGroupCode.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\GetUserIsSuper.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\SQLSERVER\GetUserIsSuper.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\GetLastLogInstance.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\SQLSERVER\GetLastLogInstance.sql
