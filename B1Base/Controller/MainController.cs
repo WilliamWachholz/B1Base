@@ -472,7 +472,7 @@ namespace B1Base.Controller
                             {
                                 m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnValidate(pVal.ItemUID, pVal.Row, pVal.ColUID);
                             }
-                            else
+                            else if (pVal.ItemUID != string.Empty)
                             {
                                 m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditValidate(pVal.ItemUID);
                             }
@@ -507,6 +507,25 @@ namespace B1Base.Controller
                             m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ComboSelect(pVal.ItemUID);
                         }
 
+                        bubbleEvent = false;
+                    }
+                }
+                catch (Exception e)
+                {
+                    //ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
+                }
+            }
+
+            if (pVal.EventType == BoEventTypes.et_FORM_ACTIVATE && pVal.BeforeAction == false)
+            {
+                try
+                {
+                    string formType = pVal.FormTypeEx;
+
+                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    {
+                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).FormValidate();
+                        
                         bubbleEvent = false;
                     }
                 }

@@ -13,10 +13,15 @@ namespace B1Base.View
 {
     public abstract class BaseView
     {
+        const string BUTTON_DOC_COPY = "10000330";
+
         public string FormUID { get; private set; }
         public string FormType { get; private set; }
 
         Timer m_timerInitialize = new Timer(700);
+        bool m_copyFlag;
+        bool m_addFlag;
+        bool m_updateFlag;
 
         public BaseView(string formUID, string formType)
         {
@@ -46,6 +51,7 @@ namespace B1Base.View
         public delegate void OptionEventHandler();
         public delegate void ColumnCheckEventHandler(int row);
         public delegate void LinkEventHandler(View.BaseView linkedView);
+        public delegate void DocCopyEventHandler(int docEntry);
 
         public string LastEditValue { get; private set; }
         public string LastComboValue { get; private set; }
@@ -54,6 +60,9 @@ namespace B1Base.View
         public Dictionary<string, int> LastRows { get; private set; }
         public Dictionary<string, int> LastBeforeRows { get; private set; }
         public BoFormMode LastFormMode { get; private set; }
+        public int LastCopiedDocEntry { get; private set; }
+        public int LastDocEntry { get; private set; }
+        public Model.EnumObjType LastCopiedObjType { get; private set; }
         public bool Frozen { get; private set; }
 
         public View.BaseView ParentView { get; set; }
@@ -77,20 +86,27 @@ namespace B1Base.View
 
                 Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
 
-                SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
-                SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
+                if (!FormUID.Contains("F_"))
+                {
+                    SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
+                    SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
+                }
 
                 try
                 {
+                    LastEditValue = string.Empty;
+                    LastComboValue = string.Empty;
+                    LastSortedColPos = 1;
+                    LastRows = new Dictionary<string, int>();
+                    LastBeforeRows = new Dictionary<string, int>();
+                    LastCopiedDocEntry = 0;
+                    LastCopiedObjType = Model.EnumObjType.None;
+                    LastDocEntry = 0;
+                    LastFormMode = SAPForm.Mode;
+
                     try
                     {
-                        LastEditValue = string.Empty;
-                        LastComboValue = string.Empty;
-                        LastSortedColPos = 1;
-                        LastRows = new Dictionary<string, int>();
-                        LastBeforeRows = new Dictionary<string, int>();
-
-                        CreateControls();
+                        CreateControls();                        
                     }
                     catch (Exception ex)
                     {
@@ -103,6 +119,13 @@ namespace B1Base.View
                         {
                             throw ex;
                         }
+                    }
+                    
+                    if (DocCopyEvents.Count > 0)
+                    {
+                        m_copyFlag = true;
+
+                        FormValidate();
                     }
                 }
                 catch (Exception ex)
@@ -154,7 +177,9 @@ namespace B1Base.View
 
         protected virtual Dictionary<string, OptionEventHandler> OptionEvents { get { return new Dictionary<string, OptionEventHandler>(); } }
 
-        public virtual Dictionary<string, LinkEventHandler> LinkEvents { get { return new Dictionary<string, LinkEventHandler>(); } }
+        protected virtual Dictionary<string, LinkEventHandler> LinkEvents { get { return new Dictionary<string, LinkEventHandler>(); } }
+
+        protected virtual Dictionary<Model.EnumObjType, DocCopyEventHandler> DocCopyEvents { get { return new Dictionary<Model.EnumObjType, DocCopyEventHandler>(); } }
 
         protected virtual void CreateControls() { }
 
@@ -1150,24 +1175,54 @@ namespace B1Base.View
         }
 
         /// <summary>
-        /// Em caso de formulário customizado, chamar base.GotFormData() para realizar as operações necessárias no campo de browse
+        /// Chamar método base para realizar as operações necessárias
         /// </summary>
         public virtual void GotFormData() 
         {
-            if (m_BrowseItem != string.Empty)
+            if (!FormUID.Contains("F_"))
             {
-                int code = GetValue(string.Format("@{0}.U_Code", m_BrowseTable), "", 0, true);
+                if (m_BrowseItem != string.Empty)
+                {
+                    int code = GetValue(string.Format("@{0}.U_Code", m_BrowseTable), "", 0, true);
 
-                SetValue(m_BrowseItem, code);
+                    SetValue(m_BrowseItem, code);
 
-                SAPForm.EnableMenu("1282", true);
-                SAPForm.EnableMenu("1281", true);
+                    SAPForm.EnableMenu("1282", true);
+                    SAPForm.EnableMenu("1281", true);
+                }
             }
         }
 
-        public virtual void AddFormData() { }
+        /// <summary>
+        /// Chamar método base para realizar as operações necessárias
+        /// </summary>
+        public virtual void AddFormData() 
+        {
+            m_addFlag = true;
 
-        public virtual void UpdateFormData() { }
+            if (FormUID.Contains("F_"))
+            {
+                try
+                {
+                    string xml = SAPForm.BusinessObject.Key;
+
+                    LastDocEntry = Convert.ToInt32(xml.Substring(xml.IndexOf("<DocEntry>") + 10, xml.IndexOf("</DocEntry>") - (xml.IndexOf("<DocEntry>") + 10)));
+
+                }
+                catch
+                {
+                    LastDocEntry = 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Chamar método base para realizar as operações necessárias
+        /// </summary>
+        public virtual void UpdateFormData()
+        {
+            m_updateFlag = true;
+        }
 
         public virtual void DeleteFormData() { }
 
@@ -1186,38 +1241,44 @@ namespace B1Base.View
         public virtual bool ValidateFormData(out string msg, bool delete) { msg = string.Empty; return true; }
 
         /// <summary>
-        /// Em caso de formulário customizado, chamar base.MenuInsert() para realizar as operações necessárias no campo de browse
+        /// Chamar método base para realizar as operações necessárias
         /// </summary>
         public virtual void MenuInsert() 
         {
-            if (m_BrowseItem != string.Empty)
+            if (!FormUID.Contains("F_"))
             {
-                SAPForm.ActiveItem = "DUMMY";
+                if (m_BrowseItem != string.Empty)
+                {
+                    SAPForm.ActiveItem = "DUMMY";
 
-                SetValue(m_BrowseItem, Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", m_BrowseTable, DAO.ConfigSeqDAO.AddOnSequenceTableName)); 
+                    SetValue(m_BrowseItem, Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", m_BrowseTable, DAO.ConfigSeqDAO.AddOnSequenceTableName));
 
-                SAPForm.Items.Item(m_BrowseItem).Enabled = false;
+                    SAPForm.Items.Item(m_BrowseItem).Enabled = false;
 
-                SAPForm.EnableMenu("1282", false);
-                SAPForm.EnableMenu("1281", true);
-            }        
+                    SAPForm.EnableMenu("1282", false);
+                    SAPForm.EnableMenu("1281", true);
+                }
+            }
         }
 
         /// <summary>
-        /// Em caso de formulário customizado, chamar base.MenuSearch() para realizar as operações necessárias no campo de browse
+        /// Chamar método base para realizar as operações necessárias
         /// </summary>
         public virtual void MenuSearch() 
         {
-            if (m_BrowseItem != string.Empty)
+            if (!FormUID.Contains("F_"))
             {
-                SAPForm.Items.Item(m_BrowseItem).Enabled = true;
+                if (m_BrowseItem != string.Empty)
+                {
+                    SAPForm.Items.Item(m_BrowseItem).Enabled = true;
 
-                SAPForm.ActiveItem = m_BrowseItem;
+                    SAPForm.ActiveItem = m_BrowseItem;
 
-                ((EditText)SAPForm.Items.Item(m_BrowseItem).Specific).String = "";
+                    ((EditText)SAPForm.Items.Item(m_BrowseItem).Specific).String = "";
 
-                SAPForm.EnableMenu("1281", false);
-                SAPForm.EnableMenu("1282", true);
+                    SAPForm.EnableMenu("1281", false);
+                    SAPForm.EnableMenu("1282", true);
+                }
             }
         }
 
@@ -1309,20 +1370,30 @@ namespace B1Base.View
                 }
             }
 
-            if (LastFormMode == BoFormMode.fm_ADD_MODE && SAPForm.Mode == BoFormMode.fm_OK_MODE)
+            if (m_addFlag)
             {
+                m_addFlag = false;
+
                 AfterAddFormData();
             }
-            else if (LastFormMode == BoFormMode.fm_UPDATE_MODE && SAPForm.Mode == BoFormMode.fm_OK_MODE)
+            else if (m_updateFlag)
             {
+                m_updateFlag = false;
+
                 AfterUpdateFormData();
             }
-
-            LastFormMode = SAPForm.Mode;
         }
 
         public void ButtonClick(string button)
         {
+            if (button == BUTTON_DOC_COPY)
+            {
+                if (DocCopyEvents.Count > 0)
+                {
+                    m_copyFlag = true;
+                }
+            }
+
             if (ButtonClickEvents.ContainsKey(button))
             {
                 ButtonClickEvents[button]();
@@ -1796,6 +1867,32 @@ namespace B1Base.View
             if (LinkEvents.ContainsKey(link) && !Frozen)
             {
                 LinkEvents[link](linkedView);
+            }
+        }
+
+        public void FormValidate()
+        {
+            if (m_copyFlag)
+            {
+                m_copyFlag = false;
+                switch(FormType)
+                {
+                    case "133":
+                        int docEntry = GetValue("INV1.BaseEntry", true);
+                        Model.EnumObjType objType = (Model.EnumObjType)GetValue("INV1.BaseType", true);
+
+                        if (docEntry > 0)
+                        {
+                            if (DocCopyEvents.ContainsKey(objType))
+                            {
+                                LastCopiedDocEntry = docEntry;
+                                LastCopiedObjType = objType;
+
+                                DocCopyEvents[objType](docEntry);
+                            }
+                        }
+                        break;
+                }                
             }
         }
     }
