@@ -155,6 +155,29 @@ namespace B1Base.DAO
 
         }
 
+        public void Save(string itemCode, string cardCode, string suppCatNum)
+        {
+            AlternateCatNum alternateCatNum = (AlternateCatNum)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oAlternateCatNum);
+            try
+            {
+                if (!alternateCatNum.GetByKey(itemCode, cardCode, suppCatNum))
+                {
+                    alternateCatNum.ItemCode = itemCode;
+                    alternateCatNum.CardCode = cardCode;
+                    alternateCatNum.Substitute = suppCatNum;
+
+                    alternateCatNum.Add();
+
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(alternateCatNum);
+                GC.Collect();
+            }
+        }
+
         public void Delete(Model.ItemModel itemModel)
         {
             Items item = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);

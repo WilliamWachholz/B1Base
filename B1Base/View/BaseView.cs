@@ -14,7 +14,7 @@ namespace B1Base.View
     public abstract class BaseView
     {
         const string BUTTON_DOC_COPY = "10000330";
-
+        
         public string FormUID { get; private set; }
         public string FormType { get; private set; }
 

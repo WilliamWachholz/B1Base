@@ -44,7 +44,7 @@ namespace B1Base
         }
 
         /// <summary>
-        /// Iniciar um programa contido na pasta (CurrentDirectory) do addOn. Informar a extensão
+        /// Inicia um programa contido na pasta (CurrentDirectory) do addOn. Informar a extensão
         /// </summary>
         /// <param name="file"></param>
         public void StartProcess(string file, bool stopRunningInstances = false)
