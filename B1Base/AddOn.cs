@@ -29,7 +29,7 @@ namespace B1Base
         {
             this.MainController = mainController;
             this.MainController.Initialize();
-        }        
+        }
 
         public string CurrentDirectory
         {
@@ -43,5 +43,20 @@ namespace B1Base
             }
         }
 
+        /// <summary>
+        /// Iniciar um programa contido na pasta (CurrentDirectory) do addOn. Informar a extensão
+        /// </summary>
+        /// <param name="file"></param>
+        public void StartProcess(string file, bool stopRunningInstances = false)
+        {
+            if (stopRunningInstances)
+            {
+                foreach(System.Diagnostics.Process process in System.Diagnostics.Process.GetProcessesByName(file))
+                {
+                    process.Kill();
+                }
+            }
+            System.Diagnostics.Process.Start(System.IO.Path.Combine(B1Base.AddOn.Instance.CurrentDirectory, file));
+        }
     }
 }
