@@ -62,6 +62,7 @@ namespace B1Base.View
         public BoFormMode LastFormMode { get; private set; }
         public int LastCopiedDocEntry { get; private set; }
         public int LastDocEntry { get; private set; }
+        public int LastAbsEntry { get; private set; }
         public Model.EnumObjType LastCopiedObjType { get; private set; }
         public bool Frozen { get; private set; }
 
@@ -102,6 +103,7 @@ namespace B1Base.View
                     LastCopiedDocEntry = 0;
                     LastCopiedObjType = Model.EnumObjType.None;
                     LastDocEntry = 0;
+                    LastAbsEntry = 0;
                     LastFormMode = SAPForm.Mode;
 
                     try
@@ -1212,6 +1214,18 @@ namespace B1Base.View
                 catch
                 {
                     LastDocEntry = 0;
+                }
+
+                try
+                {
+                    string xml = SAPForm.BusinessObject.Key;
+
+                    LastAbsEntry = Convert.ToInt32(xml.Substring(xml.IndexOf("<AbsEntry>") + 10, xml.IndexOf("</AbsEntry>") - (xml.IndexOf("<AbsEntry>") + 10)));
+
+                }
+                catch
+                {
+                    LastAbsEntry = 0;
                 }
             }
         }
