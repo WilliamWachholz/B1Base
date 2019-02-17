@@ -99,7 +99,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormResize;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixRowClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixSort;
-            Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixKeyDown;
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixKeyDown;            
             Controller.ConnectionController.Instance.Application.FormDataEvent += HandleFormData;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuInsert;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSearch;
@@ -108,7 +108,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuRightClick;
             Controller.ConnectionController.Instance.Application.StatusBarEvent += HandleStatusBarMessage;
             Controller.ConnectionController.Instance.Application.RightClickEvent += HandleRightClick;
-
+            
             try
             {
                 CreateMenu(MENU_CONFIG_SAP, MENU_ADDON_CONFIG, AddOnName, "", true);
@@ -239,7 +239,7 @@ namespace B1Base.Controller
         private void HandleFormLoad(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
-
+              
             if (pVal.EventType == BoEventTypes.et_FORM_LOAD && pVal.BeforeAction == false)
             {
                 try
@@ -331,7 +331,7 @@ namespace B1Base.Controller
         {
             bubbleEvent = true;
 
-            if (pVal.EventType == BoEventTypes.et_FORM_CLOSE && pVal.BeforeAction == false)
+            if (pVal.EventType == BoEventTypes.et_FORM_UNLOAD && pVal.BeforeAction == false)
             {
                 try
                 {
@@ -413,10 +413,9 @@ namespace B1Base.Controller
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
                             m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonPress(pVal.ItemUID);
-                        }
 
-                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonOpenView(pVal.ItemUID, m_Views[m_Views.Count - 1]);
+
                             m_Views.First(r => r.FormUID == formUID && r.FormType == formType).LinkPress(pVal.ItemUID, m_Views[m_Views.Count - 1]);
                         }
                     }
@@ -886,15 +885,19 @@ namespace B1Base.Controller
                 {
                     string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
                     string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
-
-                    if (formId.Contains("F_"))
-                    {
-                        formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
-                    }
-
+                    
                     if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                     {
                         m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuInsert();
+                    }
+                    else if (formId.Contains("F_"))
+                    {
+                        formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
+
+                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuInsert();
+                        }
                     }
                 }
                 catch (Exception e)
@@ -929,15 +932,19 @@ namespace B1Base.Controller
                 else
                 {
                     try
-                    {                        
-                        if (formId.Contains("F_"))
-                        {
-                            formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
-                        }
-
+                    {
                         if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                         {
                             m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuSearch();
+                        }
+                        else if (formId.Contains("F_"))
+                        {
+                            formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
+
+                            if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                            {
+                                m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuSearch();
+                            }
                         }
                     }
                     catch (Exception e)
@@ -962,14 +969,18 @@ namespace B1Base.Controller
                     string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
                     string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
 
-                    if (formId.Contains("F_"))
-                    {
-                        formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
-                    }
-
                     if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                     {
                         m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuDuplicate();
+                    }
+                    else if (formId.Contains("F_"))
+                    {
+                        formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
+
+                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuDuplicate();
+                        }
                     }
                 }
                 catch (Exception e)
@@ -993,14 +1004,18 @@ namespace B1Base.Controller
                     string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
                     string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
 
-                    if (formId.Contains("F_"))
-                    {
-                        formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
-                    }
-
                     if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                     {
                         m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuRightClick(pVal.MenuUID);
+                    }
+                    else if (formId.Contains("F_"))
+                    {
+                        formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
+
+                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuRightClick(pVal.MenuUID);
+                        }
                     }
                 }
                 catch (Exception e)

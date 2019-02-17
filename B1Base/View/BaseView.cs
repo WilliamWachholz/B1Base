@@ -36,6 +36,7 @@ namespace B1Base.View
 
         public delegate void ButtonClickEventHandler();
         public delegate void ButtonPressEventHandler();
+        public delegate void ButtonOpenViewEventHandler(BaseView view);
         public delegate void FolderSelectEventHandler();
         public delegate void ChooseFromEventHandler(params string[] values);
         public delegate void ColChooseFromEventHandler(int row, Dictionary<string, string> values);        
@@ -57,6 +58,7 @@ namespace B1Base.View
         public string LastComboValue { get; private set; }
         public string LastColumnValue { get; private set; }
         public int LastSortedColPos { get; private set; }
+        public string LastButtonClicked { get; private set; }
         public Dictionary<string, int> LastRows { get; private set; }
         public Dictionary<string, int> LastBeforeRows { get; private set; }
         public BoFormMode LastFormMode { get; private set; }
@@ -97,6 +99,7 @@ namespace B1Base.View
                 {
                     LastEditValue = string.Empty;
                     LastComboValue = string.Empty;
+                    LastButtonClicked = string.Empty;
                     LastSortedColPos = 1;
                     LastRows = new Dictionary<string, int>();
                     LastBeforeRows = new Dictionary<string, int>();
@@ -150,6 +153,8 @@ namespace B1Base.View
         /// Não atribuir a esse evento o botão OK (uid=1). Para esses casos, usar as sobrecargas correspondentes (FindFormData, GotFormData, AddFormData, UpdateFormData e DeleteFormData)
         /// </summary>
         protected virtual Dictionary<string, ButtonPressEventHandler> ButtonPressEvents { get { return new Dictionary<string, ButtonPressEventHandler>(); } }
+
+        protected virtual Dictionary<string, ButtonOpenViewEventHandler> ButtonOpenViewEvents { get { return new Dictionary<string, ButtonOpenViewEventHandler>(); } }
 
         protected virtual Dictionary<string, ChooseFromEventHandler> ChooseFromEvents { get { return new Dictionary<string, ChooseFromEventHandler>(); } }
 
@@ -946,77 +951,84 @@ namespace B1Base.View
 
                 if (editText.DataBind.TableName == null)
                 {
-                    string chooseFrom = string.Empty;
-
                     try
                     {
-                        chooseFrom = editText.ChooseFromListUID;
-                    }
-                    catch { }
+                        string chooseFrom = string.Empty;
 
-                    if (chooseFrom != string.Empty)
-                    {
                         try
                         {
-                            ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(chooseFrom);
-
-                            string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
-
-                            UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
-
-                            if (codeDataSource.DataType == BoDataType.dt_SHORT_NUMBER || codeDataSource.DataType == BoDataType.dt_LONG_NUMBER)
-                            {
-                                if (value != 0)
-                                    codeDataSource.Value = value.ToString();
-                                else
-                                    codeDataSource.Value = string.Empty;
-                            }
-                            else
-                            {
-                                codeDataSource.Value = value.ToString();
-                            }
-
-                            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
-                            userDataSource.Value = descValue;
+                            chooseFrom = editText.ChooseFromListUID;
                         }
-                        catch
-                        {
-                            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
-                            userDataSource.Value = value.ToString();
-                        }
-                    }
-                    else
-                    {
-                        UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                        catch { }
 
-                        if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER ||
-                            userDataSource.DataType == BoDataType.dt_MEASURE || userDataSource.DataType == BoDataType.dt_PERCENT ||
-                            userDataSource.DataType == BoDataType.dt_PRICE || userDataSource.DataType == BoDataType.dt_QUANTITY ||
-                            userDataSource.DataType == BoDataType.dt_RATE || userDataSource.DataType == BoDataType.dt_SUM)
-                        {
-                            if (value != 0)
-                                userDataSource.Value = value.ToString();
-                            else
-                                userDataSource.Value = string.Empty;
-                        }
-                        else if (userDataSource.DataType == BoDataType.dt_DATE)
+                        if (chooseFrom != string.Empty)
                         {
                             try
                             {
-                                if (value != DateTime.MinValue && value > new DateTime(1990, 1, 1))
-                                    userDataSource.Value = value.ToString("dd/MM/yyyy");
+                                ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(chooseFrom);
+
+                                string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, value.ToString());
+
+                                UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
+
+                                if (codeDataSource.DataType == BoDataType.dt_SHORT_NUMBER || codeDataSource.DataType == BoDataType.dt_LONG_NUMBER)
+                                {
+                                    if (value != 0)
+                                        codeDataSource.Value = value.ToString();
+                                    else
+                                        codeDataSource.Value = string.Empty;
+                                }
                                 else
-                                    userDataSource.Value = string.Empty;
+                                {
+                                    codeDataSource.Value = value.ToString();
+                                }
+
+                                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                                userDataSource.Value = descValue;
                             }
                             catch
                             {
-                                userDataSource.Value = DateTime.Now.ToString("dd/MM/yyyy");
+                                UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+                                userDataSource.Value = value.ToString();
                             }
                         }
                         else
                         {
-                            userDataSource.Value = value.ToString();
+                            UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(((EditText)SAPForm.Items.Item(item).Specific).DataBind.Alias);
+
+                            if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER ||
+                                userDataSource.DataType == BoDataType.dt_MEASURE || userDataSource.DataType == BoDataType.dt_PERCENT ||
+                                userDataSource.DataType == BoDataType.dt_PRICE || userDataSource.DataType == BoDataType.dt_QUANTITY ||
+                                userDataSource.DataType == BoDataType.dt_RATE || userDataSource.DataType == BoDataType.dt_SUM)
+                            {
+                                if (value != 0)
+                                    userDataSource.Value = value.ToString();
+                                else
+                                    userDataSource.Value = string.Empty;
+                            }
+                            else if (userDataSource.DataType == BoDataType.dt_DATE)
+                            {
+                                try
+                                {
+                                    if (value != DateTime.MinValue && value > new DateTime(1990, 1, 1))
+                                        userDataSource.Value = value.ToString("dd/MM/yyyy");
+                                    else
+                                        userDataSource.Value = string.Empty;
+                                }
+                                catch
+                                {
+                                    userDataSource.Value = DateTime.Now.ToString("dd/MM/yyyy");
+                                }
+                            }
+                            else
+                            {
+                                userDataSource.Value = value.ToString();
+                            }
                         }
+                    }
+                    catch
+                    {
+                        editText.String = value;
                     }
                 }
                 else
@@ -1304,7 +1316,7 @@ namespace B1Base.View
 
         public virtual void Close() { }
 
-        public void ButtonOkClick()
+        public virtual void ButtonOkClick()
         {
             if (!FormUID.Contains("F_"))
             {
@@ -1342,7 +1354,7 @@ namespace B1Base.View
             }
         }
 
-        public void ButtonOkPress()
+        public virtual void ButtonOkPress()
         {
             if (!FormUID.Contains("F_"))
             {
@@ -1410,7 +1422,14 @@ namespace B1Base.View
 
             if (ButtonClickEvents.ContainsKey(button))
             {
+                LastButtonClicked = button;
+
                 ButtonClickEvents[button]();
+            }
+
+            if (ButtonOpenViewEvents.ContainsKey(button))
+            {
+                LastButtonClicked = button;
             }
         }
 
@@ -1909,6 +1928,17 @@ namespace B1Base.View
                 }                
             }
         }
+
+        public void ButtonOpenView(string button, BaseView view)
+        {
+            if (ButtonOpenViewEvents.ContainsKey(button))
+            {
+                view.ParentView = this;
+
+                ButtonOpenViewEvents[button](view);
+            }
+        }
+
     }
     
 }
