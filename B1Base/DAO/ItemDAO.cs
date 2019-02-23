@@ -22,6 +22,7 @@ namespace B1Base.DAO
                     itemModel.ItemCode = item.ItemCode;
                     itemModel.ItemName = item.ItemName;
                     itemModel.SuppCatNum = item.SupplierCatalogNo;
+                    itemModel.CardCode = item.Mainsupplier;
                 }
             }
             finally

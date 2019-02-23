@@ -576,42 +576,49 @@ namespace B1Base.View
                 if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_EDIT || matrix.Columns.Item(column).Type == BoFormItemTypes.it_LINKED_BUTTON)
                 {
                     EditText editText = (EditText)matrix.Columns.Item(column).Cells.Item(row).Specific;
-                    
-                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
-
-                    BoFieldsType fieldType = BoFieldsType.ft_AlphaNumeric;
 
                     try
                     {
-                        fieldType = dataTable.Columns.Item(editText.DataBind.Alias).Type;
-                    }
-                    catch
-                    {
-                        for (int col = 0; col < matrix.Columns.Count; col++)
+                        DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
+
+                        BoFieldsType fieldType = BoFieldsType.ft_AlphaNumeric;
+
+                        try
                         {
-                            if (matrix.Columns.Item(column).UniqueID ==  matrix.Columns.Item(col).UniqueID)
+                            fieldType = dataTable.Columns.Item(editText.DataBind.Alias).Type;
+                        }
+                        catch
+                        {
+                            for (int col = 0; col < matrix.Columns.Count; col++)
                             {
-                                fieldType = dataTable.Columns.Item(col).Type;
-                                break;
+                                if (matrix.Columns.Item(column).UniqueID == matrix.Columns.Item(col).UniqueID)
+                                {
+                                    fieldType = dataTable.Columns.Item(col).Type;
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    if (fieldType == BoFieldsType.ft_Integer)
-                    {
-                        if (editText.String == string.Empty)
-                            return 0;
-                        else return Convert.ToInt32(editText.String);
+                        if (fieldType == BoFieldsType.ft_Integer)
+                        {
+                            if (editText.String == string.Empty)
+                                return 0;
+                            else return Convert.ToInt32(editText.String);
+                        }
+                        else if (fieldType == BoFieldsType.ft_Float || fieldType == BoFieldsType.ft_Measure ||
+                            fieldType == BoFieldsType.ft_Percent || fieldType == BoFieldsType.ft_Price ||
+                            fieldType == BoFieldsType.ft_Quantity || fieldType == BoFieldsType.ft_Rate || fieldType == BoFieldsType.ft_Sum)
+                        {
+                            if (editText.String == string.Empty)
+                                return 0;
+                            else return Convert.ToDouble(editText.String);
+                        }
+                        else
+                        {
+                            return editText.String;
+                        }
                     }
-                    else if (fieldType == BoFieldsType.ft_Float || fieldType == BoFieldsType.ft_Measure || 
-                        fieldType == BoFieldsType.ft_Percent || fieldType == BoFieldsType.ft_Price ||
-                        fieldType == BoFieldsType.ft_Quantity || fieldType == BoFieldsType.ft_Rate || fieldType == BoFieldsType.ft_Sum)
-                    {
-                        if (editText.String == string.Empty)
-                            return 0;
-                        else return Convert.ToDouble(editText.String);
-                    }
-                    else
+                    catch
                     {
                         return editText.String;
                     }
