@@ -23,6 +23,9 @@ namespace B1Base.DAO
                     itemModel.ItemName = item.ItemName;
                     itemModel.SuppCatNum = item.SupplierCatalogNo;
                     itemModel.CardCode = item.Mainsupplier;
+                    itemModel.BWeight1 = item.PurchaseUnitWeight;
+                    itemModel.SWeight1 = item.SalesUnitWeight;
+                    itemModel.IWeight1 = item.InventoryWeight;
                 }
             }
             finally

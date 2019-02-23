@@ -181,5 +181,25 @@ namespace B1Base.DAO
                 Marshal.ReleaseComObject(userTable);
             }
         }
+
+        public void UpdateField(int code, string field, object value)
+        {
+            UserTable userTable = (UserTable)Controller.ConnectionController.Instance.Company.UserTables.Item(TableName);
+            try
+            {
+                if (userTable.GetByKey(code.ToString()))
+                {
+                    userTable.UserFields.Fields.Item("U_" + field).Value = value;
+
+                    userTable.Update();
+
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(userTable);
+            }            
+        }
     }
 }
