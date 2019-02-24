@@ -1325,6 +1325,8 @@ namespace B1Base.View
 
         public virtual void ButtonOkClick()
         {
+            LastFormMode = SAPForm.Mode;
+
             if (!FormUID.Contains("F_"))
             {
                 if (SAPForm.Mode == BoFormMode.fm_FIND_MODE)
@@ -1347,17 +1349,38 @@ namespace B1Base.View
                         Controller.ConnectionController.Instance.Application.StatusBar.SetText("Nenhum registro concordante encontrado");
                     }
                 }
-            }
+                else if (SAPForm.Mode == BoFormMode.fm_ADD_MODE)
+                {
+                    BeforeAddFormData();
+                }
+                else if (SAPForm.Mode == BoFormMode.fm_UPDATE_MODE)
+                {
+                    BeforeUpdateFormData();
+                    
+                    string msg;
 
-            LastFormMode = SAPForm.Mode;
+                    if (ValidateFormData(out msg, false))
+                    {
+                        UpdateFormData();
+                    }
+                    else
+                    {
+                        AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
 
-            if (SAPForm.Mode == BoFormMode.fm_ADD_MODE)
-            {                
-                BeforeAddFormData();
+                        return;
+                    }
+                }
             }
-            else if (SAPForm.Mode == BoFormMode.fm_UPDATE_MODE)
+            else
             {
-                BeforeUpdateFormData();
+                if (SAPForm.Mode == BoFormMode.fm_ADD_MODE)
+                {
+                    BeforeAddFormData();
+                }
+                else if (SAPForm.Mode == BoFormMode.fm_UPDATE_MODE)
+                {
+                    BeforeUpdateFormData();
+                }
             }
         }
 
@@ -1383,21 +1406,6 @@ namespace B1Base.View
                     {
                         AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
 
-                        return;
-                    }
-                }
-                else if (SAPForm.Mode == BoFormMode.fm_UPDATE_MODE)
-                {
-                    string msg;
-
-                    if (ValidateFormData(out msg, false))
-                    {
-                        UpdateFormData();
-                    }
-                    else
-                    {
-                        AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
-                        
                         return;
                     }
                 }
