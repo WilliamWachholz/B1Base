@@ -77,6 +77,7 @@
     <Compile Include="DAO\BusinessPartnerDAO.cs" />
     <Compile Include="DAO\ConfigDAO.cs" />
     <Compile Include="DAO\ConfigSeqDAO.cs" />
+    <Compile Include="DAO\DiscountDAO.cs" />
     <Compile Include="DAO\DocumentDAO.cs" />
     <Compile Include="DAO\ItemDAO.cs" />
     <Compile Include="DAO\BaseDAO.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="Model\BusinessPartnerModel.cs" />
     <Compile Include="Model\ConfigModel.cs" />
     <Compile Include="Model\ConfigSeqModel.cs" />
+    <Compile Include="Model\DiscountGroupModel.cs" />
     <Compile Include="Model\EnumObjType.cs" />
     <Compile Include="Model\EnumOperation.cs" />
     <Compile Include="Model\DocumentInstallmentModel.cs" />

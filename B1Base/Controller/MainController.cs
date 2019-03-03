@@ -29,6 +29,8 @@ namespace B1Base.Controller
 
         protected delegate void OpenMenuEventHandler();
 
+        public delegate void LongMethod();
+
         protected virtual Dictionary<string, OpenMenuEventHandler> OpenMenuEvents()
         {
             Dictionary<string, OpenMenuEventHandler> result = new Dictionary<string, OpenMenuEventHandler>();
@@ -234,6 +236,22 @@ namespace B1Base.Controller
         public void OpenMenuInsert()
         {
             Controller.ConnectionController.Instance.Application.Menus.Item("1282").Activate();
+        }
+
+        public void OpenMenuRefresh()
+        {
+            Controller.ConnectionController.Instance.Application.Menus.Item("1304").Activate();
+        }
+
+        public void PerformLongAction(LongMethod longMethod)
+        {
+            //Deve chamar um app externo B1BaseApp, pois o cara pode deslogar do SAP.
+            //Criar tabela de log para a operação
+            System.Threading.ThreadStart treadStart = delegate() { longMethod(); };
+
+            System.Threading.Thread thread = new System.Threading.Thread(treadStart);
+            
+            thread.Start();
         }
 
         private void HandleFormLoad(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
@@ -834,7 +852,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("344");
+                        ConnectionController.Instance.Application.StatusBar.SetText("344 - " + e.Message);
                     }
                 }
             }
@@ -869,7 +887,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("344");
+                        ConnectionController.Instance.Application.StatusBar.SetText("344 - " + e.Message);
                     }
                 }
             }

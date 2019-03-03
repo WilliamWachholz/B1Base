@@ -75,7 +75,8 @@ namespace B1Base.Controller
             {
                 if (listCurrent.Where(r => r.Code == listSource[i].Code).Count() == 0)
                 {
-                    Delete<T>(listSource[i]);
+                    if (listSource[i].Code > 0)
+                        Delete<T>(listSource[i]);
                 }
             }
         }
@@ -90,6 +91,8 @@ namespace B1Base.Controller
 
             dao.Delete(model);
         }
+
+        //atributo threadedMethod?
 
         private void Compare<T>(T source, T current) where T : Model.BaseModel
         {
