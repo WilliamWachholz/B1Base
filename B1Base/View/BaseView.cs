@@ -451,6 +451,9 @@ namespace B1Base.View
             {
                 Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
                 matrix.Clear();
+
+                LastBeforeRows.Remove(item);
+                LastRows.Remove(item);
             }
         }
 
