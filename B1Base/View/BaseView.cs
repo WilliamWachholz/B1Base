@@ -61,6 +61,8 @@ namespace B1Base.View
         public string LastButtonClicked { get; private set; }
         public Dictionary<string, int> LastRows { get; private set; }
         public Dictionary<string, int> LastBeforeRows { get; private set; }
+        public int LastRightClickRow { get; private set; }
+        public string LastRightClickMatrix { get; private set; }
         public BoFormMode LastFormMode { get; private set; }
         public int LastCopiedDocEntry { get; private set; }
         public int LastDocEntry { get; private set; }
@@ -103,6 +105,8 @@ namespace B1Base.View
                     LastSortedColPos = 1;
                     LastRows = new Dictionary<string, int>();
                     LastBeforeRows = new Dictionary<string, int>();
+                    LastRightClickRow = 1;
+                    LastRightClickMatrix = string.Empty;
                     LastCopiedDocEntry = 0;
                     LastCopiedObjType = Model.EnumObjType.None;
                     LastDocEntry = 0;
@@ -1656,16 +1660,9 @@ namespace B1Base.View
                 }
             }
 
-            foreach (KeyValuePair<string, MatrixRowRemoveEventHandler> matrixRowRemoveEvent in MatrixRowRemoveEvents)
+            if (LastRightClickMatrix != null && MatrixRowRemoveEvents.ContainsKey(LastRightClickMatrix))
             {
-                if (menu.StartsWith(string.Format("MNUREM{0}{1}{2}", SAPForm.TypeEx, SAPForm.UniqueID, matrixRowRemoveEvent.Key)))
-                {
-                    Matrix matrix = (Matrix)SAPForm.Items.Item(matrixRowRemoveEvent.Key).Specific;
-
-                    int row = Convert.ToInt16(menu.Split('-')[1]);
-
-                    matrixRowRemoveEvent.Value(row);
-                }
+                MatrixRowRemoveEvents[LastRightClickMatrix](LastRightClickRow);
             }
         }
 
@@ -1690,37 +1687,37 @@ namespace B1Base.View
 
         public void RightClick(string item, int row, string col)
         {
-            foreach (KeyValuePair<string, MatrixRowRemoveEventHandler> matrixRowRemoveEvent in MatrixRowRemoveEvents)
+            if (MatrixRowRemoveEvents.ContainsKey(item))
             {
-                if (matrixRowRemoveEvent.Key == item)
+                string menuID = string.Format("MNUREM{0}", SAPForm.TypeEx);
+
+                if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
+                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
+
+                SAPbouiCOM.Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
+
+                string colTitle = matrix.Columns.Item(col).Title;
+                string firstCol = matrix.Columns.Item(0).UniqueID;
+
+                if (row > 0 && row < matrix.RowCount && (col != firstCol || colTitle != "#" || colTitle != ""))
                 {
-                    string menuID = string.Format("MNUREM{0}{1}{2}-{3}", SAPForm.TypeEx, SAPForm.UniqueID, item, row);
+                    LastRightClickMatrix = item;
+                    LastRightClickRow = row;
 
-                    if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
-                        Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
+                    MenuItem menuItem = null;
+                    Menus menu = null;
+                    MenuCreationParams creationPackage = null;
 
-                    SAPbouiCOM.Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
+                    creationPackage = ((MenuCreationParams)(Controller.ConnectionController.Instance.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
 
-                    string colTitle = matrix.Columns.Item(col).Title;
-                    string firstCol = matrix.Columns.Item(0).UniqueID;
+                    creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
+                    creationPackage.UniqueID = menuID;
+                    creationPackage.String = "Eliminar linha";
+                    creationPackage.Enabled = true;
 
-                    if (row > 0 && row < matrix.RowCount && (col != firstCol || colTitle != "#" || colTitle != ""))
-                    {
-                        MenuItem menuItem = null;
-                        Menus menu = null;
-                        MenuCreationParams creationPackage = null;
-
-                        creationPackage = ((MenuCreationParams)(Controller.ConnectionController.Instance.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
-
-                        creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
-                        creationPackage.UniqueID = menuID;
-                        creationPackage.String = "Eliminar linha";
-                        creationPackage.Enabled = true;
-
-                        menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
-                        menu = menuItem.SubMenus;
-                        menu.AddEx(creationPackage);
-                    }
+                    menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
+                    menu = menuItem.SubMenus;
+                    menu.AddEx(creationPackage);
                 }
             }
         }
