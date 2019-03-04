@@ -40,7 +40,8 @@ namespace B1Base.View
         public delegate void FolderSelectEventHandler();
         public delegate void ChooseFromEventHandler(params string[] values);
         public delegate void ColChooseFromEventHandler(int row, Dictionary<string, string> values);        
-        public delegate void MatixRowEnterEventHandler(int row, string column, bool rowChanged, bool rowSelected);        
+        public delegate void MatixRowEnterEventHandler(int row, string column, bool rowChanged, bool rowSelected);
+        public delegate void MatixRowDoubleClickEventHandler(int row, string column, bool rowChanged);    
         public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void MatrixSortEventHandler(string column);
         public delegate bool MatrixCanAddEventHandler(int row);
@@ -165,6 +166,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, ColChooseFromEventHandler> ColChooseFromEvents { get { return new Dictionary<string, ColChooseFromEventHandler>(); } }
 
         protected virtual Dictionary<string, MatixRowEnterEventHandler> MatrixRowEnterEvents { get { return new Dictionary<string, MatixRowEnterEventHandler>(); } }
+
+        protected virtual Dictionary<string, MatixRowDoubleClickEventHandler> MatrixRowDoubleClickEvents { get { return new Dictionary<string, MatixRowDoubleClickEventHandler>(); } }
 
         protected virtual Dictionary<string, MatrixRowRemoveEventHandler> MatrixRowRemoveEvents { get { return new Dictionary<string, MatrixRowRemoveEventHandler>(); } }
 
@@ -1604,6 +1607,29 @@ namespace B1Base.View
                 catch{ }
 
                 MatrixRowEnterEvents[matrix](row, column, rowChanged, selectedRow == row);
+            }
+        }
+
+        public void MatrixRowDoubleClick(string matrix, int row, string column)
+        {
+            if (MatrixRowDoubleClickEvents.ContainsKey(matrix) && !Frozen)
+            {
+                bool rowChanged = LastRows.ContainsKey(matrix) ? row != LastRows[matrix] : true;
+
+                if (LastRows.ContainsKey(matrix))
+                {
+                    LastBeforeRows[matrix] = LastRows[matrix];
+                    LastRows[matrix] = row;
+                }
+                else
+                {
+                    LastBeforeRows.Add(matrix, 1);
+                    LastRows.Add(matrix, row);
+                }
+
+                Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                MatrixRowDoubleClickEvents[matrix](row, column, rowChanged);
             }
         }
 
