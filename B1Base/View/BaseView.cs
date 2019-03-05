@@ -43,6 +43,7 @@ namespace B1Base.View
         public delegate void MatixRowEnterEventHandler(int row, string column, bool rowChanged, bool rowSelected);
         public delegate void MatixRowDoubleClickEventHandler(int row, string column, bool rowChanged);    
         public delegate void MatrixRowRemoveEventHandler(int row);
+        public delegate void MatrixColPasteForAllEventHandler(string column);
         public delegate void MatrixSortEventHandler(string column);
         public delegate bool MatrixCanAddEventHandler(int row);
         public delegate void EditValidateEventHandler(bool changed);
@@ -64,6 +65,7 @@ namespace B1Base.View
         public Dictionary<string, int> LastBeforeRows { get; private set; }
         public int LastRightClickRow { get; private set; }
         public string LastRightClickMatrix { get; private set; }
+        public string LastRightClickCol { get; private set; }
         public BoFormMode LastFormMode { get; private set; }
         public int LastCopiedDocEntry { get; private set; }
         public int LastDocEntry { get; private set; }
@@ -170,6 +172,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, MatixRowDoubleClickEventHandler> MatrixRowDoubleClickEvents { get { return new Dictionary<string, MatixRowDoubleClickEventHandler>(); } }
 
         protected virtual Dictionary<string, MatrixRowRemoveEventHandler> MatrixRowRemoveEvents { get { return new Dictionary<string, MatrixRowRemoveEventHandler>(); } }
+
+        protected virtual Dictionary<string, MatrixColPasteForAllEventHandler> MatrixColPasteForAllEvents { get { return new Dictionary<string, MatrixColPasteForAllEventHandler>(); } }
 
         protected virtual Dictionary<string, MatrixSortEventHandler> MatrixSortEvents { get { return new Dictionary<string, MatrixSortEventHandler>(); } }
 
@@ -443,7 +447,7 @@ namespace B1Base.View
                     else
                     {
                         userDataSource.Value = "";
-                    }
+                    }                    
                 }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EXTEDIT)
@@ -1686,9 +1690,45 @@ namespace B1Base.View
                 }
             }
 
-            if (LastRightClickMatrix != null && MatrixRowRemoveEvents.ContainsKey(LastRightClickMatrix))
+            if (LastRightClickMatrix != null && MatrixRowRemoveEvents.ContainsKey(LastRightClickMatrix) && menu.StartsWith("MNUREM"))
             {
                 MatrixRowRemoveEvents[LastRightClickMatrix](LastRightClickRow);
+            }
+
+            if (LastRightClickMatrix != null && MatrixColPasteForAllEvents.ContainsKey(LastRightClickMatrix) && menu.StartsWith("MNUPFA"))
+            {
+                System.Windows.Forms.IDataObject idat = null;
+                Exception threadEx = null;
+                String text = "";
+                System.Threading.Thread staThread = new System.Threading.Thread(
+                    delegate()
+                    {
+                        try
+                        {
+                            idat = System.Windows.Forms.Clipboard.GetDataObject();
+                            text = idat.GetData(System.Windows.Forms.DataFormats.Text).ToString();
+                        }
+
+                        catch (Exception ex)
+                        {
+                            threadEx = ex;
+                        }
+                    });
+                staThread.SetApartmentState(System.Threading.ApartmentState.STA);
+                staThread.Start();
+                staThread.Join();
+
+                Matrix matrix = (Matrix) SAPForm.Items.Item(LastRightClickMatrix).Specific;
+                int row = matrix.GetNextSelectedRow();
+
+                while (row > 0 && row <= matrix.RowCount)
+                {
+                    SetValue(matrix.Item.UniqueID, text, LastRightClickCol, row);
+
+                    row = matrix.GetNextSelectedRow(row);
+                }
+
+                MatrixColPasteForAllEvents[LastRightClickMatrix](LastRightClickCol);
             }
         }
 
@@ -1729,6 +1769,7 @@ namespace B1Base.View
                 {
                     LastRightClickMatrix = item;
                     LastRightClickRow = row;
+                    LastRightClickCol = col;
 
                     MenuItem menuItem = null;
                     Menus menu = null;
@@ -1739,6 +1780,41 @@ namespace B1Base.View
                     creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
                     creationPackage.UniqueID = menuID;
                     creationPackage.String = "Eliminar linha";
+                    creationPackage.Enabled = true;
+
+                    menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
+                    menu = menuItem.SubMenus;
+                    menu.AddEx(creationPackage);
+                }
+            }
+
+            if (MatrixColPasteForAllEvents.ContainsKey(item))
+            {
+                string menuID = string.Format("MNUPFA{0}", SAPForm.TypeEx);
+
+                if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
+                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
+
+                SAPbouiCOM.Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
+
+                string colTitle = matrix.Columns.Item(col).Title;
+                string firstCol = matrix.Columns.Item(0).UniqueID;
+
+                if (row > 0 && row < matrix.RowCount && (col != firstCol || colTitle != "#" || colTitle != ""))
+                {
+                    LastRightClickMatrix = item;
+                    LastRightClickRow = row;
+                    LastRightClickCol = col;
+
+                    MenuItem menuItem = null;
+                    Menus menu = null;
+                    MenuCreationParams creationPackage = null;
+
+                    creationPackage = ((MenuCreationParams)(Controller.ConnectionController.Instance.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
+
+                    creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
+                    creationPackage.UniqueID = menuID;
+                    creationPackage.String = "Colar (linhas selecionadas)";
                     creationPackage.Enabled = true;
 
                     menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
