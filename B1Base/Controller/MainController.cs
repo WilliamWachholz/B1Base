@@ -21,6 +21,8 @@ namespace B1Base.Controller
         private bool LogIsActive { get; set; }
         private string LastStatusBarMsg { get; set; }
 
+        private Dictionary<string, string> FormTypeViews { get; set; }
+
         protected const string MENU_SAP = "43520";
         protected const string MENU_CONFIG_SAP = "43525";
         protected string MENU_ADDON { get { return AddOnID;  } }
@@ -37,7 +39,7 @@ namespace B1Base.Controller
             result.Add(MENU_CONFIG, HandleOpenMenuConfig);
 
             return result;
-        }
+        }        
 
         protected void CreateMenu(string menuFather, string menuID, string menuName, string imageFile, bool popup)
         {
@@ -83,6 +85,8 @@ namespace B1Base.Controller
             try
             {
                 Controller.ConnectionController.Instance.Initialize(AddOnID);
+
+                FormTypeViews = new Dictionary<string, string>();
             }
             catch(Exception e)
             {
@@ -180,6 +184,8 @@ namespace B1Base.Controller
 
             string formUID = "RW1";
 
+            string newFormType = formType;
+
             if ((unique == false) || (unique && notExists))
             {
                 int count = 0;
@@ -200,6 +206,8 @@ namespace B1Base.Controller
                     }
                 }
 
+                newFormType = formType.Split('.')[2].Length > 20 ? formType.Split('.')[2].Substring(0, 20) : formType.Split('.')[2];
+
                 formUID = string.Format("RW{0}-{1}", count, new Random().Next(999));
 
                 string srfPath = AddOn.Instance.CurrentDirectory + "\\SRF\\" + formType.Split('.')[2] + ".srf";
@@ -213,9 +221,14 @@ namespace B1Base.Controller
                 string xml = File.ReadAllText(srfPath);
 
                 xml = xml.Replace("uid=\"RW0\"", string.Format("uid=\"{0}\"", formUID));
+                xml = xml.Replace(string.Format("appformnumber=\"{0}\"", formType), string.Format("appformnumber=\"{0}\"", newFormType));
+                xml = xml.Replace(string.Format("FormType=\"{0}\"", formType), string.Format("FormType=\"{0}\"", newFormType));
 
                 if (Controller.ConnectionController.Instance.DBServerType == "SQLSERVER")
                     xml = xml.Replace("from dummy", "");
+
+                if (!FormTypeViews.ContainsKey(newFormType))
+                    FormTypeViews.Add(newFormType, formType);
 
                 Controller.ConnectionController.Instance.Application.LoadBatchActions(ref xml);
             }
@@ -223,10 +236,10 @@ namespace B1Base.Controller
             if (wait)
                 System.Threading.Thread.Sleep(1000);
 
-            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ParentView = parentView;
+            m_Views.First(r => r.FormUID == formUID && r.FormType == newFormType).ParentView = parentView;
 
-            return m_Views.First(r => r.FormUID == formUID && r.FormType == formType);
-        }       
+            return m_Views.First(r => r.FormUID == formUID && r.FormType == newFormType);
+        }
 
         public void OpenMenu(string menu)
         {
@@ -264,9 +277,9 @@ namespace B1Base.Controller
                 {
                     if (pVal.FormUID.StartsWith("RW"))
                     {
-                        Assembly assembly = Assembly.LoadFile(AddOn.Instance.CurrentDirectory + "\\" + pVal.FormTypeEx.Split('.')[0] + ".dll");
+                        Assembly assembly = Assembly.LoadFile(AddOn.Instance.CurrentDirectory + "\\" + FormTypeViews[pVal.FormTypeEx].Split('.')[0] + ".dll");
 
-                        Type type = assembly.GetType(pVal.FormTypeEx);
+                        Type type = assembly.GetType(FormTypeViews[pVal.FormTypeEx]);
 
                         if (type == null)
                             return;
