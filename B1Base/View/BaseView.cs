@@ -505,30 +505,8 @@ namespace B1Base.View
                 else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
                 {
                     EditText editText = (EditText)SAPForm.Items.Item(item).Specific;
-
-                    UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
-
-                    if (userDataSource.DataType == BoDataType.dt_SHORT_NUMBER || userDataSource.DataType == BoDataType.dt_LONG_NUMBER)
-                    {
-                        if (editText.String == string.Empty)
-                            return 0;
-                        else return Convert.ToInt32(editText.String);
-                    }
-                    else if (userDataSource.DataType == BoDataType.dt_MEASURE || userDataSource.DataType == BoDataType.dt_PERCENT ||
-                        userDataSource.DataType == BoDataType.dt_PRICE || userDataSource.DataType == BoDataType.dt_QUANTITY ||
-                        userDataSource.DataType == BoDataType.dt_RATE || userDataSource.DataType == BoDataType.dt_SUM)
-                    {
-                        if (editText.String == string.Empty)
-                            return 0;
-                        else return Convert.ToDouble(editText.String);
-                    }
-                    else if (userDataSource.DataType == BoDataType.dt_DATE)
-                    {
-                        if (editText.String == string.Empty)
-                            return new DateTime(1990, 1, 1);
-                        else return Convert.ToDateTime(editText.String);
-                    }
-                    else return editText.String;
+                   
+                    return editText.String.Replace("*", "%");
                 }
                 else return string.Empty;
             }
