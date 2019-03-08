@@ -165,7 +165,7 @@ namespace B1Base.DAO
 
         }
 
-        public void Save(string itemCode, string cardCode, string suppCatNum)
+        public void Save(string itemCode, string cardCode, string suppCatNum, bool inBPCatalog)
         {
             if (itemCode != string.Empty && cardCode != string.Empty && suppCatNum != string.Empty)
             {
@@ -174,6 +174,7 @@ namespace B1Base.DAO
                 {
                     if (!alternateCatNum.GetByKey(itemCode, cardCode, suppCatNum))
                     {
+                        alternateCatNum.DisplayBPCatalogNumber = inBPCatalog ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
                         alternateCatNum.ItemCode = itemCode;
                         alternateCatNum.CardCode = cardCode;
                         alternateCatNum.Substitute = suppCatNum;
