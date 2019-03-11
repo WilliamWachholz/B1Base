@@ -506,7 +506,7 @@ namespace B1Base.View
                 {
                     EditText editText = (EditText)SAPForm.Items.Item(item).Specific;
                    
-                    return editText.String.Replace("*", "%");
+                    return editText.String;
                 }
                 else return string.Empty;
             }
@@ -1184,6 +1184,16 @@ namespace B1Base.View
 
         public virtual int FindFormData()
         {
+            if (System.Text.RegularExpressions.Regex.IsMatch(((EditText)SAPForm.Items.Item(m_BrowseItem).Specific).String, @"^\d+$"))
+            {
+                if (Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetModelExists", m_BrowseTable, ((EditText)SAPForm.Items.Item(m_BrowseItem).Specific).String) > 0)
+                    return Convert.ToInt32(((EditText)SAPForm.Items.Item(m_BrowseItem).Specific).String);
+                else
+                    return -1;
+            }
+            else
+                ((EditText)SAPForm.Items.Item(m_BrowseItem).Specific).ClickPicker();
+
             return 0;
         }
 
@@ -1325,7 +1335,7 @@ namespace B1Base.View
                 {
                     int code = FindFormData();
 
-                    if (code != 0)
+                    if (code > 0)
                     {
                         ((EditText)SAPForm.Items.Item("BACKCODE").Specific).String = code.ToString();
 
@@ -1336,7 +1346,7 @@ namespace B1Base.View
                         SAPForm.EnableMenu("1282", true);
                         SAPForm.EnableMenu("1281", true);
                     }
-                    else
+                    else if (code == -1)
                     {
                         Controller.ConnectionController.Instance.Application.StatusBar.SetText("Nenhum registro concordante encontrado");
                     }
