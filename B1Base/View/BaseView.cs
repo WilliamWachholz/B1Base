@@ -23,6 +23,17 @@ namespace B1Base.View
         bool m_addFlag;
         bool m_updateFlag;
 
+        protected System.Globalization.NumberFormatInfo DefaultNumberFormat
+        {
+            get
+            {
+                System.Globalization.NumberFormatInfo result = new System.Globalization.NumberFormatInfo();
+                result.NumberDecimalSeparator = ",";
+
+                return result;
+            }
+        }
+
         public BaseView(string formUID, string formType)
         {
             FormUID = formUID;
@@ -55,6 +66,8 @@ namespace B1Base.View
         public delegate void ColumnCheckEventHandler(int row);
         public delegate void LinkEventHandler(View.BaseView linkedView);
         public delegate void DocCopyEventHandler(int docEntry);
+        public delegate void ColSuppressActionEventHandler(BoEventTypes action, int row, out bool supressed);
+        public delegate void SuppressActionEventHandler(BoEventTypes action, out bool supressed);
 
         public string LastEditValue { get; private set; }
         public string LastComboValue { get; private set; }
@@ -198,6 +211,11 @@ namespace B1Base.View
         protected virtual Dictionary<string, LinkEventHandler> LinkEvents { get { return new Dictionary<string, LinkEventHandler>(); } }
 
         protected virtual Dictionary<Model.EnumObjType, DocCopyEventHandler> DocCopyEvents { get { return new Dictionary<Model.EnumObjType, DocCopyEventHandler>(); } }
+
+        protected virtual Dictionary<string, SuppressActionEventHandler> SupressActionEvents { get { return new Dictionary<string, SuppressActionEventHandler>(); } }
+
+        protected virtual Dictionary<string, ColSuppressActionEventHandler> ColSupressActionEvents { get { return new Dictionary<string, ColSuppressActionEventHandler>(); } }
+
 
         protected virtual void CreateControls() { }
 
@@ -701,7 +719,7 @@ namespace B1Base.View
                     {
                         if (userDataSource.Value == string.Empty)
                             return 0;
-                        else return Convert.ToDouble(userDataSource.Value);
+                        else return Convert.ToDouble(userDataSource.Value, DefaultNumberFormat);
                     }
                     else if (userDataSource.DataType == BoDataType.dt_DATE)
                     {
@@ -1001,7 +1019,7 @@ namespace B1Base.View
                                 userDataSource.DataType == BoDataType.dt_RATE || userDataSource.DataType == BoDataType.dt_SUM)
                             {
                                 if (value != 0)
-                                    userDataSource.Value = value.ToString();
+                                    userDataSource.Value = value.ToString(DefaultNumberFormat);
                                 else
                                     userDataSource.Value = string.Empty;
                             }
@@ -1456,6 +1474,36 @@ namespace B1Base.View
             {
                 ButtonPressEvents[button]();
             }
+        }
+
+        public bool SupressChooseFrom(string edit)
+        {
+            if (SupressActionEvents.ContainsKey(edit))
+            {
+                bool supressed = false;
+
+                SupressActionEvents[edit](BoEventTypes.et_CHOOSE_FROM_LIST, out supressed);
+
+                return supressed;
+            }
+
+            return false;
+        }
+
+        public bool ColSupressChooseFrom(string matrix, int row, string column)
+        {
+            string key = string.Format("{0}.{1}", matrix, column);
+
+            if (ColSupressActionEvents.ContainsKey(key))
+            {
+                bool supressed = false;
+
+                ColSupressActionEvents[key](BoEventTypes.et_CHOOSE_FROM_LIST, row, out supressed);
+
+                return supressed;
+            }
+
+            return false;
         }
 
         public void ChooseFrom(string edit, params string[] values)

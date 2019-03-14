@@ -15,13 +15,17 @@ namespace B1Base.Controller
 
         public abstract string AddOnID { get; }
         public abstract string AddOnName { get; }
-        public virtual void CreateMetadata() { }
+        
         protected abstract void ExitApp();
+        
+        public virtual void CreateMetadata() { }        
         protected virtual void CreateMenus() { }
-        private bool LogIsActive { get; set; }
-        private string LastStatusBarMsg { get; set; }
 
         private Dictionary<string, string> FormTypeViews { get; set; }
+
+        private bool LogIsActive { get; set; }        
+        private string LastStatusBarMsg { get; set; }
+        private bool SuppressChoose { get; set; }
 
         protected const string MENU_SAP = "43520";
         protected const string MENU_CONFIG_SAP = "43525";
@@ -29,9 +33,8 @@ namespace B1Base.Controller
         protected string MENU_ADDON_CONFIG { get { return AddOnID + "43525"; } }
         protected string MENU_CONFIG { get { return AddOnID + "Cnf";  } }
 
+        protected delegate void LongMethod();
         protected delegate void OpenMenuEventHandler();
-
-        public delegate void LongMethod();
 
         protected virtual Dictionary<string, OpenMenuEventHandler> OpenMenuEvents()
         {
@@ -256,7 +259,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.Menus.Item("1304").Activate();
         }
 
-        public void PerformLongAction(LongMethod longMethod)
+        protected void PerformLongAction(LongMethod longMethod)
         {
             //Deve chamar um app externo B1BaseApp, pois o cara pode deslogar do SAP.
             //Criar tabela de log para a operação
@@ -270,12 +273,20 @@ namespace B1Base.Controller
         private void HandleFormLoad(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
-              
+
             if (pVal.EventType == BoEventTypes.et_FORM_LOAD && pVal.BeforeAction == false)
             {
+                bubbleEvent = true;
+
                 try
                 {
-                    if (pVal.FormUID.StartsWith("RW"))
+                    if (SuppressChoose)
+                    {
+                        ConnectionController.Instance.Application.Forms.Item(pVal.FormUID).Close();
+
+                        SuppressChoose = false;
+                    }
+                    else if (pVal.FormUID.StartsWith("RW"))
                     {
                         Assembly assembly = Assembly.LoadFile(AddOn.Instance.CurrentDirectory + "\\" + FormTypeViews[pVal.FormTypeEx].Split('.')[0] + ".dll");
 
@@ -362,7 +373,7 @@ namespace B1Base.Controller
         {
             bubbleEvent = true;
 
-            if (pVal.EventType == BoEventTypes.et_FORM_UNLOAD && pVal.BeforeAction == false)
+            if (pVal.EventType == BoEventTypes.et_FORM_UNLOAD && pVal.BeforeAction == true)
             {
                 try
                 {
@@ -617,11 +628,28 @@ namespace B1Base.Controller
                     }
                 }
             }
-        }
+        }        
 
         private void HandleChooseFrom(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
+
+            if (pVal.EventType == BoEventTypes.et_CHOOSE_FROM_LIST && pVal.BeforeAction == true)
+            {
+                string formType = pVal.FormTypeEx;
+
+                if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                {
+                    if (pVal.ColUID != string.Empty)
+                    {
+                        SuppressChoose = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColSupressChooseFrom(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                    }
+                    else
+                    {
+                        SuppressChoose = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).SupressChooseFrom(pVal.ItemUID);
+                    }
+                }
+            }
 
             if (pVal.EventType == BoEventTypes.et_CHOOSE_FROM_LIST && pVal.BeforeAction == false)
             {
@@ -630,7 +658,7 @@ namespace B1Base.Controller
                     string formType = pVal.FormTypeEx;
 
                     SAPbouiCOM.IChooseFromListEvent chooseFromListEvent = ((SAPbouiCOM.IChooseFromListEvent)(pVal));
-
+                    
                     if ((chooseFromListEvent.BeforeAction == false) && (chooseFromListEvent.SelectedObjects != null))
                     {
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
