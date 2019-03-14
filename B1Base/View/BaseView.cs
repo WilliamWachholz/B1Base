@@ -898,7 +898,7 @@ namespace B1Base.View
             {
                 Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
 
-                if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_EDIT)
+                if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_EDIT || matrix.Columns.Item(column).Type == BoFormItemTypes.it_LINKED_BUTTON)
                 {
                     EditText edit = (EditText)matrix.Columns.Item(column).Cells.Item(row).Specific;
 
@@ -1494,7 +1494,7 @@ namespace B1Base.View
         {
             string key = string.Format("{0}.{1}", matrix, column);
 
-            if (ColSupressActionEvents.ContainsKey(key))
+            if (ColSupressActionEvents.ContainsKey(key) && !Frozen)
             {
                 bool supressed = false;
 

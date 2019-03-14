@@ -26,6 +26,7 @@ namespace B1Base.Controller
         private bool LogIsActive { get; set; }        
         private string LastStatusBarMsg { get; set; }
         private bool SuppressChoose { get; set; }
+        private bool InSupression { get; set; }
 
         protected const string MENU_SAP = "43520";
         protected const string MENU_CONFIG_SAP = "43525";
@@ -284,6 +285,7 @@ namespace B1Base.Controller
                     {
                         ConnectionController.Instance.Application.Forms.Item(pVal.FormUID).Close();
 
+                        InSupression = true;
                         SuppressChoose = false;
                     }
                     else if (pVal.FormUID.StartsWith("RW"))
@@ -636,17 +638,20 @@ namespace B1Base.Controller
 
             if (pVal.EventType == BoEventTypes.et_CHOOSE_FROM_LIST && pVal.BeforeAction == true)
             {
-                string formType = pVal.FormTypeEx;
-
-                if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                if (!InSupression)
                 {
-                    if (pVal.ColUID != string.Empty)
+                    string formType = pVal.FormTypeEx;
+
+                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
-                        SuppressChoose = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColSupressChooseFrom(pVal.ItemUID, pVal.Row, pVal.ColUID);
-                    }
-                    else
-                    {
-                        SuppressChoose = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).SupressChooseFrom(pVal.ItemUID);
+                        if (pVal.ColUID != string.Empty)
+                        {
+                            SuppressChoose = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColSupressChooseFrom(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                        }
+                        else
+                        {
+                            SuppressChoose = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).SupressChooseFrom(pVal.ItemUID);
+                        }
                     }
                 }
             }
@@ -663,6 +668,8 @@ namespace B1Base.Controller
                     {
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
+                            InSupression = false;
+
                             if (chooseFromListEvent.SelectedObjects.Columns.Count > 33)
                             {
                                 if (pVal.ColUID != string.Empty)
