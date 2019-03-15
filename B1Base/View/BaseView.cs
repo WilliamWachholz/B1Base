@@ -1478,7 +1478,7 @@ namespace B1Base.View
 
         public bool SupressChooseFrom(string edit)
         {
-            if (SupressActionEvents.ContainsKey(edit))
+            if (SupressActionEvents.ContainsKey(edit) && !Frozen)
             {
                 bool supressed = false;
 

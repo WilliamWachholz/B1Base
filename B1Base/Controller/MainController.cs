@@ -26,7 +26,6 @@ namespace B1Base.Controller
         private bool LogIsActive { get; set; }        
         private string LastStatusBarMsg { get; set; }
         private bool SuppressChoose { get; set; }
-        private bool InSupression { get; set; }
 
         protected const string MENU_SAP = "43520";
         protected const string MENU_CONFIG_SAP = "43525";
@@ -153,7 +152,6 @@ namespace B1Base.Controller
             {
                 ConnectionController.Instance.Application.StatusBar.SetText(string.Format("Falha ao criar campos de usuário: {0}", e.Message), BoMessageTime.bmt_Long, BoStatusBarMessageType.smt_Error);
             }
-
 
             ConnectionController.Instance.Application.StatusBar.SetText(string.Format("AddOn {0} conectado.", AddOnName), SAPbouiCOM.BoMessageTime.bmt_Long, SAPbouiCOM.BoStatusBarMessageType.smt_Success); 
         }
@@ -284,8 +282,6 @@ namespace B1Base.Controller
                     if (SuppressChoose)
                     {
                         ConnectionController.Instance.Application.Forms.Item(pVal.FormUID).Close();
-
-                        InSupression = true;
                         SuppressChoose = false;
                     }
                     else if (pVal.FormUID.StartsWith("RW"))
@@ -630,7 +626,7 @@ namespace B1Base.Controller
                     }
                 }
             }
-        }        
+        }
 
         private void HandleChooseFrom(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
@@ -638,7 +634,7 @@ namespace B1Base.Controller
 
             if (pVal.EventType == BoEventTypes.et_CHOOSE_FROM_LIST && pVal.BeforeAction == true)
             {
-                if (!InSupression)
+                if (!SuppressChoose)
                 {
                     string formType = pVal.FormTypeEx;
 
@@ -663,13 +659,11 @@ namespace B1Base.Controller
                     string formType = pVal.FormTypeEx;
 
                     SAPbouiCOM.IChooseFromListEvent chooseFromListEvent = ((SAPbouiCOM.IChooseFromListEvent)(pVal));
-                    
+
                     if ((chooseFromListEvent.BeforeAction == false) && (chooseFromListEvent.SelectedObjects != null))
                     {
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
-                            InSupression = false;
-
                             if (chooseFromListEvent.SelectedObjects.Columns.Count > 33)
                             {
                                 if (pVal.ColUID != string.Empty)
@@ -685,8 +679,8 @@ namespace B1Base.Controller
                                         catch { }
                                     }
 
-                                    m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColChooseFrom(pVal.ItemUID, 
-                                        pVal.Row, 
+                                    m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColChooseFrom(pVal.ItemUID,
+                                        pVal.Row,
                                         pVal.ColUID,
                                         values);
                                 }
@@ -706,7 +700,7 @@ namespace B1Base.Controller
                                 }
                             }
                             else
-                            {                                
+                            {
                                 if (pVal.ColUID != string.Empty)
                                 {
                                     Dictionary<string, string> values = new Dictionary<string, string>();
@@ -720,8 +714,8 @@ namespace B1Base.Controller
                                         catch { }
                                     }
 
-                                    m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColChooseFrom(pVal.ItemUID, 
-                                        pVal.Row, 
+                                    m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColChooseFrom(pVal.ItemUID,
+                                        pVal.Row,
                                         pVal.ColUID,
                                         values);
                                 }
@@ -749,7 +743,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("299 - " + e.Message);                        
+                        ConnectionController.Instance.Application.StatusBar.SetText("299 - " + e.Message);
                     }
                 }
             }
