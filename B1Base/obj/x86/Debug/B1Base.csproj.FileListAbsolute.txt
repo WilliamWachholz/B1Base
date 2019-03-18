@@ -39,3 +39,5 @@ C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetLastLogInstance.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetModelExists.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetModelExists.sql
 C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csprojResolveAssemblyReference.cache
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetBusinessPartnerAgentCode.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetBusinessPartnerAgentCode.sql

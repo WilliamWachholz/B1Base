@@ -35,5 +35,28 @@ namespace B1Base.DAO
                 GC.Collect();
             }
         }
+
+        public Model.BusinessPartnerModel Get(string cardCode)
+        {
+            Model.BusinessPartnerModel businessPartnerModel = new Model.BusinessPartnerModel();
+
+            BusinessPartners businessPartner = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
+            try
+            {
+                if (businessPartner.GetByKey(cardCode))
+                {
+                    businessPartnerModel.CardCode = businessPartner.CardCode;
+                    businessPartnerModel.SlpCode = businessPartner.SalesPersonCode;
+                    businessPartnerModel.AgentCode = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetBusinessPartnerAgentCode", cardCode);
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(businessPartner);
+                GC.Collect();
+            }
+
+            return businessPartnerModel;
+        }
     }
 }

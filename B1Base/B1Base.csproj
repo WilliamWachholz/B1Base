@@ -151,6 +151,9 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="SQL\HANA\GetBusinessPartnerAgentCode.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SQL\HANA\GetLastLogInstance.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -191,6 +194,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\SQLSERVER\GetAttachmentFolder.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SQL\SQLSERVER\GetBusinessPartnerAgentCode.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\SQLSERVER\GetChooseValue.sql">
