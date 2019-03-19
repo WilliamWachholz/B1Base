@@ -85,6 +85,7 @@ namespace B1Base.View
         public int LastAbsEntry { get; private set; }
         public Model.EnumObjType LastCopiedObjType { get; private set; }
         public bool Frozen { get; private set; }
+        public BoModifiersEnum LastModifier { get; private set; }
 
         public View.BaseView ParentView { get; set; }
 
@@ -128,6 +129,7 @@ namespace B1Base.View
                     LastDocEntry = 0;
                     LastAbsEntry = 0;
                     LastFormMode = SAPForm.Mode;
+                    LastModifier = BoModifiersEnum.mt_None;
 
                     try
                     {
@@ -1619,7 +1621,7 @@ namespace B1Base.View
             }
         }
 
-        public void MatrixRowEnter(string matrix, int row, string column)
+        public void MatrixRowEnter(string matrix, int row, string column, BoModifiersEnum modifier)
         {
             if (MatrixRowEnterEvents.ContainsKey(matrix) && !Frozen)
             {
@@ -1635,6 +1637,8 @@ namespace B1Base.View
                     LastBeforeRows.Add(matrix, 1);
                     LastRows.Add(matrix, row);
                 }
+
+                LastModifier = modifier;
 
                 Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
 

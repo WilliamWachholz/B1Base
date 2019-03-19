@@ -347,7 +347,7 @@ namespace B1Base.Controller
                             if (pVal.ColUID != string.Empty)
                             {
                                 m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnFocus(pVal.ItemUID, pVal.Row, pVal.ColUID);
-                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
                             }
                             else
                             {
@@ -785,10 +785,10 @@ namespace B1Base.Controller
                     if (pVal.Row > 0)
                     {
                         string formType = pVal.FormTypeEx;
-
+                        
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
                         }
                     }
                 }
