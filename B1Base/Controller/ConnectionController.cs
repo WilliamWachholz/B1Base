@@ -108,24 +108,7 @@ namespace B1Base.Controller
 
             try
             {
-                int lErrCode;
-                string sErrMsg = "", sCookie = "", sConnectionContext = "";
-
-                this.Company = new SAPbobsCOM.Company();
-
-                sCookie = this.Company.GetContextCookie();
-                sConnectionContext = this.Application.Company.GetConnectionContext(sCookie);
-
-                if (this.Company.Connected == true)
-                {
-                    this.Company.Disconnect();
-                }
-                else
-                {
-                    this.Company.SetSboLoginContext(sConnectionContext);
-                    this.Company.Connect();
-                }
-                this.Company.GetLastError(out lErrCode, out sErrMsg);
+                Company = this.Application.Company.GetDICompany();
 
                 DBServerType = Company.DbServerType == SAPbobsCOM.BoDataServerTypes.dst_HANADB ? "HANA" : "SQLSERVER";
             }
