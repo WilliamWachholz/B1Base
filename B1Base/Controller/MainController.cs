@@ -253,6 +253,11 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.Menus.Item("1282").Activate();
         }
 
+        public void OpenMenuSearch()
+        {
+            Controller.ConnectionController.Instance.Application.Menus.Item("1281").Activate();
+        }
+
         public void OpenMenuRefresh()
         {
             Controller.ConnectionController.Instance.Application.Menus.Item("1304").Activate();

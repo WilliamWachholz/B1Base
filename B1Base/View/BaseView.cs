@@ -528,6 +528,12 @@ namespace B1Base.View
                    
                     return editText.String;
                 }
+                else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_CHECK_BOX)
+                {
+                    CheckBox check = (CheckBox)SAPForm.Items.Item(item).Specific;
+
+                    return check.Checked;
+                }
                 else return string.Empty;
             }
             else if (fromDataSource)
