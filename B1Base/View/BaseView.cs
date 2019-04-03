@@ -240,20 +240,23 @@ namespace B1Base.View
 
             if (enableInsert)
             {
-                SAPForm.DataSources.DBDataSources.Add(string.Format("@{0}", browseTable));
-                
-                SAPForm.Items.Add("BACKCODE", BoFormItemTypes.it_EDIT).Left = 9999;
+                if (m_BrowseItem != string.Empty && m_BrowseTable != string.Empty)
+                {
+                    SAPForm.DataSources.DBDataSources.Add(string.Format("@{0}", browseTable));
 
-                SAPForm.Items.Add("DUMMY", BoFormItemTypes.it_EDIT).Left = 9999;
+                    SAPForm.Items.Add("BACKCODE", BoFormItemTypes.it_EDIT).Left = 9999;
 
-                ((EditText)SAPForm.Items.Item("BACKCODE").Specific).DataBind.SetBound(true, string.Format("@{0}", browseTable), "U_Code");
+                    SAPForm.Items.Add("DUMMY", BoFormItemTypes.it_EDIT).Left = 9999;
 
-                SAPForm.DataBrowser.BrowseBy = "BACKCODE";
+                    ((EditText)SAPForm.Items.Item("BACKCODE").Specific).DataBind.SetBound(true, string.Format("@{0}", browseTable), "U_Code");
 
-                m_BrowseItem = browseItem;
-                m_BrowseTable = browseTable;
+                    SAPForm.DataBrowser.BrowseBy = "BACKCODE";
 
-                Controller.ConnectionController.Instance.Application.ActivateMenuItem("1282");
+                    m_BrowseItem = browseItem;
+                    m_BrowseTable = browseTable;
+
+                    Controller.ConnectionController.Instance.Application.ActivateMenuItem("1282");
+                }                            
             }
         }
 

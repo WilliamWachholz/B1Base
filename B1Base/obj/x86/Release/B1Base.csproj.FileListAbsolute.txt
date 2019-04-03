@@ -65,3 +65,4 @@ C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\GetModelExists.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\SQLSERVER\GetModelExists.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\GetBusinessPartnerAgentCode.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\SQLSERVER\GetBusinessPartnerAgentCode.sql
+C:\AddOn\B1Base\B1Base\obj\x86\Release\B1Base.csprojResolveAssemblyReference.cache
