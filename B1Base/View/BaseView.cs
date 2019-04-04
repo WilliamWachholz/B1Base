@@ -537,6 +537,18 @@ namespace B1Base.View
 
                     return check.Checked;
                 }
+                else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_MATRIX)
+                {
+                    Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
+
+                    if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_EDIT)
+                    {
+                        EditText editText = (EditText)matrix.Columns.Item(column).Cells.Item(row).Specific;
+
+                        return editText.String;
+                    }
+                    else return string.Empty;
+                }
                 else return string.Empty;
             }
             else if (fromDataSource)
