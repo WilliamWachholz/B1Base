@@ -547,6 +547,22 @@ namespace B1Base.View
 
                         return editText.String;
                     }
+                    else if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_COMBO_BOX)
+                    {
+                        ComboBox combo = (ComboBox)matrix.Columns.Item(column).Cells.Item(row).Specific;
+
+                        try
+                        {
+                            if (combo.Selected == null)
+                                return 0;
+                            else
+                                return Convert.ToInt32(combo.Selected.Value);
+                        }
+                        catch
+                        {
+                            return string.Empty;
+                        }
+                    }
                     else return string.Empty;
                 }
                 else return string.Empty;
