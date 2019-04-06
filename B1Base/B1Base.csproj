@@ -75,6 +75,7 @@
     <Compile Include="Controller\MainController.cs" />
     <Compile Include="DAO\AttachmentDAO.cs" />
     <Compile Include="DAO\BusinessPartnerDAO.cs" />
+    <Compile Include="DAO\CompanyDAO.cs" />
     <Compile Include="DAO\ConfigDAO.cs" />
     <Compile Include="DAO\ConfigSeqDAO.cs" />
     <Compile Include="DAO\DiscountDAO.cs" />
@@ -151,6 +152,9 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="SQL\HANA\GetBranchIsMulti.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SQL\HANA\GetBusinessPartnerAgentCode.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -194,6 +198,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\SQLSERVER\GetAttachmentFolder.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SQL\SQLSERVER\GetBranchIsMulti.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\SQLSERVER\GetBusinessPartnerAgentCode.sql">

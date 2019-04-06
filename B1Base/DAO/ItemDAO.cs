@@ -291,7 +291,9 @@ namespace B1Base.DAO
             item.MaterialType = (BoMaterialTypes)itemModel.MatType;
 
             item.NoDiscounts = itemModel.NoDiscount ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
-            item.ManageStockByWarehouse = itemModel.ByWh ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+
+            if (new CompanyDAO().MultiBranch == false)
+                item.ManageStockByWarehouse = itemModel.ByWh ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
 
             item.InventoryItem = itemModel.InvntItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
             item.SalesItem = itemModel.SellItem ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;

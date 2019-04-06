@@ -240,7 +240,7 @@ namespace B1Base.View
 
             if (enableInsert)
             {
-                if (m_BrowseItem != string.Empty && m_BrowseTable != string.Empty)
+                if (browseItem != string.Empty && browseTable != string.Empty)
                 {
                     SAPForm.DataSources.DBDataSources.Add(string.Format("@{0}", browseTable));
 
