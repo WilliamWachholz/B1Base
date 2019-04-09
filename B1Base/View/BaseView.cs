@@ -56,6 +56,7 @@ namespace B1Base.View
         public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void MatrixColPasteForAllEventHandler(string column);
         public delegate void MatrixSortEventHandler(string column);
+        public delegate void MatrixCheckAllEventHandler();
         public delegate bool MatrixCanAddEventHandler(int row);
         public delegate void EditValidateEventHandler(bool changed);
         public delegate void ColumnValidateEventHandler(int row, bool changed);
@@ -191,6 +192,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, MatrixColPasteForAllEventHandler> MatrixColPasteForAllEvents { get { return new Dictionary<string, MatrixColPasteForAllEventHandler>(); } }
 
         protected virtual Dictionary<string, MatrixSortEventHandler> MatrixSortEvents { get { return new Dictionary<string, MatrixSortEventHandler>(); } }
+
+        protected virtual Dictionary<string, MatrixCheckAllEventHandler> MatrixCheckAllEvents { get { return new Dictionary<string, MatrixCheckAllEventHandler>(); } }
 
         protected virtual Dictionary<string, MatrixCanAddEventHandler> MatrixCanAddEvents { get { return new Dictionary<string, MatrixCanAddEventHandler>(); } }
 
@@ -1813,18 +1816,21 @@ namespace B1Base.View
         {
             if (MatrixSortEvents.ContainsKey(matrix))
             {
-                Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
-
-                for (int colPos = 1; colPos < matrixItem.Columns.Count;  colPos++)
+                if (((Matrix)SAPForm.Items.Item(matrix).Specific).Columns.Item(column).Type != BoFormItemTypes.it_CHECK_BOX)
                 {
-                    if (matrixItem.Columns.Item(colPos).UniqueID == column)
+                    Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                    for (int colPos = 1; colPos < matrixItem.Columns.Count; colPos++)
                     {
-                        LastSortedColPos = colPos;
-                        break;
+                        if (matrixItem.Columns.Item(colPos).UniqueID == column)
+                        {
+                            LastSortedColPos = colPos;
+                            break;
+                        }
                     }
+
+                    MatrixSortEvents[matrix](column);
                 }
-                   
-                MatrixSortEvents[matrix](column);
             }
         }
 
@@ -1913,10 +1919,28 @@ namespace B1Base.View
         {
             string key = string.Format("{0}.{1}", matrix, column);
 
-            if (ColumnCheckEvents.ContainsKey(key) && !Frozen)
+            if (row == 0)
+            {
+                if (MatrixCheckAllEvents.ContainsKey(key))
+                {
+                    bool check = false;
+                    
+                    Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                    if (matrixItem.RowCount > 0)
+                        check = !((CheckBox)matrixItem.Columns.Item(column).Cells.Item(1).Specific).Checked;
+
+                    for (int aux = 1; aux <= matrixItem.RowCount; aux++)
+                    {
+                        ((CheckBox)matrixItem.Columns.Item(column).Cells.Item(aux).Specific).Checked = check;
+                    }
+                }
+            }
+            else if (ColumnCheckEvents.ContainsKey(key) && !Frozen)
             {
                 ColumnCheckEvents[key](row);
             }
+
         }
 
         public void EditValidate(string edit)
