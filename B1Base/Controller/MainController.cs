@@ -100,6 +100,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormLoad;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleGotFocus;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormClose;
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormDeactivate;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFolderSelect;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleChooseFrom;
@@ -398,6 +399,31 @@ namespace B1Base.Controller
             }
         }
 
+        private void HandleFormDeactivate(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
+        {
+            bubbleEvent = true;
+
+            if (pVal.EventType == BoEventTypes.et_FORM_DEACTIVATE && pVal.BeforeAction == false)
+            {
+                try
+                {
+                    string formType = pVal.FormTypeEx;
+
+                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    {
+                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).LostFocus();
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("259 - " + e.Message);
+                    }
+                }
+            }
+        }
+
         private void HandleButtonClick(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
@@ -627,7 +653,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        //ConnectionController.Instance.Application.StatusBar.SetText("259 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("259 - " + e.Message);
                     }
                 }
             }

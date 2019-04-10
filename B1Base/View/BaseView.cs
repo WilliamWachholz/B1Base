@@ -1383,6 +1383,8 @@ namespace B1Base.View
 
         public virtual void GotFocus() { }
 
+        public virtual void LostFocus() { }
+
         public virtual void Close() { }
 
         public virtual void ButtonOkClick()
