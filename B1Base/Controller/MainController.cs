@@ -79,12 +79,6 @@ namespace B1Base.Controller
 
         public void Initialize() 
         {
-            if (DateTime.Now > new DateTime(2019, 05, 01))
-            {
-                throw new Exception("Licença Expirada.");
-            }
-
-
             try
             {
                 Controller.ConnectionController.Instance.Initialize(AddOnID);

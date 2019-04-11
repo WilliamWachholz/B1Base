@@ -54,9 +54,10 @@ namespace B1Base.View
         public delegate void MatixRowEnterEventHandler(int row, string column, bool rowChanged, bool rowSelected);
         public delegate void MatixRowDoubleClickEventHandler(int row, string column, bool rowChanged);    
         public delegate void MatrixRowRemoveEventHandler(int row);
+        public delegate void MatrixCustomMenuEventHandler(int row, string column);
         public delegate void MatrixColPasteForAllEventHandler(string column);
         public delegate void MatrixSortEventHandler(string column);
-        public delegate void MatrixCheckAllEventHandler();
+        public delegate bool MatrixCheckAllEventHandler();
         public delegate bool MatrixCanAddEventHandler(int row);
         public delegate void EditValidateEventHandler(bool changed);
         public delegate void ColumnValidateEventHandler(int row, bool changed);
@@ -188,6 +189,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, MatixRowDoubleClickEventHandler> MatrixRowDoubleClickEvents { get { return new Dictionary<string, MatixRowDoubleClickEventHandler>(); } }
 
         protected virtual Dictionary<string, MatrixRowRemoveEventHandler> MatrixRowRemoveEvents { get { return new Dictionary<string, MatrixRowRemoveEventHandler>(); } }
+
+        protected virtual Dictionary<string, Tuple<string, MatrixCustomMenuEventHandler>> MatrixCustomMenuEvents { get { return new Dictionary<string, Tuple<string, MatrixCustomMenuEventHandler>>(); } }
 
         protected virtual Dictionary<string, MatrixColPasteForAllEventHandler> MatrixColPasteForAllEvents { get { return new Dictionary<string, MatrixColPasteForAllEventHandler>(); } }
 
@@ -566,6 +569,12 @@ namespace B1Base.View
                             return string.Empty;
                         }
                     }
+                    else if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_PICTURE)
+                    {
+                        PictureBox pictureBox = (PictureBox)matrix.Columns.Item(column).Cells.Item(row).Specific;
+
+                        return pictureBox.Picture;
+                    }
                     else return string.Empty;
                 }
                 else return string.Empty;
@@ -706,6 +715,12 @@ namespace B1Base.View
                     {
                         return combo.Selected.Value;
                     }
+                }
+                else if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_PICTURE)
+                {
+                    PictureBox pictureBox = (PictureBox)matrix.Columns.Item(column).Cells.Item(row).Specific;
+
+                    return pictureBox.Picture;
                 }
                 else return string.Empty;
             }
@@ -1800,7 +1815,7 @@ namespace B1Base.View
                 staThread.Start();
                 staThread.Join();
 
-                Matrix matrix = (Matrix) SAPForm.Items.Item(LastRightClickMatrix).Specific;
+                Matrix matrix = (Matrix)SAPForm.Items.Item(LastRightClickMatrix).Specific;
                 int row = matrix.GetNextSelectedRow();
 
                 while (row > 0 && row <= matrix.RowCount)
@@ -1811,6 +1826,14 @@ namespace B1Base.View
                 }
 
                 MatrixColPasteForAllEvents[LastRightClickMatrix](LastRightClickCol);
+            }
+
+            foreach (KeyValuePair<string, Tuple<string, MatrixCustomMenuEventHandler>> matrixCustomEvent in MatrixCustomMenuEvents)
+            {
+                if (menu.Contains(matrixCustomEvent.Key))
+                {
+                    matrixCustomEvent.Value.Item2(LastRightClickRow, LastRightClickCol);
+                }
             }
         }
 
@@ -1907,6 +1930,44 @@ namespace B1Base.View
                     menu.AddEx(creationPackage);
                 }
             }
+
+            foreach (KeyValuePair<string, Tuple<string, MatrixCustomMenuEventHandler>> matrixCustomEvent in MatrixCustomMenuEvents)
+            {
+                if (matrixCustomEvent.Key.StartsWith(item))
+                {
+                    string menuID = string.Format("{0}{1}", matrixCustomEvent.Key, SAPForm.TypeEx);
+
+                    if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
+                        Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
+
+                    SAPbouiCOM.Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
+
+                    string colTitle = matrix.Columns.Item(col).Title;
+                    string firstCol = matrix.Columns.Item(0).UniqueID;
+
+                    if (row > 0 && row < matrix.RowCount && (col != firstCol || colTitle != "#" || colTitle != ""))
+                    {
+                        LastRightClickMatrix = item;
+                        LastRightClickRow = row;
+                        LastRightClickCol = col;
+
+                        MenuItem menuItem = null;
+                        Menus menu = null;
+                        MenuCreationParams creationPackage = null;
+
+                        creationPackage = ((MenuCreationParams)(Controller.ConnectionController.Instance.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
+
+                        creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
+                        creationPackage.UniqueID = menuID;
+                        creationPackage.String = matrixCustomEvent.Value.Item1;
+                        creationPackage.Enabled = true;
+
+                        menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
+                        menu = menuItem.SubMenus;
+                        menu.AddEx(creationPackage);
+                    }
+                }
+            }
         }
 
         public void Checked(string check)
@@ -1925,16 +1986,22 @@ namespace B1Base.View
             {
                 if (MatrixCheckAllEvents.ContainsKey(key))
                 {
-                    bool check = false;
-                    
-                    Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
-
-                    if (matrixItem.RowCount > 0)
-                        check = !((CheckBox)matrixItem.Columns.Item(column).Cells.Item(1).Specific).Checked;
-
-                    for (int aux = 1; aux <= matrixItem.RowCount; aux++)
+                    if (MatrixCheckAllEvents[key]())
                     {
-                        ((CheckBox)matrixItem.Columns.Item(column).Cells.Item(aux).Specific).Checked = check;
+                        bool check = false;
+
+                        Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                        if (matrixItem.RowCount > 0)
+                            check = !((CheckBox)matrixItem.Columns.Item(column).Cells.Item(1).Specific).Checked;
+
+                        for (int aux = 1; aux <= matrixItem.RowCount; aux++)
+                        {                            
+                            ((CheckBox)matrixItem.Columns.Item(column).Cells.Item(aux).Specific).Checked = check;
+
+                            if (ColumnCheckEvents.ContainsKey(key))
+                                ColumnCheckEvents[key](aux);
+                        }
                     }
                 }
             }
