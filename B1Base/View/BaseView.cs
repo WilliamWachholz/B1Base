@@ -991,7 +991,7 @@ namespace B1Base.View
 
                     if (type.IsEnum)
                     {
-                        userDataSource.Value = ((int)value).ToString();
+                        userDataSource.Value = (Convert.ToInt32(value)).ToString();
                     }
                     else if (type == typeof(Int32))
                     {
@@ -1945,7 +1945,7 @@ namespace B1Base.View
                     string colTitle = matrix.Columns.Item(col).Title;
                     string firstCol = matrix.Columns.Item(0).UniqueID;
 
-                    if (row > 0 && row < matrix.RowCount && (col != firstCol || colTitle != "#" || colTitle != ""))
+                    if (row > 0 && row <= matrix.RowCount && (col != firstCol || colTitle != "#" || colTitle != ""))
                     {
                         LastRightClickMatrix = item;
                         LastRightClickRow = row;
