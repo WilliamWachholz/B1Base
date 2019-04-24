@@ -10,5 +10,11 @@ namespace B1Base.Model
     {
         public int GroupCode { get; set; }
         public string GroupName { get; set; }
+        public Dictionary<string, dynamic> UserFields { get; set; }
+
+        public ItemGroupModel()
+        {
+            UserFields = new Dictionary<string, dynamic>();
+        }
     }
 }

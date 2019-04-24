@@ -137,6 +137,11 @@ namespace B1Base.DAO
                 {
                     itemGroup.GroupName = itemGroupModel.GroupName;
 
+                    foreach (KeyValuePair<string, dynamic> userField in itemGroupModel.UserFields)
+                    {
+                        itemGroup.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                    }
+
                     Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
 
                     itemGroup.Update();
@@ -149,6 +154,11 @@ namespace B1Base.DAO
                     itemGroup.TransfersAccount = "1.01.01.01.01";
                     itemGroup.VarianceAccount = "1.01.01.01.01";
                     itemGroup.PriceDifferencesAccount = "1.01.01.01.01";
+
+                    foreach (KeyValuePair<string, dynamic> userField in itemGroupModel.UserFields)
+                    {
+                        itemGroup.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                    }
 
                     itemGroup.Add();
 
