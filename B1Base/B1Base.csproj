@@ -55,7 +55,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -73,6 +75,9 @@
     <Compile Include="Controller\BaseController.cs" />
     <Compile Include="Controller\ConfigController.cs" />
     <Compile Include="Controller\MainController.cs" />
+    <Compile Include="Controller\ServiceController.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="DAO\AttachmentDAO.cs" />
     <Compile Include="DAO\BusinessPartnerDAO.cs" />
     <Compile Include="DAO\CompanyDAO.cs" />
@@ -98,6 +103,7 @@
     <Compile Include="Model\ItemWarehouseModel.cs" />
     <Compile Include="Model\PaymentTermModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service.cs" />
     <Compile Include="View\AppView.cs">
       <SubType>Form</SubType>
     </Compile>
