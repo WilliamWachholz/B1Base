@@ -26,7 +26,7 @@ namespace B1Base.Controller
         {
             try
             {
-                EventLog.WriteEntry(ServiceName, "Starting.", System.Diagnostics.EventLogEntryType.Information);
+                AddLog("Starting");
 
                 B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("AddOnId"),
                     ConfigurationSettings.AppSettings.Get("Server"),
@@ -44,32 +44,37 @@ namespace B1Base.Controller
                 timer.Enabled = true;
                 timer.Start();
 
-                EventLog.WriteEntry(ServiceName, "Started.", System.Diagnostics.EventLogEntryType.SuccessAudit);
+                AddLog("Started");
             }
             catch (Exception exception)
             {
-                EventLog.WriteEntry(ServiceName, "Starting error: " + exception.Message, System.Diagnostics.EventLogEntryType.FailureAudit);
+                AddLog("Starting error: " + exception.Message);
             }
         }
 
         protected override void OnStop()
         {
-            EventLog.WriteEntry(ServiceName, "Stoping.", System.Diagnostics.EventLogEntryType.Information);
+            AddLog("Stoped");
+        }
+
+        protected void AddLog(string msg)
+        {
+            EventLog.WriteEntry(ServiceName, msg, System.Diagnostics.EventLogEntryType.Information);
         }
 
         private void timer_Tick(object sender, EventArgs e)
         {
             try
             {
-                EventLog.WriteEntry(ServiceName, "Executing.", System.Diagnostics.EventLogEntryType.Information);
+                AddLog("Executing");
 
                 Execute();
 
-                EventLog.WriteEntry(ServiceName, "Executed.", System.Diagnostics.EventLogEntryType.SuccessAudit);
+                AddLog("Executed");
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                EventLog.WriteEntry(ServiceName, "Execution error: " + exception.Message, System.Diagnostics.EventLogEntryType.FailureAudit);
+                AddLog("Execution error: " + ex.Message);
             }
         }
 
