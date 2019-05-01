@@ -8,7 +8,7 @@ using SAPbobsCOM;
 
 namespace B1Base.DAO
 {
-    class JournalDAO
+    public class JournalDAO
     {
         public Model.JournalModel Get(int transId)
         {
@@ -111,9 +111,16 @@ namespace B1Base.DAO
 
                 journal.Lines.SetCurrentLine(line);
 
-                journal.Lines.AccountCode = journalLineModel.Account;
+                journal.Lines.AccountCode = journalLineModel.Account;                
                 journal.Lines.Credit = journalLineModel.Credit;
                 journal.Lines.Debit = journalLineModel.Debit;
+
+                line++;
+            }
+
+            foreach (KeyValuePair<string, dynamic> userField in journalModel.UserFields)
+            {
+                journal.UserFields.Fields.Item(userField.Key).Value = userField.Value;
             }
         }
     }

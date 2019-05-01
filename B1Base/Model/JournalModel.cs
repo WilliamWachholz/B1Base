@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace B1Base.Model
 {
-    class JournalModel
+    public class JournalModel
     {
         public int TransId { get; set; }
         public DateTime RefDate { get; set; }
         public DateTime DueDate { get; set; }
-        public DateTime TaxDate { get; set; }
+        public DateTime TaxDate { get; set; }       
+        public Dictionary<string, dynamic> UserFields { get; set; }
 
         public List<Model.JournalLineModel> JournalLineList { get; set; }
 
@@ -21,6 +22,7 @@ namespace B1Base.Model
             RefDate = DateTime.Now;
             DueDate = DateTime.Now;
             TaxDate = DateTime.Now;
+            UserFields = new Dictionary<string, dynamic>();
 
             JournalLineList = new List<JournalLineModel>();
         }
