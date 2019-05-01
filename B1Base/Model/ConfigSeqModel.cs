@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace B1Base.Model
 {
-    class ConfigSeqModel : BaseModel
+    public class ConfigSeqModel : BaseModel
     {
         public string UserTable { get; set; }
         public int NextCode { get; set; }

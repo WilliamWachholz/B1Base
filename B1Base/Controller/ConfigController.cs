@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 
 namespace B1Base.Controller
 {
-    class ConfigController : BaseController
+    public class ConfigController<T> : BaseController where T : Model.ConfigModel
     {
-        DAO.ConfigDAO m_ConfigDAO;
+        DAO.ConfigDAO<T> m_ConfigDAO;
         DAO.ConfigSeqDAO m_ConfigSeqDAO;
 
         public ConfigController()
         {
-            m_ConfigDAO = new DAO.ConfigDAO();
+            m_ConfigDAO = new DAO.ConfigDAO<T>();
             m_ConfigSeqDAO = new DAO.ConfigSeqDAO();
         }
 
-        public Model.ConfigModel GetConfig()
+        public T GetConfig()
         {
             try
             {
@@ -28,14 +28,14 @@ namespace B1Base.Controller
                 Controller.ConnectionController.Instance.Application.StatusBar.SetText(e.Message);
             }
 
-            return new Model.ConfigModel();
+            return new Model.ConfigModel() as T;
         }
 
         public void SaveConfig(Model.ConfigModel configModel)
         {
             try
             {
-                m_ConfigDAO.Save(configModel);
+                m_ConfigDAO.Save(configModel as T);
             }
             catch (Exception e)
             {

@@ -39,7 +39,7 @@ namespace B1Base.Controller
         protected virtual Dictionary<string, OpenMenuEventHandler> OpenMenuEvents()
         {
             Dictionary<string, OpenMenuEventHandler> result = new Dictionary<string, OpenMenuEventHandler>();
-            result.Add(MENU_CONFIG, HandleOpenMenuConfig);
+            result.Add(MENU_CONFIG, MenuConfigOpen);
 
             return result;
         }        
@@ -127,16 +127,16 @@ namespace B1Base.Controller
 
             try
             {
-                ConnectionController.Instance.CreateMetadata(AddOnID + "Cnf", "Code", FieldTypeEnum.Integer);
-                ConnectionController.Instance.CreateMetadata(AddOnID + "Cnf", "AutoCreateMetadata", FieldTypeEnum.Alphanumeric, 1);
-                ConnectionController.Instance.CreateMetadata(AddOnID + "Cnf", "ActivateLog", FieldTypeEnum.Alphanumeric, 1);
+                ConnectionController.Instance.CreateMetadata(true, "Code", FieldTypeEnum.Integer);
+                ConnectionController.Instance.CreateMetadata(true, "AutoCreateMetadata", FieldTypeEnum.Alphanumeric, 1);
+                ConnectionController.Instance.CreateMetadata(true, "ActivateLog", FieldTypeEnum.Alphanumeric, 1);
 
                 ConnectionController.Instance.CreateMetadata(AddOnID + "Seq", "Code", FieldTypeEnum.Integer);
                 ConnectionController.Instance.CreateMetadata(AddOnID + "Seq", "UserTable", FieldTypeEnum.Alphanumeric, 40);
                 ConnectionController.Instance.CreateMetadata(AddOnID + "Seq", "NextCode", FieldTypeEnum.Integer);
 
                 Model.ConfigModel configModel = new Model.ConfigModel();
-                configModel = new ConfigController().GetConfig();
+                configModel = new ConfigController<Model.ConfigModel>().GetConfig();
 
                 LogIsActive = configModel.ActivateLog;
 
@@ -150,7 +150,15 @@ namespace B1Base.Controller
 
             ConnectionController.Instance.Application.StatusBar.SetText(string.Format("AddOn {0} conectado.", AddOnName), SAPbouiCOM.BoMessageTime.bmt_Long, SAPbouiCOM.BoStatusBarMessageType.smt_Success); 
         }
-        
+
+
+
+        public virtual void MenuConfigOpen()
+        {
+            OpenView(true, "B1Base.View.ConfigView");
+        }
+
+
         public View.BaseView OpenView(string formType)
         {
             return OpenView(false, formType, null);
@@ -1171,11 +1179,6 @@ namespace B1Base.Controller
             {
                 LastStatusBarMsg = text;
             }
-        }
-
-        private void HandleOpenMenuConfig()
-        {
-            OpenView(true, "B1Base.View.ConfigView");
         }
 
     }

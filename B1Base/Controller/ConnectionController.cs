@@ -198,6 +198,11 @@ namespace B1Base.Controller
             CreateMetadata(table, field, fieldType, 10, null, "", fieldTitle);
         }
 
+        public void CreateMetadata(bool configTable, string field, FieldTypeEnum fieldType, string fieldTitle)
+        {
+            CreateMetadata(configTable, field, fieldType, 10, null, "", fieldTitle);
+        }
+
         public void CreateMetadata(string table, string field, FieldTypeEnum fieldType, int size = 10, Dictionary<string, string> validValues = null, string defaultValue = "", string fieldTitle = "")
         {
             int tableExists = ExecuteSqlForObject<int>("GetTableExists", table);
@@ -212,7 +217,7 @@ namespace B1Base.Controller
                     userTable.TableName = table;
                     userTable.TableDescription = table;
                     userTable.TableType = BoUTBTableType.bott_NoObject;
-
+                    
                     userTable.Add();
 
                     VerifyBussinesObjectSuccess();
@@ -331,6 +336,11 @@ namespace B1Base.Controller
                     GC.Collect();
                 }
             }
+        }
+
+        public void CreateMetadata(bool configTable, string field, FieldTypeEnum fieldType, int size = 10, Dictionary<string, string> validValues = null, string defaultValue = "", string fieldTitle = "")
+        {
+            CreateMetadata(AddOnID + "Cnf", field, fieldType, size, validValues, defaultValue, fieldTitle);
         }
 
         public void ExecuteStatement(string sqlScript, params string[] variables)
