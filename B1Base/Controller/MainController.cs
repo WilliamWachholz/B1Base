@@ -467,6 +467,17 @@ namespace B1Base.Controller
         {
             bubbleEvent = true;
 
+            if (pVal.EventType == BoEventTypes.et_MATRIX_LINK_PRESSED && pVal.BeforeAction == true)
+            {
+                string formType = pVal.FormTypeEx;
+                string formId = pVal.FormUID;
+
+                if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                {
+                    m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
+                }
+            }
+
             if (pVal.EventType == BoEventTypes.et_ITEM_PRESSED && pVal.BeforeAction == false)
             {
                 try
