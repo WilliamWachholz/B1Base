@@ -18,6 +18,11 @@ namespace B1Base.Model
 
         public DocumentInstallmentModel()
         {
+            DocEntry = 0;
+            ObjType = EnumObjType.None;
+            InsTotal = 0;
+            InstPrcnt = 0;
+            DueDate = DateTime.Now;
             UserFields = new Dictionary<string, dynamic>();
         }
     }

@@ -96,6 +96,8 @@
     <Compile Include="Model\ConfigModel.cs" />
     <Compile Include="Model\ConfigSeqModel.cs" />
     <Compile Include="Model\DiscountGroupModel.cs" />
+    <Compile Include="Model\DocumentItemModel.cs" />
+    <Compile Include="Model\DocumentModel.cs" />
     <Compile Include="Model\EnumObjType.cs" />
     <Compile Include="Model\EnumOperation.cs" />
     <Compile Include="Model\DocumentInstallmentModel.cs" />

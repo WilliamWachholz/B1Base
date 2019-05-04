@@ -10,6 +10,83 @@ namespace B1Base.DAO
 {
     public class DocumentDAO
     {
+        public void Save(Model.DocumentModel documentModel)
+        {
+                Documents document = GetDIObject(documentModel.ObjType);
+                try
+                {
+                    int line = 0;
+
+                    if (document.GetByKey(documentModel.DocEntry))
+                    {                        
+                        for (line = document.Lines.Count - 1; line >= 0; line--)
+                        {
+                            document.Lines.SetCurrentLine(line);
+
+                            document.Lines.Delete();
+                        }
+
+                        line = 0;
+
+                        foreach (Model.DocumentItemModel documentItemModel in documentModel.DocumentItemList)
+                        {
+                            if (line > document.Lines.Count - 1)
+                                document.Lines.Add();
+
+                            document.Lines.SetCurrentLine(line);
+
+                            document.Lines.ItemCode = documentItemModel.ItemCode;
+                            document.Lines.Quantity = documentItemModel.Quantity;
+                            document.Lines.Price = documentItemModel.Price;
+                            
+                            foreach (KeyValuePair<string, dynamic> userField in documentItemModel.UserFields)
+                            {
+                                document.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                            }
+
+                            line++;
+                        }
+
+                        document.Update();                        
+                    }
+                    else
+                    {
+                        document.CardCode = documentModel.CardCode;
+                        document.DocDate = documentModel.DocDate;
+
+                        line = 0;
+
+                        foreach (Model.DocumentItemModel documentItemModel in documentModel.DocumentItemList)
+                        {
+                            if (line > document.Lines.Count - 1)
+                                document.Lines.Add();
+
+                            document.Lines.SetCurrentLine(line);
+
+                            document.Lines.ItemCode = documentItemModel.ItemCode;
+                            document.Lines.Quantity = documentItemModel.Quantity;
+                            document.Lines.Price = documentItemModel.Price;
+
+                            foreach (KeyValuePair<string, dynamic> userField in documentItemModel.UserFields)
+                            {
+                                document.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                            }
+
+                            line++;
+                        }
+
+                        document.Add();
+                    }
+
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(document);
+                    GC.Collect();
+                }            
+        }
+
         public void Save(List<Model.DocumentInstallmentModel> documentInstallmentList)
         {
             if (documentInstallmentList.Count() > 0)
