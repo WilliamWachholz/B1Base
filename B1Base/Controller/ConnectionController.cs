@@ -706,9 +706,10 @@ namespace B1Base.Controller
         #endregion
 
 
-        //StartTransaction - verificar se não existe outra transação em aberto
-        //EndTransaction
+        //public void ExecuteTransactedMethod(delegate void method)
+        //{
 
+        //}
     }
 
     public class FieldMetadata

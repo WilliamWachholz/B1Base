@@ -47,10 +47,17 @@ namespace B1Base.DAO
                             line++;
                         }
 
-                        document.Update();                        
+                        foreach (KeyValuePair<string, dynamic> userField in documentModel.UserFields)
+                        {
+                            document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                        }
+
+                        document.Update();
+
+                        Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
                     }
                     else
-                    {
+                    {                        
                         document.CardCode = documentModel.CardCode;
                         document.DocDate = documentModel.DocDate;
 
@@ -75,10 +82,18 @@ namespace B1Base.DAO
                             line++;
                         }
 
-                        document.Add();
-                    }
 
-                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                        foreach (KeyValuePair<string, dynamic> userField in documentModel.UserFields)
+                        {
+                            document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                        }
+
+                        document.Add();
+
+                        documentModel.DocEntry = Controller.ConnectionController.Instance.LastObjectCode;
+
+                        Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                    }                    
                 }
                 finally
                 {
@@ -147,6 +162,8 @@ namespace B1Base.DAO
             {
                 case Model.EnumObjType.Invoice:
                     return (Documents) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oInvoices);
+                case Model.EnumObjType.PurchaseOrder:
+                    return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oPurchaseOrders);
                 default:
                     return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oInvoices);                    
             }            

@@ -49,6 +49,7 @@ namespace B1Base.View
         public delegate void ButtonPressEventHandler();
         public delegate void ButtonOpenViewEventHandler(BaseView view);
         public delegate void FolderSelectEventHandler();
+        public delegate void CustomMenuEventHandler();
         public delegate void ChooseFromEventHandler(params string[] values);
         public delegate void ColChooseFromEventHandler(int row, Dictionary<string, string> values);        
         public delegate void MatixRowEnterEventHandler(int row, string column, bool rowChanged, bool rowSelected);
@@ -199,6 +200,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, MatrixCheckAllEventHandler> MatrixCheckAllEvents { get { return new Dictionary<string, MatrixCheckAllEventHandler>(); } }
 
         protected virtual Dictionary<string, MatrixCanAddEventHandler> MatrixCanAddEvents { get { return new Dictionary<string, MatrixCanAddEventHandler>(); } }
+
+        protected virtual Dictionary<string, Tuple<string, CustomMenuEventHandler>> CustomMenuEvents { get { return new Dictionary<string, Tuple<string, CustomMenuEventHandler>>(); } }
 
         protected virtual Dictionary<string, FolderSelectEventHandler> FolderSelectEvents { get { return new Dictionary<string, FolderSelectEventHandler>(); } }
 
@@ -1835,6 +1838,14 @@ namespace B1Base.View
                     matrixCustomEvent.Value.Item2(LastRightClickRow, LastRightClickCol);
                 }
             }
+
+            foreach (KeyValuePair<string, Tuple<string, CustomMenuEventHandler>> customEvent in CustomMenuEvents)
+            {
+                if (menu.Contains(customEvent.Key))
+                {
+                    customEvent.Value.Item2();
+                }
+            }
         }
 
         public void MatrixSort(string matrix, string column)
@@ -1929,6 +1940,29 @@ namespace B1Base.View
                     menu = menuItem.SubMenus;
                     menu.AddEx(creationPackage);
                 }
+            }
+
+            foreach (KeyValuePair<string, Tuple<string, CustomMenuEventHandler>> customEvent in CustomMenuEvents)
+            {
+                string menuID = string.Format("{0}{1}", customEvent.Key, SAPForm.TypeEx);
+
+                if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
+                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
+
+                MenuItem menuItem = null;
+                Menus menu = null;
+                MenuCreationParams creationPackage = null;
+
+                creationPackage = ((MenuCreationParams)(Controller.ConnectionController.Instance.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
+
+                creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
+                creationPackage.UniqueID = menuID;
+                creationPackage.String = customEvent.Value.Item1;
+                creationPackage.Enabled = true;
+
+                menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
+                menu = menuItem.SubMenus;
+                menu.AddEx(creationPackage);
             }
 
             foreach (KeyValuePair<string, Tuple<string, MatrixCustomMenuEventHandler>> matrixCustomEvent in MatrixCustomMenuEvents)
