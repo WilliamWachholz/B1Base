@@ -101,6 +101,7 @@ namespace B1Base.DAO
             journal.ReferenceDate = journalModel.RefDate;
             journal.TaxDate = journalModel.TaxDate;
             journal.DueDate = journalModel.DueDate;
+            journal.Reference = journalModel.Ref1;
 
             int line = 0;
 
