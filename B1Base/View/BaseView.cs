@@ -34,6 +34,16 @@ namespace B1Base.View
             }
         }
 
+        protected double ConvertMoney(string moneyValue)
+        {
+            return double.Parse(moneyValue, NumberStyles.Currency);
+        }
+
+        protected double ConvertPercent(string percentValue)
+        {
+            return double.Parse(percentValue.Replace(System.Globalization.CultureInfo.CurrentCulture.NumberFormat.PercentSymbol, ""));
+        }
+
         public BaseView(string formUID, string formType)
         {
             FormUID = formUID;
