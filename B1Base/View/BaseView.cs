@@ -44,6 +44,11 @@ namespace B1Base.View
             return double.Parse(percentValue.Replace(DefaultNumberFormat.PercentSymbol, ""));
         }
 
+        public DateTime ConverteDate(string dateValue)
+        {
+            return DateTime.ParseExact(dateValue, "dd/MM/yyyy", null);
+        }
+
         public BaseView(string formUID, string formType)
         {
             FormUID = formUID;
@@ -795,7 +800,7 @@ namespace B1Base.View
                     {
                         if (userDataSource.Value == string.Empty)
                             return new DateTime(1990, 1, 1);
-                        else return Convert.ToDateTime(userDataSource.Value);
+                        else return ConverteDate(userDataSource.Value);
                     }
                     else return userDataSource.Value;
                 }
