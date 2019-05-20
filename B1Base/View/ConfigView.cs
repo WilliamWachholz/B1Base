@@ -114,6 +114,8 @@ namespace B1Base.View
         private void ButtonCreateMetadataClick()
         {
             AddOn.Instance.MainController.CreateMetadata();
+
+            AddOn.Instance.ConnectionController.Application.StatusBar.SetText("Metadados criados com sucesso", BoMessageTime.bmt_Long, BoStatusBarMessageType.smt_Success);
         }
 
         private bool MatrixSeqCanAdd(int row)
