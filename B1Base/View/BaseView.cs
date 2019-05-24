@@ -672,7 +672,7 @@ namespace B1Base.View
                             {
                                 if (matrix.Columns.Item(column).UniqueID == matrix.Columns.Item(col).UniqueID)
                                 {
-                                    fieldType = dataTable.Columns.Item(col).Type;
+                                    fieldType = dataTable.Columns.Item(col - 1).Type;
                                     break;
                                 }
                             }
