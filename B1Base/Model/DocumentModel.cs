@@ -11,6 +11,7 @@ namespace B1Base.Model
         public int DocEntry { get; set; }
         public string CardCode { get; set; }
         public DateTime DocDate { get; set; }
+        public int SlpCode { get; set; }        
         public EnumObjType ObjType { get; set; }
 
         public List<Model.DocumentItemModel> DocumentItemList { get; set; }
@@ -22,6 +23,7 @@ namespace B1Base.Model
             DocEntry = 0;
             CardCode = string.Empty;
             DocDate = DateTime.Now;
+            SlpCode = 0;
             ObjType = EnumObjType.None;
 
             DocumentItemList = new List<DocumentItemModel>();           

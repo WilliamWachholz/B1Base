@@ -12,94 +12,94 @@ namespace B1Base.DAO
     {
         public void Save(Model.DocumentModel documentModel)
         {
-                Documents document = GetDIObject(documentModel.ObjType);
-                try
+            Documents document = GetDIObject(documentModel.ObjType);
+            try
+            {
+                int line = 0;
+
+                if (document.GetByKey(documentModel.DocEntry))
                 {
-                    int line = 0;
+                    for (line = document.Lines.Count - 1; line >= 0; line--)
+                    {
+                        document.Lines.SetCurrentLine(line);
 
-                    if (document.GetByKey(documentModel.DocEntry))
-                    {                        
-                        for (line = document.Lines.Count - 1; line >= 0; line--)
-                        {
-                            document.Lines.SetCurrentLine(line);
-
-                            document.Lines.Delete();
-                        }
-
-                        line = 0;
-
-                        foreach (Model.DocumentItemModel documentItemModel in documentModel.DocumentItemList)
-                        {
-                            if (line > document.Lines.Count - 1)
-                                document.Lines.Add();
-
-                            document.Lines.SetCurrentLine(line);
-
-                            document.Lines.ItemCode = documentItemModel.ItemCode;
-                            document.Lines.Quantity = documentItemModel.Quantity;
-                            document.Lines.Price = documentItemModel.Price;
-                            
-                            foreach (KeyValuePair<string, dynamic> userField in documentItemModel.UserFields)
-                            {
-                                document.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
-                            }
-
-                            line++;
-                        }
-
-                        foreach (KeyValuePair<string, dynamic> userField in documentModel.UserFields)
-                        {
-                            document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
-                        }
-
-                        document.Update();
-
-                        Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                        document.Lines.Delete();
                     }
-                    else
-                    {                        
-                        document.CardCode = documentModel.CardCode;
-                        document.DocDate = documentModel.DocDate;
 
-                        line = 0;
+                    line = 0;
 
-                        foreach (Model.DocumentItemModel documentItemModel in documentModel.DocumentItemList)
+                    foreach (Model.DocumentItemModel documentItemModel in documentModel.DocumentItemList)
+                    {
+                        if (line > document.Lines.Count - 1)
+                            document.Lines.Add();
+
+                        document.Lines.SetCurrentLine(line);
+
+                        document.Lines.ItemCode = documentItemModel.ItemCode;
+                        document.Lines.Quantity = documentItemModel.Quantity;
+                        document.Lines.Price = documentItemModel.Price;
+
+                        foreach (KeyValuePair<string, dynamic> userField in documentItemModel.UserFields)
                         {
-                            if (line > document.Lines.Count - 1)
-                                document.Lines.Add();
-
-                            document.Lines.SetCurrentLine(line);
-
-                            document.Lines.ItemCode = documentItemModel.ItemCode;
-                            document.Lines.Quantity = documentItemModel.Quantity;
-                            document.Lines.Price = documentItemModel.Price;
-
-                            foreach (KeyValuePair<string, dynamic> userField in documentItemModel.UserFields)
-                            {
-                                document.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
-                            }
-
-                            line++;
+                            document.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
                         }
 
+                        line++;
+                    }
 
-                        foreach (KeyValuePair<string, dynamic> userField in documentModel.UserFields)
-                        {
-                            document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
-                        }
+                    foreach (KeyValuePair<string, dynamic> userField in documentModel.UserFields)
+                    {
+                        document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                    }
 
-                        document.Add();
+                    document.Update();
 
-                        documentModel.DocEntry = Controller.ConnectionController.Instance.LastObjectCode;
-
-                        Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
-                    }                    
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
                 }
-                finally
+                else
                 {
-                    Marshal.ReleaseComObject(document);
-                    GC.Collect();
-                }            
+                    document.CardCode = documentModel.CardCode;
+                    document.DocDate = documentModel.DocDate;
+
+                    line = 0;
+
+                    foreach (Model.DocumentItemModel documentItemModel in documentModel.DocumentItemList)
+                    {
+                        if (line > document.Lines.Count - 1)
+                            document.Lines.Add();
+
+                        document.Lines.SetCurrentLine(line);
+
+                        document.Lines.ItemCode = documentItemModel.ItemCode;
+                        document.Lines.Quantity = documentItemModel.Quantity;
+                        document.Lines.Price = documentItemModel.Price;
+
+                        foreach (KeyValuePair<string, dynamic> userField in documentItemModel.UserFields)
+                        {
+                            document.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                        }
+
+                        line++;
+                    }
+
+
+                    foreach (KeyValuePair<string, dynamic> userField in documentModel.UserFields)
+                    {
+                        document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                    }
+
+                    document.Add();
+
+                    documentModel.DocEntry = Controller.ConnectionController.Instance.LastObjectCode;
+
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(document);
+                GC.Collect();
+            }
         }
 
         public void Save(List<Model.DocumentInstallmentModel> documentInstallmentList)
@@ -154,6 +154,122 @@ namespace B1Base.DAO
                     GC.Collect();
                 }
             }
+        }
+
+        public void SetUF(Model.DocumentModel documentModel)
+        {
+            Documents document = GetDIObject(documentModel.ObjType);
+            try
+            {
+                if (document.GetByKey(documentModel.DocEntry))
+                {
+                    int line = 0;
+
+                    foreach (Model.DocumentItemModel documentItemModel in documentModel.DocumentItemList)
+                    {
+                        document.Lines.SetCurrentLine(line);
+
+                        foreach (KeyValuePair<string, dynamic> userField in documentItemModel.UserFields)
+                        {
+                            document.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                        }
+
+                        line++;
+                    }
+
+                    foreach (KeyValuePair<string, dynamic> userField in documentModel.UserFields)
+                    {
+                        document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                    }
+
+                    document.Update();
+
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(document);
+                GC.Collect();
+            }
+        }
+
+        public void SetUFItem(int docEntry, Model.EnumObjType objType, Dictionary<int, Dictionary<string, dynamic>> itemUserFields)
+        {
+            Documents document = GetDIObject(objType);
+            try
+            {
+                if (document.GetByKey(docEntry))
+                {
+                    foreach (KeyValuePair<int, Dictionary<string, dynamic>> item in itemUserFields)
+                    {
+                        document.Lines.SetCurrentLine(item.Key);
+
+                        foreach (KeyValuePair<string, dynamic> userField in item.Value)
+                        {
+                            document.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                        }
+                    }
+                    
+                    document.Update();
+
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(document);
+                GC.Collect();
+            }            
+        }
+
+        public Model.DocumentModel Get(int docEntry, Model.EnumObjType objType)
+        {
+            Model.DocumentModel documentModel = new Model.DocumentModel();
+
+            documentModel.DocEntry = docEntry;
+            documentModel.ObjType = objType;
+
+            Documents document = GetDIObject(documentModel.ObjType);
+            try
+            {                
+                if (document.GetByKey(documentModel.DocEntry))
+                {
+                    documentModel.CardCode = document.CardCode;
+                    documentModel.DocDate = document.DocDate;
+                    documentModel.SlpCode = document.SalesPersonCode;
+
+                    int line = 0;
+
+                    for (line = document.Lines.Count - 1; line >= 0; line--)
+                    {
+                        document.Lines.SetCurrentLine(line);
+
+                        Model.DocumentItemModel documentItemModel = new Model.DocumentItemModel();
+                        documentItemModel.ItemCode = document.Lines.ItemCode;
+                        documentItemModel.Price = document.Lines.Price;
+                        documentItemModel.Quantity = document.Lines.Quantity;
+
+                        for (int userField = 0; userField < document.Lines.UserFields.Fields.Count; userField++)
+                        {
+                            documentItemModel.UserFields.Add(document.Lines.UserFields.Fields.Item(userField).Name, document.Lines.UserFields.Fields.Item(userField).Value);
+                        }
+
+                        documentModel.DocumentItemList.Add(documentItemModel);
+                    }
+
+                    for (int userField = 0; userField < document.UserFields.Fields.Count; userField++)
+                    {
+                        documentModel.UserFields.Add(document.UserFields.Fields.Item(userField).Name, document.UserFields.Fields.Item(userField).Value);
+                    }
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(document);
+                GC.Collect();
+            }
+            return documentModel;
         }
 
         private Documents GetDIObject(Model.EnumObjType objType)
