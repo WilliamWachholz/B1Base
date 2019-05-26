@@ -278,6 +278,8 @@ namespace B1Base.DAO
             {
                 case Model.EnumObjType.Invoice:
                     return (Documents) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oInvoices);
+                case Model.EnumObjType.SalesOrder:
+                    return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oOrders);
                 case Model.EnumObjType.PurchaseOrder:
                     return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oPurchaseOrders);
                 default:

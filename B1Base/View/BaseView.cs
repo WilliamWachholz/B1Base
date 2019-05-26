@@ -36,7 +36,7 @@ namespace B1Base.View
 
         protected double ConvertMoney(string moneyValue)
         {
-            return double.Parse(moneyValue.Replace("R$", ""), DefaultNumberFormat);
+            return double.Parse(moneyValue.Replace("R$", ""));
         }
 
         protected double ConvertPercent(string percentValue)
