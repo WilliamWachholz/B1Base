@@ -36,12 +36,12 @@ namespace B1Base.View
 
         protected double ConvertMoney(string moneyValue)
         {
-            return double.Parse(moneyValue.Replace("R$", ""));
+            return double.Parse((moneyValue.Contains(",") ? moneyValue.Replace(".", "").Replace(",", ".") : moneyValue).Replace("R$", ""), System.Globalization.CultureInfo.InvariantCulture);
         }
 
         protected double ConvertPercent(string percentValue)
         {
-            return double.Parse(percentValue.Replace(DefaultNumberFormat.PercentSymbol, ""));
+            return double.Parse((percentValue.Contains(",") ? percentValue.Replace(".", "").Replace(",", ".") : percentValue).Replace(DefaultNumberFormat.PercentSymbol, ""), System.Globalization.CultureInfo.InvariantCulture);
         }
 
         public DateTime ConverteDate(string dateValue)
