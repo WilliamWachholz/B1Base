@@ -996,6 +996,12 @@ namespace B1Base.View
 
                     combo.Select(value.ToString(), BoSearchKey.psk_ByValue);
                 }
+                else if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_CHECK_BOX)
+                {
+                    CheckBox check = (CheckBox)matrix.Columns.Item(column).Cells.Item(row).Specific;
+
+                    check.Checked = value;
+                }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
             {

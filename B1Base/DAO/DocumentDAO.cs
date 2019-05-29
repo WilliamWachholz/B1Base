@@ -156,28 +156,14 @@ namespace B1Base.DAO
             }
         }
 
-        public void SetUF(Model.DocumentModel documentModel)
+        public void SetUF(int docEntry, Model.EnumObjType objType,  Dictionary<string, dynamic> userFields)
         {
-            Documents document = GetDIObject(documentModel.ObjType);
+            Documents document = GetDIObject(objType);
             try
             {
-                if (document.GetByKey(documentModel.DocEntry))
+                if (document.GetByKey(docEntry))
                 {
-                    int line = 0;
-
-                    foreach (Model.DocumentItemModel documentItemModel in documentModel.DocumentItemList)
-                    {
-                        document.Lines.SetCurrentLine(line);
-
-                        foreach (KeyValuePair<string, dynamic> userField in documentItemModel.UserFields)
-                        {
-                            document.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
-                        }
-
-                        line++;
-                    }
-
-                    foreach (KeyValuePair<string, dynamic> userField in documentModel.UserFields)
+                    foreach (KeyValuePair<string, dynamic> userField in userFields)
                     {
                         document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
                     }
