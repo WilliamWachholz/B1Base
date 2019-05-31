@@ -23,6 +23,8 @@ namespace B1Base.Controller
 
         private Dictionary<string, string> FormTypeViews { get; set; }
 
+        private List<string> Menus { get; set; }
+
         private bool LogIsActive { get; set; }        
         private string LastStatusBarMsg { get; set; }
         private bool SuppressChoose { get; set; }
@@ -70,6 +72,8 @@ namespace B1Base.Controller
                 try
                 {
                     oMenuItem = oMenus.AddEx(oCreationPackage);
+
+                    Menus.Add(menuID);
                 }
                 catch
                 {
@@ -84,6 +88,8 @@ namespace B1Base.Controller
                 Controller.ConnectionController.Instance.Initialize(AddOnID);
 
                 FormTypeViews = new Dictionary<string, string>();
+
+                Menus = new List<string>();
             }
             catch(Exception e)
             {
@@ -151,13 +157,10 @@ namespace B1Base.Controller
             ConnectionController.Instance.Application.StatusBar.SetText(string.Format("AddOn {0} conectado.", AddOnName), SAPbouiCOM.BoMessageTime.bmt_Long, SAPbouiCOM.BoStatusBarMessageType.smt_Success); 
         }
 
-
-
         public virtual void MenuConfigOpen()
         {
             OpenView(true, "B1Base.View.ConfigView");
         }
-
 
         public View.BaseView OpenView(string formType)
         {
@@ -1174,8 +1177,18 @@ namespace B1Base.Controller
             {
                 case SAPbouiCOM.BoAppEventTypes.aet_CompanyChanged:
                 case SAPbouiCOM.BoAppEventTypes.aet_ServerTerminition:
-                case SAPbouiCOM.BoAppEventTypes.aet_ShutDown:
-                    ExitApp();
+                case SAPbouiCOM.BoAppEventTypes.aet_ShutDown:                    
+                    {
+                        foreach (string menu in Menus)
+                        {
+                            try
+                            {
+                                ConnectionController.Instance.Application.Menus.RemoveEx(menu);
+                            }
+                            catch { }
+                        }
+                        ExitApp();
+                    }
                     break;
             }
         }

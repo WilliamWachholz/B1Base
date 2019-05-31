@@ -34,14 +34,9 @@ namespace B1Base.View
             }
         }
 
-        protected double ConvertMoney(string moneyValue)
+        protected double ConvertDouble(string doubleValue)
         {
-            return double.Parse((moneyValue.Contains(",") ? moneyValue.Replace(".", "").Replace(",", ".") : moneyValue).Replace("R$", ""), System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        protected double ConvertPercent(string percentValue)
-        {
-            return double.Parse((percentValue.Contains(",") ? percentValue.Replace(".", "").Replace(",", ".") : percentValue).Replace(DefaultNumberFormat.PercentSymbol, ""), System.Globalization.CultureInfo.InvariantCulture);
+            return double.Parse((doubleValue.Contains(",") ? doubleValue.Replace(".", "").Replace(",", ".") : doubleValue).Replace("R$", "").Replace("%", ""), System.Globalization.CultureInfo.InvariantCulture);
         }
 
         public DateTime ConverteDate(string dateValue)
@@ -690,7 +685,7 @@ namespace B1Base.View
                         {
                             if (editText.String == string.Empty)
                                 return 0;
-                            else return Convert.ToDouble(editText.String);
+                            else return ConvertDouble(editText.String);
                         }
                         else
                         {
@@ -794,7 +789,7 @@ namespace B1Base.View
                     {
                         if (userDataSource.Value == string.Empty)
                             return 0;
-                        else return Convert.ToDouble(userDataSource.Value, DefaultNumberFormat);
+                        else return ConvertDouble(userDataSource.Value);
                     }
                     else if (userDataSource.DataType == BoDataType.dt_DATE)
                     {
