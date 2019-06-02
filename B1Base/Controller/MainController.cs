@@ -35,7 +35,6 @@ namespace B1Base.Controller
         protected string MENU_ADDON_CONFIG { get { return AddOnID + "43525"; } }
         protected string MENU_CONFIG { get { return AddOnID + "Cnf";  } }
 
-        protected delegate void LongMethod();
         protected delegate void OpenMenuEventHandler();
 
         protected virtual Dictionary<string, OpenMenuEventHandler> OpenMenuEvents()
@@ -267,17 +266,6 @@ namespace B1Base.Controller
         public void OpenMenuRefresh()
         {
             Controller.ConnectionController.Instance.Application.Menus.Item("1304").Activate();
-        }
-
-        protected void PerformLongAction(LongMethod longMethod)
-        {
-            //Deve chamar um app externo B1BaseApp, pois o cara pode deslogar do SAP.
-            //Criar tabela de log para a operação
-            System.Threading.ThreadStart treadStart = delegate() { longMethod(); };
-
-            System.Threading.Thread thread = new System.Threading.Thread(treadStart);
-            
-            thread.Start();
         }
 
         private void HandleFormLoad(string formUID, ref ItemEvent pVal, out bool bubbleEvent)

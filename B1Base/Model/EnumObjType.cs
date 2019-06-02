@@ -25,6 +25,7 @@ namespace B1Base.Model
         InventoryTransferRequest = 1250000001,
         RecurringTransaction = 540000040,
         PurchaseTaxInvoice = 281,
-
+        PurchaseInvoice = 18,
+        InvoiceReturn = 14
     }
 }
