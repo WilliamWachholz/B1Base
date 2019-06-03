@@ -52,6 +52,7 @@ namespace B1Base.DAO
                         document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
                     }
 
+                    document.UserFields.Fields.Item("U_UpdateSource").Value = "O";
                     document.Update();
 
                     Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
@@ -88,6 +89,7 @@ namespace B1Base.DAO
                         document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
                     }
 
+                    document.UserFields.Fields.Item("U_UpdateSource").Value = "O";
                     document.Add();
 
                     documentModel.DocEntry = Controller.ConnectionController.Instance.LastObjectCode;
@@ -143,6 +145,7 @@ namespace B1Base.DAO
                             line++;
                         }
 
+                        document.UserFields.Fields.Item("U_UpdateSource").Value = "O";
                         document.Update();
 
                         Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
@@ -168,6 +171,7 @@ namespace B1Base.DAO
                         document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
                     }
 
+                    document.UserFields.Fields.Item("U_UpdateSource").Value = "O";
                     document.Update();
 
                     Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
@@ -196,7 +200,8 @@ namespace B1Base.DAO
                             document.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
                         }
                     }
-                    
+
+                    document.UserFields.Fields.Item("U_UpdateSource").Value = "O";
                     document.Update();
 
                     Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
@@ -207,6 +212,25 @@ namespace B1Base.DAO
                 Marshal.ReleaseComObject(document);
                 GC.Collect();
             }            
+        }
+
+        public void Cancel(int docEntry, Model.EnumObjType objType)
+        {
+            Documents document = GetDIObject(objType);
+            try
+            {
+                if (document.GetByKey(docEntry))
+                {
+                    document.Cancel();
+
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(document);
+                GC.Collect();
+            }
         }
 
         public Model.DocumentModel Get(int docEntry, Model.EnumObjType objType)
@@ -266,8 +290,12 @@ namespace B1Base.DAO
                     return (Documents) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oInvoices);
                 case Model.EnumObjType.SalesOrder:
                     return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oOrders);
+                case Model.EnumObjType.InvoiceReturn:
+                    return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oCreditNotes);                    
                 case Model.EnumObjType.PurchaseOrder:
                     return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oPurchaseOrders);
+                case Model.EnumObjType.PurchaseInvoice:
+                    return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oPurchaseInvoices);
                 default:
                     return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oInvoices);                    
             }            

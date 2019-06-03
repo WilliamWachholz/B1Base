@@ -25,7 +25,9 @@ namespace B1Base.Model
         InventoryTransferRequest = 1250000001,
         RecurringTransaction = 540000040,
         PurchaseTaxInvoice = 281,
+        [Description("NE")]
         PurchaseInvoice = 18,
+        [Description("DS")]
         InvoiceReturn = 14
     }
 }

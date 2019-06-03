@@ -132,6 +132,8 @@ namespace B1Base.Controller
 
             try
             {
+                ConnectionController.Instance.CreateMetadata("OINV", "UpdateSource", FieldTypeEnum.Alphanumeric, 1);
+
                 ConnectionController.Instance.CreateMetadata(true, "Code", FieldTypeEnum.Integer);
                 ConnectionController.Instance.CreateMetadata(true, "AutoCreateMetadata", FieldTypeEnum.Alphanumeric, 1);
                 ConnectionController.Instance.CreateMetadata(true, "ActivateLog", FieldTypeEnum.Alphanumeric, 1);
