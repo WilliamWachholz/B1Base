@@ -52,7 +52,7 @@ namespace B1Base.DAO
                         document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
                     }
 
-                    document.UserFields.Fields.Item("U_UpdateSource").Value = "O";
+                    document.UserFields.Fields.Item("U_DIUpdate").Value = "Y";
                     document.Update();
 
                     Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
@@ -89,7 +89,7 @@ namespace B1Base.DAO
                         document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
                     }
 
-                    document.UserFields.Fields.Item("U_UpdateSource").Value = "O";
+                    document.UserFields.Fields.Item("U_DIUpdate").Value = "Y";
                     document.Add();
 
                     documentModel.DocEntry = Controller.ConnectionController.Instance.LastObjectCode;
@@ -145,7 +145,7 @@ namespace B1Base.DAO
                             line++;
                         }
 
-                        document.UserFields.Fields.Item("U_UpdateSource").Value = "O";
+                        document.UserFields.Fields.Item("U_DIUpdate").Value = "Y";
                         document.Update();
 
                         Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
@@ -171,7 +171,7 @@ namespace B1Base.DAO
                         document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
                     }
 
-                    document.UserFields.Fields.Item("U_UpdateSource").Value = "O";
+                    document.UserFields.Fields.Item("U_DIUpdate").Value = "Y";
                     document.Update();
 
                     Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
@@ -201,7 +201,7 @@ namespace B1Base.DAO
                         }
                     }
 
-                    document.UserFields.Fields.Item("U_UpdateSource").Value = "O";
+                    document.UserFields.Fields.Item("U_DIUpdate").Value = "Y";
                     document.Update();
 
                     Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();

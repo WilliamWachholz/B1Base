@@ -132,7 +132,11 @@ namespace B1Base.Controller
 
             try
             {
-                ConnectionController.Instance.CreateMetadata("OINV", "UpdateSource", FieldTypeEnum.Alphanumeric, 1);
+                Dictionary<string, string> yesNoValidValues = new Dictionary<string, string>();
+                yesNoValidValues.Add("Y", "Sim");
+                yesNoValidValues.Add("N", "Não");
+
+                ConnectionController.Instance.CreateMetadata("OINV", "DIUpdate", FieldTypeEnum.Alphanumeric, 1, yesNoValidValues);
 
                 ConnectionController.Instance.CreateMetadata(true, "Code", FieldTypeEnum.Integer);
                 ConnectionController.Instance.CreateMetadata(true, "AutoCreateMetadata", FieldTypeEnum.Alphanumeric, 1);
