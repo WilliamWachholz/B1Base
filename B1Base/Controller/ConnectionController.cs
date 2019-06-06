@@ -493,12 +493,12 @@ namespace B1Base.Controller
             }
         }
 
-        public void ExecuteSQLForGrid(string sqlScript, DataTable dataTable, params string[] variables)
+        public void ExecuteSQLForGrid(string sqlScript, Grid grid, params string[] variables)
         {
             string sql = GetSQL(sqlScript, variables);
             try
             {
-                dataTable.ExecuteQuery(sql);
+                grid.DataTable.ExecuteQuery(sql);
             }
             catch (Exception e)
             {
@@ -538,7 +538,6 @@ namespace B1Base.Controller
             }
             return string.Empty;
         }
-
 
         #region private methods
 
@@ -704,12 +703,6 @@ namespace B1Base.Controller
         }
 
         #endregion
-
-
-        //public void ExecuteTransactedMethod(delegate void method)
-        //{
-
-        //}
     }
 
     public class FieldMetadata
