@@ -135,8 +135,11 @@ namespace B1Base.DAO
                             document.Installments.SetCurrentLine(line);
                             document.Installments.DueDate = documentInstallmentModel.DueDate;
                             document.Installments.Percentage = documentInstallmentModel.InstPrcnt;
-                            document.Installments.Total = documentInstallmentModel.InsTotal;
-
+                            if (document.DocTotalFc > 0)
+                                document.Installments.TotalFC = documentInstallmentModel.InsTotal;
+                            else
+                                document.Installments.Total = documentInstallmentModel.InsTotal * document.DocRate;
+                            
                             foreach (KeyValuePair<string, dynamic> userField in documentInstallmentModel.UserFields)
                             {
                                 document.Installments.UserFields.Fields.Item(userField.Key).Value = userField.Value;

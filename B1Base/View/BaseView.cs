@@ -2292,7 +2292,5 @@ namespace B1Base.View
                 ButtonOpenViewEvents[button](view);
             }
         }
-
-    }
-    
+    }    
 }
