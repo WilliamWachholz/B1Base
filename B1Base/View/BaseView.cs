@@ -237,7 +237,6 @@ namespace B1Base.View
 
         protected virtual Dictionary<string, ColSuppressActionEventHandler> ColSupressActionEvents { get { return new Dictionary<string, ColSuppressActionEventHandler>(); } }
 
-
         protected virtual void CreateControls() { }
 
         /// <summary>
@@ -2245,11 +2244,14 @@ namespace B1Base.View
             if (m_copyFlag)
             {
                 m_copyFlag = false;
-                switch(FormType)
+                Model.EnumObjType objType = Model.EnumObjType.None;
+                int docEntry = 0;
+
+                switch (FormType)
                 {
                     case "133":
-                        int docEntry = GetValue("INV1.BaseEntry", true);
-                        Model.EnumObjType objType = (Model.EnumObjType)GetValue("INV1.BaseType", true);
+                        docEntry = GetValue("INV1.BaseEntry", true);
+                        objType = (Model.EnumObjType)GetValue("INV1.BaseType", true);
 
                         if (docEntry > 0)
                         {
@@ -2262,7 +2264,22 @@ namespace B1Base.View
                             }
                         }
                         break;
-                }                
+                    case "141":
+                        docEntry = GetValue("PCH1.BaseEntry", true);
+                        objType = (Model.EnumObjType)GetValue("PCH1.BaseType", true);
+
+                        if (docEntry > 0)
+                        {
+                            if (DocCopyEvents.ContainsKey(objType))
+                            {
+                                LastCopiedDocEntry = docEntry;
+                                LastCopiedObjType = objType;
+
+                                DocCopyEvents[objType](docEntry);
+                            }
+                        }
+                        break;
+                }
             }
         }
 
