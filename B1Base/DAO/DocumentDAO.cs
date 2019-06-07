@@ -138,7 +138,7 @@ namespace B1Base.DAO
                             if (document.DocTotalFc > 0)
                                 document.Installments.TotalFC = documentInstallmentModel.InsTotal;
                             else
-                                document.Installments.Total = documentInstallmentModel.InsTotal * document.DocRate;
+                                document.Installments.Total = documentInstallmentModel.InsTotal;
                             
                             foreach (KeyValuePair<string, dynamic> userField in documentInstallmentModel.UserFields)
                             {
