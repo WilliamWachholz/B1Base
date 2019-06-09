@@ -298,10 +298,13 @@ namespace B1Base.Controller
                         if (type == null)
                             return;
 
-                        ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
-                        object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+                        if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
+                        {
+                            ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
+                            object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
 
-                        m_Views.Add((View.BaseView)formView);
+                            m_Views.Add((View.BaseView)formView);
+                        }
                     }
                     else
                     {
@@ -315,10 +318,13 @@ namespace B1Base.Controller
 
                             if (type != null)
                             {
-                                ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
-                                object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+                                if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
+                                {
+                                    ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
+                                    object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
 
-                                m_Views.Add((View.BaseView)formView);
+                                    m_Views.Add((View.BaseView)formView);
+                                }
                             }
                         }
                     }
@@ -326,12 +332,23 @@ namespace B1Base.Controller
                 catch (Exception e)
                 {
                     if (LogIsActive)
-                    {
-                        ConnectionController.Instance.Application.StatusBar.SetText("114 - " + e.Message);                        
+                    {                        
+                        ConnectionController.Instance.Application.StatusBar.SetText("114 - " + e.Message);
                     }
                 }
             }
+
+            try
+            {
+                if (m_Views.Where(r => r.FormUID == formUID).Count() > 0 && m_Views.First(r => r.FormUID == formUID).Invisible && (pVal.EventType == BoEventTypes.et_FORM_LOAD || pVal.EventType == BoEventTypes.et_FORM_ACTIVATE || pVal.EventType == BoEventTypes.et_FORM_DRAW || pVal.EventType == BoEventTypes.et_FORM_RESIZE))
+                {
+                    ConnectionController.Instance.Application.Forms.Item(formUID).Visible = false;
+                    ConnectionController.Instance.Application.Forms.Item(formUID).VisibleEx = false;
+                }
+            }
+            catch { }           
         }
+
 
         private void HandleGotFocus(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {

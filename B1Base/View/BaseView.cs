@@ -52,7 +52,7 @@ namespace B1Base.View
             m_timerInitialize.Elapsed += Initialize;
             m_timerInitialize.Enabled = true;
 
-            SAPForm.Freeze(true);
+            Freeze();   
         }
 
         public delegate void ButtonClickEventHandler();
@@ -104,6 +104,14 @@ namespace B1Base.View
 
         private string m_BrowseTable = string.Empty;
         private string m_BrowseItem = string.Empty;
+
+        public virtual bool Invisible
+        {
+            get
+            {
+                return false;
+            }
+        }
         
         public Form SAPForm
         {
@@ -146,7 +154,7 @@ namespace B1Base.View
 
                     try
                     {
-                        CreateControls();                        
+                        CreateControls();
                     }
                     catch (Exception ex)
                     {
@@ -160,7 +168,7 @@ namespace B1Base.View
                             throw ex;
                         }
                     }
-                    
+
                     if (DocCopyEvents.Count > 0)
                     {
                         m_copyFlag = true;
@@ -175,7 +183,7 @@ namespace B1Base.View
             }
             finally
             {
-                SAPForm.Freeze(false);
+                Unfreeze();
             }
         }
 
