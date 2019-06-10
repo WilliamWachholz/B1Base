@@ -1781,9 +1781,22 @@ namespace B1Base.View
                                 ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
                         }
                         catch { }
-                        
+
                         if (matrixItem.Columns.Item(column).Width >= matrixItem.Item.Width - 60)
                             matrixItem.SetCellFocus(row + 1, matrixItem.GetCellFocus().ColumnIndex);
+                        else 
+                        {
+                            for (int col = matrixItem.Columns.Count - 1; col >= 0; col--)
+                            {
+                                if (matrixItem.Columns.Item(col).UniqueID == column)
+                                {
+                                    matrixItem.SetCellFocus(row + 1, matrixItem.GetCellFocus().ColumnIndex);
+                                    break;
+                                }
+                                else if (matrixItem.Columns.Item(col).Visible)
+                                    break;
+                            }
+                        }
                     }
                 }
             }
