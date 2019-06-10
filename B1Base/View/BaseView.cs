@@ -663,18 +663,21 @@ namespace B1Base.View
                         DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
 
                         BoFieldsType fieldType = BoFieldsType.ft_AlphaNumeric;
-
+                        
                         try
                         {
                             fieldType = dataTable.Columns.Item(editText.DataBind.Alias).Type;
                         }
                         catch
                         {
+                            int unboundCols = 0;
                             for (int col = 0; col < matrix.Columns.Count; col++)
                             {
+                                if (matrix.Columns.Item(col).DataBind.TableName == null)
+                                    unboundCols++;
                                 if (matrix.Columns.Item(column).UniqueID == matrix.Columns.Item(col).UniqueID)
                                 {
-                                    fieldType = dataTable.Columns.Item(col).Type;
+                                    fieldType = dataTable.Columns.Item(col - unboundCols).Type;
                                     break;
                                 }
                             }
