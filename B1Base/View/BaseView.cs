@@ -2110,7 +2110,7 @@ namespace B1Base.View
                     }
                 }
                 catch { }
-
+                
                 EditValidateEvents[edit](LastEditValue != editText.String);
             }
         }

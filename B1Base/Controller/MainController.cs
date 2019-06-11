@@ -354,7 +354,7 @@ namespace B1Base.Controller
         {
             bubbleEvent = true;
 
-            if (pVal.EventType == BoEventTypes.et_GOT_FOCUS && pVal.BeforeAction == false)
+            if (pVal.EventType == BoEventTypes.et_GOT_FOCUS && pVal.BeforeAction == true)
             {
                 try
                 {
