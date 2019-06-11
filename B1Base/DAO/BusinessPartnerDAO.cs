@@ -22,11 +22,14 @@ namespace B1Base.DAO
                     else
                         businessPartner.SalesPersonCode = businessPartnerModel.SlpCode;                    
 
+                    foreach (KeyValuePair<string, dynamic> userField in businessPartnerModel.UserFields)
+                    {
+                        businessPartner.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                    }
+
                     businessPartner.Update();
 
                     Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
-
-                    Controller.ConnectionController.Instance.ExecuteStatement("UpdateBusinessPartnerAgentCode", businessPartnerModel.AgentCode, businessPartnerModel.CardCode);
                 }
             }
             finally
@@ -47,7 +50,11 @@ namespace B1Base.DAO
                 {
                     businessPartnerModel.CardCode = businessPartner.CardCode;
                     businessPartnerModel.SlpCode = businessPartner.SalesPersonCode;
-                    businessPartnerModel.AgentCode = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetBusinessPartnerAgentCode", cardCode);
+
+                    for (int userField = 0; userField < businessPartner.UserFields.Fields.Count; userField++)
+                    {
+                        businessPartnerModel.UserFields.Add(businessPartner.UserFields.Fields.Item(userField).Name, businessPartner.UserFields.Fields.Item(userField).Value);
+                    }
                 }
             }
             finally
