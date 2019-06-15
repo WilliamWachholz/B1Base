@@ -315,6 +315,13 @@ namespace B1Base.View
             SAPForm.ActiveItem = item;
         }
 
+        protected Model.CustomizedTemplateModel GetCustomizedTemplate(string item)
+        {
+            Model.CustomizedTemplateModel customizedTemplateModel = AddOn.Instance.ConnectionController.ExecuteSqlForObject<Model.CustomizedTemplateModel>("GetCustomizedTemplate", AddOn.Instance.ConnectionController.User.ToString(), FormType, item);
+
+            return customizedTemplateModel;
+        }
+
         protected void LoadCombo(Matrix matrix, string column, string sqlScript, params string[] variables)
         {
             bool noRow = matrix.RowCount == 0;

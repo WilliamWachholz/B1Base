@@ -95,6 +95,7 @@
     <Compile Include="Model\BusinessPartnerModel.cs" />
     <Compile Include="Model\ConfigModel.cs" />
     <Compile Include="Model\ConfigSeqModel.cs" />
+    <Compile Include="Model\CustomizedTemplateModel.cs" />
     <Compile Include="Model\DiscountGroupModel.cs" />
     <Compile Include="Model\DocumentItemModel.cs" />
     <Compile Include="Model\DocumentModel.cs" />
@@ -169,6 +170,9 @@
     <Content Include="SQL\HANA\GetBusinessPartnerAgentCode.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="SQL\HANA\GetCustomizedTemplate.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SQL\HANA\GetLastLogInstance.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -221,6 +225,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\SQLSERVER\GetComboValues.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SQL\SQLSERVER\GetCustomizedTemplate.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\SQLSERVER\GetFieldExists.sql">
