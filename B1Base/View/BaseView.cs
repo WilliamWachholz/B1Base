@@ -315,7 +315,7 @@ namespace B1Base.View
             SAPForm.ActiveItem = item;
         }
 
-        protected Item CreateItem(string item, BoFormItemTypes itemType, int top, int left, int fromPane = 0, int toPane = 0, bool visible = true, bool enabled = true)
+        protected Item CreateItem(string item, BoFormItemTypes itemType, int top, int left, int fromPane = 0, int toPane = 0, bool enabled = true)
         {
             Item _item = SAPForm.Items.Add(item, itemType);
             
@@ -328,7 +328,6 @@ namespace B1Base.View
                 _item.Top = top;
                 _item.Left = left;
                 _item.Enabled = enabled;
-                _item.Visible = visible;
             }
             else
             {
