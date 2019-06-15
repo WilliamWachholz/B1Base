@@ -315,11 +315,30 @@ namespace B1Base.View
             SAPForm.ActiveItem = item;
         }
 
-        protected Model.CustomizedTemplateModel GetCustomizedTemplate(string item)
+        protected Item CreateItem(string item, BoFormItemTypes itemType, int top, int left, int fromPane = 0, int toPane = 0, bool visible = true, bool enabled = true)
         {
+            Item _item = SAPForm.Items.Add(item, itemType);
+            
             Model.CustomizedTemplateModel customizedTemplateModel = AddOn.Instance.ConnectionController.ExecuteSqlForObject<Model.CustomizedTemplateModel>("GetCustomizedTemplate", AddOn.Instance.ConnectionController.User.ToString(), FormType, item);
 
-            return customizedTemplateModel;
+            _item.FromPane = fromPane;
+            _item.ToPane = toPane;
+            if (customizedTemplateModel == null)
+            {
+                _item.Top = top;
+                _item.Left = left;
+                _item.Enabled = enabled;
+                _item.Visible = visible;
+            }
+            else
+            {
+                _item.Top = customizedTemplateModel.Top;
+                _item.Left = customizedTemplateModel.Left;
+                _item.Enabled = customizedTemplateModel.Editable;
+                _item.Visible = customizedTemplateModel.Visible;
+            }
+
+            return _item;
         }
 
         protected void LoadCombo(Matrix matrix, string column, string sqlScript, params string[] variables)

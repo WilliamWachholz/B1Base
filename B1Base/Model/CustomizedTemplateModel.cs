@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace B1Base.Model
 {
-    public class CustomizedTemplateModel
+    class CustomizedTemplateModel
     {
         public int Top { get; set; }
         public int Left { get; set; }
