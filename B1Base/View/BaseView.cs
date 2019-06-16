@@ -1847,6 +1847,8 @@ namespace B1Base.View
                     AfterDeleteFormData();
 
                     SAPForm.EnableMenu("1282", true);
+
+                    AddOn.Instance.MainController.OpenMenuInsert();
                 }
                 else
                 {
