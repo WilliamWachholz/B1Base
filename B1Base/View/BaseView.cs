@@ -52,7 +52,7 @@ namespace B1Base.View
             m_timerInitialize.Elapsed += Initialize;
             m_timerInitialize.Enabled = true;
 
-            Freeze();   
+            Initialized = false;
         }
 
         public delegate void ButtonClickEventHandler();
@@ -105,6 +105,8 @@ namespace B1Base.View
         private string m_BrowseTable = string.Empty;
         private string m_BrowseItem = string.Empty;
 
+        public bool Initialized { get; private set; }
+
         public virtual bool Invisible
         {
             get
@@ -125,7 +127,10 @@ namespace B1Base.View
         {
             try
             {
-                m_timerInitialize.Enabled = false;
+                if (!Invisible)
+                    B1Base.AddOn.Instance.ConnectionController.Application.StatusBar.SetText("Inicializando formulário", BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Warning);
+
+                m_timerInitialize.Enabled = false;                
 
                 Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
 
@@ -183,7 +188,11 @@ namespace B1Base.View
             }
             finally
             {
-                Unfreeze();
+                Initialized = true;
+                if (!Invisible)
+                    SAPForm.Visible = true;
+
+                B1Base.AddOn.Instance.ConnectionController.Application.StatusBar.SetText("", BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_None);
             }
         }
 
