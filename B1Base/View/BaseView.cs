@@ -14,6 +14,10 @@ namespace B1Base.View
     public abstract class BaseView
     {
         const string BUTTON_DOC_COPY = "10000330";
+
+        const string USD_INITIALIZED = "USDINIT";
+
+        const string EDIT_INITIALIZED = "EDTINIT";
         
         public string FormUID { get; private set; }
         public string FormType { get; private set; }
@@ -51,8 +55,6 @@ namespace B1Base.View
 
             m_timerInitialize.Elapsed += Initialize;
             m_timerInitialize.Enabled = true;
-
-            Initialized = false;
         }
 
         public delegate void ButtonClickEventHandler();
@@ -105,8 +107,6 @@ namespace B1Base.View
         private string m_BrowseTable = string.Empty;
         private string m_BrowseItem = string.Empty;
 
-        public bool Initialized { get; private set; }
-
         public virtual bool Invisible
         {
             get
@@ -127,9 +127,6 @@ namespace B1Base.View
         {
             try
             {
-                if (!Invisible)
-                    B1Base.AddOn.Instance.ConnectionController.Application.StatusBar.SetText("Inicializando formulário", BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Warning);
-
                 m_timerInitialize.Enabled = false;                
 
                 Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
@@ -188,11 +185,7 @@ namespace B1Base.View
             }
             finally
             {
-                Initialized = true;
-                if (!Invisible)
-                    SAPForm.Visible = true;
 
-                B1Base.AddOn.Instance.ConnectionController.Application.StatusBar.SetText("", BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_None);
             }
         }
 

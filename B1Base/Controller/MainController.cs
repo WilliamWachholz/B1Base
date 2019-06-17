@@ -278,6 +278,8 @@ namespace B1Base.Controller
         {
             bubbleEvent = true;
 
+            string formType = pVal.FormTypeEx;
+
             if (pVal.EventType == BoEventTypes.et_FORM_LOAD && pVal.BeforeAction == false)
             {
                 bubbleEvent = true;
@@ -340,11 +342,13 @@ namespace B1Base.Controller
 
             try
             {
-                if ((m_Views.Where(r => r.FormUID == formUID).Count() > 0 && (m_Views.First(r => r.FormUID == formUID).Invisible || !m_Views.First(r => r.FormUID == formUID).Initialized)) && (pVal.EventType == BoEventTypes.et_FORM_LOAD || pVal.EventType == BoEventTypes.et_FORM_ACTIVATE || pVal.EventType == BoEventTypes.et_FORM_DRAW || pVal.EventType == BoEventTypes.et_FORM_RESIZE))
+                if (m_Views.Where(r => r.FormUID == formUID).Count() > 0)
                 {
-                    ConnectionController.Instance.Application.Forms.Item(formUID).Visible = false;
-                    if (m_Views.First(r => r.FormUID == formUID).Invisible)
+                    if (m_Views.First(r => r.FormUID == formUID).Invisible && (pVal.EventType == BoEventTypes.et_FORM_LOAD || pVal.EventType == BoEventTypes.et_FORM_ACTIVATE || pVal.EventType == BoEventTypes.et_FORM_DRAW || pVal.EventType == BoEventTypes.et_FORM_RESIZE))
+                    {
+                        ConnectionController.Instance.Application.Forms.Item(formUID).Visible = false;
                         ConnectionController.Instance.Application.Forms.Item(formUID).VisibleEx = false;
+                    }
                 }
             }
             catch { }           
