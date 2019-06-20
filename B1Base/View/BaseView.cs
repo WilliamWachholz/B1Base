@@ -157,6 +157,8 @@ namespace B1Base.View
                     try
                     {
                         CreateControls();
+
+                        SAPForm.PaneLevel = 1;
                     }
                     catch (Exception ex)
                     {
@@ -335,9 +337,9 @@ namespace B1Base.View
             {
                 _item.Top = customizedTemplateModel.Top;
                 _item.Left = customizedTemplateModel.Left;
-                _item.Enabled = customizedTemplateModel.Editable;
-                _item.Visible = customizedTemplateModel.Visible;
+                _item.Enabled = customizedTemplateModel.Editable;                
             }
+            _item.Visible = true;
 
             return _item;
         }
