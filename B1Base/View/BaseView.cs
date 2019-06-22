@@ -27,6 +27,8 @@ namespace B1Base.View
         bool m_addFlag;
         bool m_updateFlag;
 
+        bool m_updateFailed;
+
         protected System.Globalization.NumberFormatInfo DefaultNumberFormat
         {
             get
@@ -1504,6 +1506,8 @@ namespace B1Base.View
                     {
                         AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
 
+                        m_updateFailed = true;
+
                         return;
                     }
                 }
@@ -1546,6 +1550,9 @@ namespace B1Base.View
                         return;
                     }
                 }
+
+                if (m_updateFailed)
+                    SAPForm.Mode = BoFormMode.fm_UPDATE_MODE;
             }
 
             if (m_addFlag)
