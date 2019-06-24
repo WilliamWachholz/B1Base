@@ -184,74 +184,85 @@ namespace B1Base.Controller
 
         public View.BaseView OpenView(bool unique, string formType, View.BaseView parentView, bool wait = false)
         {
-            bool notExists = false;
-
             try
             {
-                Controller.ConnectionController.Instance.Application.Forms.GetForm(formType, 1);
-            }
-            catch
-            {
-                notExists = true;
-            }
+                bool notExists = false;
 
-            string formUID = "RW1";
-
-            string newFormType = formType;
-
-            if ((unique == false) || (unique && notExists))
-            {
-                int count = 0;
-
-                bool next = true;
-
-                while (next)
+                try
                 {
-                    count++;
-
-                    try
-                    {
-                        Controller.ConnectionController.Instance.Application.Forms.GetForm(formType, count);
-                    }
-                    catch
-                    {
-                        next = false;
-                    }
+                    Controller.ConnectionController.Instance.Application.Forms.GetForm(formType, 1);
+                }
+                catch
+                {
+                    notExists = true;
                 }
 
-                newFormType = formType.Split('.')[2].Length > 20 ? formType.Split('.')[2].Substring(0, 20) : formType.Split('.')[2];
+                string formUID = "RW1";
 
-                formUID = string.Format("RW{0}-{1}", count, new Random().Next(999));
+                string newFormType = formType;
 
-                string srfPath = AddOn.Instance.CurrentDirectory + "\\SRF\\" + formType.Split('.')[2] + ".srf";
-
-                if (File.Exists(srfPath) == false)
+                if ((unique == false) || (unique && notExists))
                 {
-                    Controller.ConnectionController.Instance.Application.StatusBar.SetText("Arquivo SRF não encontrado. Verifique a instalação do addOn.", BoMessageTime.bmt_Long, BoStatusBarMessageType.smt_Error);
-                    return null;
+                    int count = 0;
+
+                    bool next = true;
+
+                    while (next)
+                    {
+                        count++;
+
+                        try
+                        {
+                            Controller.ConnectionController.Instance.Application.Forms.GetForm(formType, count);
+                        }
+                        catch
+                        {
+                            next = false;
+                        }
+                    }
+
+                    newFormType = formType.Split('.')[2].Length > 20 ? formType.Split('.')[2].Substring(0, 20) : formType.Split('.')[2];
+
+                    formUID = string.Format("RW{0}-{1}", count, new Random().Next(999));
+
+                    string srfPath = AddOn.Instance.CurrentDirectory + "\\SRF\\" + formType.Split('.')[2] + ".srf";
+
+                    if (File.Exists(srfPath) == false)
+                    {
+                        Controller.ConnectionController.Instance.Application.StatusBar.SetText("Arquivo SRF não encontrado. Verifique a instalação do addOn.", BoMessageTime.bmt_Long, BoStatusBarMessageType.smt_Error);
+                        return null;
+                    }
+
+                    string xml = File.ReadAllText(srfPath);
+
+                    xml = xml.Replace("uid=\"RW0\"", string.Format("uid=\"{0}\"", formUID));
+                    xml = xml.Replace(string.Format("appformnumber=\"{0}\"", formType), string.Format("appformnumber=\"{0}\"", newFormType));
+                    xml = xml.Replace(string.Format("FormType=\"{0}\"", formType), string.Format("FormType=\"{0}\"", newFormType));
+
+                    if (Controller.ConnectionController.Instance.DBServerType == "SQLSERVER")
+                        xml = xml.Replace("from dummy", "");
+
+                    if (!FormTypeViews.ContainsKey(newFormType))
+                        FormTypeViews.Add(newFormType, formType);
+
+                    Controller.ConnectionController.Instance.Application.LoadBatchActions(ref xml);
                 }
 
-                string xml = File.ReadAllText(srfPath);
+                if (wait)
+                    System.Threading.Thread.Sleep(1000);
 
-                xml = xml.Replace("uid=\"RW0\"", string.Format("uid=\"{0}\"", formUID));
-                xml = xml.Replace(string.Format("appformnumber=\"{0}\"", formType), string.Format("appformnumber=\"{0}\"", newFormType));
-                xml = xml.Replace(string.Format("FormType=\"{0}\"", formType), string.Format("FormType=\"{0}\"", newFormType));
+                m_Views.First(r => r.FormUID == formUID && r.FormType == newFormType).ParentView = parentView;
 
-                if (Controller.ConnectionController.Instance.DBServerType == "SQLSERVER")
-                    xml = xml.Replace("from dummy", "");
-
-                if (!FormTypeViews.ContainsKey(newFormType))
-                    FormTypeViews.Add(newFormType, formType);
-
-                Controller.ConnectionController.Instance.Application.LoadBatchActions(ref xml);
+                return m_Views.First(r => r.FormUID == formUID && r.FormType == newFormType);
             }
-
-            if (wait)
-                System.Threading.Thread.Sleep(1000);
-
-            m_Views.First(r => r.FormUID == formUID && r.FormType == newFormType).ParentView = parentView;
-
-            return m_Views.First(r => r.FormUID == formUID && r.FormType == newFormType);
+            catch(Exception ex)
+            {
+                if (LogIsActive)
+                {
+                    ConnectionController.Instance.Application.StatusBar.SetText(ex.Message);
+                }
+                return null;
+            }
         }
 
         public void OpenMenu(string menu)
@@ -470,7 +481,7 @@ namespace B1Base.Controller
                         {
                             m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonClick(pVal.ItemUID);
                         }
-                    }
+                    }                   
                 }
                 catch (Exception e)
                 {
@@ -520,6 +531,22 @@ namespace B1Base.Controller
                             m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonOpenView(pVal.ItemUID, m_Views[m_Views.Count - 1]);
 
                             m_Views.First(r => r.FormUID == formUID && r.FormType == formType).LinkPress(pVal.ItemUID, m_Views[m_Views.Count - 1]);
+                        }
+                    }
+
+                    if (formType == "60059" && pVal.ItemUID == "11")
+                    {
+                        if (((EditText)((Matrix)Controller.ConnectionController.Instance.Application.Forms.GetForm(formType, 1).Items.Item("3").Specific).Columns.Item("7").Cells.Item(pVal.Row)).String == AddOnID)
+                        {
+                            foreach (string menu in Menus)
+                            {
+                                try
+                                {
+                                    ConnectionController.Instance.Application.Menus.RemoveEx(menu);
+                                }
+                                catch { }
+                            }
+                            ExitApp();
                         }
                     }
                 }
@@ -1062,7 +1089,7 @@ namespace B1Base.Controller
         private void HandleMenuSearch(ref MenuEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
-
+            
             if (pVal.MenuUID == "1281")
             {
                 string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
@@ -1072,9 +1099,12 @@ namespace B1Base.Controller
                 {
                     if (!formId.Contains("F_"))
                     {
-                        if (Controller.ConnectionController.Instance.Application.MessageBox("Dados não gravados serão perdidos. Continuar?", 1, "Sim", "Não") != 1)
+                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                         {
-                            bubbleEvent = false;
+                            if (Controller.ConnectionController.Instance.Application.MessageBox("Dados não gravados serão perdidos. Continuar?", 1, "Sim", "Não") != 1)
+                            {
+                                bubbleEvent = false;
+                            }
                         }
                     }
                 }
