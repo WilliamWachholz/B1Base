@@ -468,6 +468,10 @@ namespace B1Base.Controller
         public void ExecuteSQLForMatrix(string sqlScript, Matrix matrix, DataTable dataTable, bool addLastLine, params string[] variables)
         {
             string sql = GetSQL(sqlScript, variables);
+
+            //Verifficar locais onde é usado o AddOn.algumacoisa, pois nem sempre estará instanciado. Mover o CurrentDirectory. Colocar manifest em todos os addons para que rodem como adm
+            //File.WriteAllText(AddOn.Instance.CurrentDirectory + "//SQLLog.txt", sql);
+
             try
             {
                 dataTable.ExecuteQuery(sql);

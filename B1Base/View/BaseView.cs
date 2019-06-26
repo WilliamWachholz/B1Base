@@ -13,14 +13,20 @@ namespace B1Base.View
 {
     public abstract class BaseView
     {
+        #region constants
+
         const string BUTTON_DOC_COPY = "10000330";
 
         const string USD_INITIALIZED = "USDINIT";
 
         const string EDIT_INITIALIZED = "EDTINIT";
-        
+
+        #endregion
+
         public string FormUID { get; private set; }
         public string FormType { get; private set; }
+
+        #region variables
 
         Timer m_timerInitialize = new Timer(700);
         bool m_copyFlag;
@@ -28,6 +34,8 @@ namespace B1Base.View
         bool m_updateFlag;
 
         bool m_updateFailed;
+
+        #endregion
 
         protected System.Globalization.NumberFormatInfo DefaultNumberFormat
         {
@@ -67,7 +75,8 @@ namespace B1Base.View
         public delegate void ChooseFromEventHandler(params string[] values);
         public delegate void ColChooseFromEventHandler(int row, Dictionary<string, string> values);        
         public delegate void MatixRowEnterEventHandler(int row, string column, bool rowChanged, bool rowSelected);
-        public delegate void MatixRowDoubleClickEventHandler(int row, string column, bool rowChanged);    
+        public delegate void MatixRowDoubleClickEventHandler(int row, string column, bool rowChanged);
+        public delegate void GridRowDoubleClickEventHandler(int row);    
         public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void MatrixCustomMenuEventHandler(int row, string column);
         public delegate void MatrixColPasteForAllEventHandler(string column);
@@ -208,6 +217,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, ChooseFromEventHandler> ChooseFromEvents { get { return new Dictionary<string, ChooseFromEventHandler>(); } }
 
         protected virtual Dictionary<string, ColChooseFromEventHandler> ColChooseFromEvents { get { return new Dictionary<string, ColChooseFromEventHandler>(); } }
+
+        protected virtual Dictionary<string, GridRowDoubleClickEventHandler> GridRowDoubleClickEvents { get { return new Dictionary<string, GridRowDoubleClickEventHandler>(); } }
 
         protected virtual Dictionary<string, MatixRowEnterEventHandler> MatrixRowEnterEvents { get { return new Dictionary<string, MatixRowEnterEventHandler>(); } }
 
@@ -685,7 +696,7 @@ namespace B1Base.View
             {
                 Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
 
-                if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_EDIT || matrix.Columns.Item(column).Type == BoFormItemTypes.it_LINKED_BUTTON)
+                if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_EDIT)
                 {
                     EditText editText = (EditText)matrix.Columns.Item(column).Cells.Item(row).Specific;
 
@@ -777,6 +788,12 @@ namespace B1Base.View
                     return pictureBox.Picture;
                 }
                 else return string.Empty;
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_GRID)
+            {
+                Grid grid = (Grid)SAPForm.Items.Item(item).Specific;
+
+                return grid.DataTable.GetValue(column, row);                
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)
             {
@@ -1740,6 +1757,14 @@ namespace B1Base.View
             if (FolderSelectEvents.ContainsKey(folder))
             {
                 FolderSelectEvents[folder]();
+            }
+        }
+
+        public void GridRowDoubleClick(string grid, int row)
+        {
+            if (GridRowDoubleClickEvents.ContainsKey(grid) && !Frozen)
+            {
+                GridRowDoubleClickEvents[grid](row);
             }
         }
 

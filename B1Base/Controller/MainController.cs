@@ -106,6 +106,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonPress;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormValidate;            
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormResize;
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleGridRowClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixRowClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixSort;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixKeyDown;            
@@ -364,7 +365,6 @@ namespace B1Base.Controller
             }
             catch { }           
         }
-
 
         private void HandleGotFocus(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
@@ -862,6 +862,34 @@ namespace B1Base.Controller
                     if (LogIsActive)
                     {
                         ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);                        
+                    }
+                }
+            }
+        }
+
+        private void HandleGridRowClick(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
+        {
+            bubbleEvent = true;
+
+            if (pVal.EventType == BoEventTypes.et_DOUBLE_CLICK && pVal.BeforeAction == false)
+            {
+                try
+                {
+                    if (pVal.Row >= 0)
+                    {
+                        string formType = pVal.FormTypeEx;
+
+                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).GridRowDoubleClick(pVal.ItemUID, pVal.Row);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);
                     }
                 }
             }
