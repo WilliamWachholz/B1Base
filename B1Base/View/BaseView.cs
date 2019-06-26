@@ -1770,6 +1770,8 @@ namespace B1Base.View
 
         public void MatrixRowEnter(string matrix, int row, string column, BoModifiersEnum modifier)
         {
+            Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
             if (MatrixRowEnterEvents.ContainsKey(matrix) && !Frozen)
             {
                 bool rowChanged = LastRows.ContainsKey(matrix) ? row != LastRows[matrix] : true;
@@ -1785,9 +1787,7 @@ namespace B1Base.View
                     LastRows.Add(matrix, row);
                 }
 
-                LastModifier = modifier;
-
-                Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+                LastModifier = modifier;               
 
                 int selectedRow = 0;
                
@@ -1799,6 +1799,16 @@ namespace B1Base.View
 
                 MatrixRowEnterEvents[matrix](row, column, rowChanged, selectedRow == row);
             }
+
+            string key = string.Format("{0}.{1}", matrix, column);
+
+            if (ColumnValidateEvents.ContainsKey(key) && !Frozen)
+            {
+                EditText editText = (EditText)matrixItem.Columns.Item(column).Cells.Item(row).Specific;
+
+                LastColumnValue = editText.String;
+            }
+
         }
 
         public void MatrixRowDoubleClick(string matrix, int row, string column)
@@ -2210,11 +2220,7 @@ namespace B1Base.View
 
                 bool changed = LastColumnValue != editText.String;
 
-                LastColumnValue = editText.String;
-
-                ColumnValidateEvents[key](row, changed);
-
-                
+                ColumnValidateEvents[key](row, changed);                
 
                 if (MatrixCanAddEvents.ContainsKey(key) && row == matrixItem.RowCount)
                 {
