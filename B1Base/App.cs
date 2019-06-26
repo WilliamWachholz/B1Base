@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
+using System.Windows.Forms;
 
 namespace B1Base
 {
@@ -97,6 +98,11 @@ namespace B1Base
             {
                 return System.IO.Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath);
             }
+        }
+
+        public void Close()
+        {
+            Application.Exit();
         }
     }
 }
