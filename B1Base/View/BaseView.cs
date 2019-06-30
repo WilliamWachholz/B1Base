@@ -696,7 +696,7 @@ namespace B1Base.View
             {
                 Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
 
-                if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_EDIT)
+                if (matrix.Columns.Item(column).Type == BoFormItemTypes.it_EDIT || matrix.Columns.Item(column).Type == BoFormItemTypes.it_LINKED_BUTTON)
                 {
                     EditText editText = (EditText)matrix.Columns.Item(column).Cells.Item(row).Specific;
 
