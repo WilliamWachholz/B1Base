@@ -35,6 +35,8 @@ namespace B1Base.View
 
         bool m_updateFailed;
 
+        Dictionary<string, int> cachedDBDataSources = new Dictionary<string, int>();
+
         #endregion
 
         protected System.Globalization.NumberFormatInfo DefaultNumberFormat
@@ -650,8 +652,14 @@ namespace B1Base.View
 
                     for (int index = 0; index < SAPForm.DataSources.DBDataSources.Count; index++)
                     {
+                        if (cachedDBDataSources.ContainsKey(tableName))
+                            index = cachedDBDataSources[tableName];
+
                         if (SAPForm.DataSources.DBDataSources.Item(index).TableName == tableName)
                         {
+                            if (!cachedDBDataSources.ContainsKey(tableName))
+                                cachedDBDataSources.Add(tableName, index);
+
                             if (SAPForm.DataSources.DBDataSources.Item(index).Fields.Item(tableCol).Type == BoFieldsType.ft_Date)
                             {
                                 if (SAPForm.DataSources.DBDataSources.Item(index).GetValue(tableCol, SAPForm.DataSources.DBDataSources.Item(index).Offset) == string.Empty)
