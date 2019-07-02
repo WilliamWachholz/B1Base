@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Reflection;
 using System.IO;
 using SAPbouiCOM;
@@ -28,6 +29,8 @@ namespace B1Base.Controller
         private bool LogIsActive { get; set; }        
         private string LastStatusBarMsg { get; set; }
         private bool SuppressChoose { get; set; }
+
+        Timer m_timerFinalize = new Timer(60000);
 
         protected const string MENU_SAP = "43520";
         protected const string MENU_CONFIG_SAP = "43525";
@@ -161,6 +164,12 @@ namespace B1Base.Controller
             }
 
             ConnectionController.Instance.Application.StatusBar.SetText(string.Format("AddOn {0} conectado.", AddOnName), SAPbouiCOM.BoMessageTime.bmt_Long, SAPbouiCOM.BoStatusBarMessageType.smt_Success); 
+        }
+
+        private void Finalize(object sender, ElapsedEventArgs e)
+        {
+            m_timerFinalize.Enabled = false;
+            ExitApp();
         }
 
         public virtual void MenuConfigOpen()
@@ -427,6 +436,12 @@ namespace B1Base.Controller
                     {
                         ConnectionController.Instance.Application.StatusBar.SetText("163 - " + e.Message);
                     }
+                }
+
+                if (pVal.FormType == 0 && pVal.FormUID == "F_1")
+                {
+                    m_timerFinalize.Elapsed += Finalize;
+                    m_timerFinalize.Enabled = true;
                 }
             }
         }
@@ -1254,7 +1269,7 @@ namespace B1Base.Controller
             {
                 case SAPbouiCOM.BoAppEventTypes.aet_CompanyChanged:
                 case SAPbouiCOM.BoAppEventTypes.aet_ServerTerminition:
-                case SAPbouiCOM.BoAppEventTypes.aet_ShutDown:                    
+                case SAPbouiCOM.BoAppEventTypes.aet_ShutDown:                        
                     {
                         foreach (string menu in Menus)
                         {
