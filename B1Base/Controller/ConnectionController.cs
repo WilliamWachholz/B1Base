@@ -257,6 +257,18 @@ namespace B1Base.Controller
                         case FieldTypeEnum.Alphanumeric:
                             userField.Type = BoFieldTypes.db_Alpha;
                             userField.EditSize = size;
+
+                            if (validValues != null)
+                            {
+                                foreach (KeyValuePair<string, string> validValue in validValues)
+                                {
+                                    userField.ValidValues.Add();
+                                    userField.ValidValues.SetCurrentLine(userField.ValidValues.Count - 1);
+
+                                    userField.ValidValues.Value = validValue.Key;
+                                    userField.ValidValues.Description = validValue.Value;
+                                }
+                            }
                             break;
                         case FieldTypeEnum.Date:
                             userField.Type = BoFieldTypes.db_Date;
