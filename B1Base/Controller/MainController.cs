@@ -29,6 +29,7 @@ namespace B1Base.Controller
         private bool LogIsActive { get; set; }        
         private string LastStatusBarMsg { get; set; }
         private bool SuppressChoose { get; set; }
+        private bool SupressPicker { get; set; }
 
         Timer m_timerFinalize = new Timer(60000);
 
@@ -103,6 +104,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleGotFocus;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormClose;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormDeactivate;
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandlePickerClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFolderSelect;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleChooseFrom;
@@ -312,21 +314,51 @@ namespace B1Base.Controller
                         ConnectionController.Instance.Application.Forms.Item(pVal.FormUID).Close();
                         SuppressChoose = false;
                     }
+                    else if (SupressPicker)
+                    {
+                        ConnectionController.Instance.Application.Forms.Item(pVal.FormUID).Close();
+                        SupressPicker = false;
+                    }
                     else if (pVal.FormUID.StartsWith("RW"))
                     {
-                        Assembly assembly = Assembly.LoadFile(AddOn.Instance.CurrentDirectory + "\\" + FormTypeViews[pVal.FormTypeEx].Split('.')[0] + ".dll");
-
-                        Type type = assembly.GetType(FormTypeViews[pVal.FormTypeEx]);
-
-                        if (type == null)
-                            return;
-
-                        if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
+                        if (FormTypeViews.ContainsKey(pVal.FormTypeEx))
                         {
-                            ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
-                            object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+                            Assembly assembly = Assembly.LoadFile(AddOn.Instance.CurrentDirectory + "\\" + FormTypeViews[pVal.FormTypeEx].Split('.')[0] + ".dll");
 
-                            m_Views.Add((View.BaseView)formView);
+                            Type type = assembly.GetType(FormTypeViews[pVal.FormTypeEx]);
+
+                            if (type == null)
+                                return;
+
+                            if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
+                            {
+                                ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
+                                object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+
+                                m_Views.Add((View.BaseView)formView);
+                            }
+                        }
+                        else
+                        {
+                            string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
+
+                            foreach (string dll in dlls)
+                            {
+                                Assembly assembly = Assembly.LoadFile(dll);
+
+                                Type type = assembly.GetType(assembly.GetName().Name + ".View." + pVal.FormTypeEx.Split('.')[pVal.FormTypeEx.Split('.').Count() - 1]);
+
+                                if (type != null)
+                                {
+                                    if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
+                                    {
+                                        ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
+                                        object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+
+                                        m_Views.Add((View.BaseView)formView);
+                                    }
+                                }
+                            }
                         }
                     }
                     else
@@ -466,6 +498,28 @@ namespace B1Base.Controller
                     if (LogIsActive)
                     {
                         ConnectionController.Instance.Application.StatusBar.SetText("259 - " + e.Message);
+                    }
+                }
+            }
+        }
+
+        private void HandlePickerClick(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
+        {
+            bubbleEvent = true;
+
+            if (pVal.EventType == BoEventTypes.et_PICKER_CLICKED && pVal.BeforeAction == true)
+            {
+                string formType = pVal.FormTypeEx;
+
+                if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                {
+                    if (pVal.ColUID != string.Empty)
+                    {
+                        
+                    }
+                    else
+                    {
+                        SupressPicker = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).SupressPickerClick(pVal.ItemUID);
                     }
                 }
             }
@@ -913,18 +967,18 @@ namespace B1Base.Controller
         private void HandleMatrixRowClick(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
-
-            if (pVal.EventType == BoEventTypes.et_CLICK && pVal.BeforeAction == false)
+            
+            if (pVal.EventType == BoEventTypes.et_DOUBLE_CLICK && pVal.BeforeAction == false)
             {
                 try
                 {
                     if (pVal.Row > 0)
                     {
                         string formType = pVal.FormTypeEx;
-                        
+
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowDoubleClick(pVal.ItemUID, pVal.Row, pVal.ColUID);
                         }
                     }
                 }
@@ -937,7 +991,7 @@ namespace B1Base.Controller
                 }
             }
 
-            if (pVal.EventType == BoEventTypes.et_DOUBLE_CLICK && pVal.BeforeAction == false)
+            if (pVal.EventType == BoEventTypes.et_CLICK && pVal.BeforeAction == false)
             {
                 try
                 {
@@ -947,7 +1001,7 @@ namespace B1Base.Controller
 
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowDoubleClick(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
                         }
                     }
                 }

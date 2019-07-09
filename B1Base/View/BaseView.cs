@@ -1625,6 +1625,20 @@ namespace B1Base.View
             }
         }
 
+        public bool SupressPickerClick(string edit)
+        {
+            if (SupressActionEvents.ContainsKey(edit) && !Frozen)
+            {
+                bool supressed = false;
+
+                SupressActionEvents[edit](BoEventTypes.et_PICKER_CLICKED, out supressed);
+
+                return supressed;
+            }
+
+            return false;
+        }
+
         public bool SupressChooseFrom(string edit)
         {
             if (SupressActionEvents.ContainsKey(edit) && !Frozen)
