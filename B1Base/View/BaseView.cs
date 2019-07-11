@@ -115,6 +115,8 @@ namespace B1Base.View
         public bool Frozen { get; private set; }
         public BoModifiersEnum LastModifier { get; private set; }
 
+        protected virtual int DefaultPane { get { return 1; } }
+
         public View.BaseView ParentView { get; set; }
 
         private string m_BrowseTable = string.Empty;
@@ -171,7 +173,7 @@ namespace B1Base.View
                     {
                         CreateControls();
 
-                        SAPForm.PaneLevel = 1;
+                        SAPForm.PaneLevel = DefaultPane;
                     }
                     catch (Exception ex)
                     {

@@ -59,27 +59,31 @@ namespace B1Base.Controller
             SAPbouiCOM.MenuCreationParams oCreationPackage = null;
 
             oMenuItem = ConnectionController.Instance.Application.Menus.Item(menuFather);
-            oMenus = oMenuItem.SubMenus;
-
-            if (!oMenus.Exists(menuID))
+            
+            if (oMenuItem.Enabled)
             {
-                oCreationPackage = ConnectionController.Instance.Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_MenuCreationParams);
+                oMenus = oMenuItem.SubMenus;
 
-                oCreationPackage.Type = popup ? SAPbouiCOM.BoMenuType.mt_POPUP : SAPbouiCOM.BoMenuType.mt_STRING;
-                oCreationPackage.UniqueID = menuID;
-                oCreationPackage.String = menuName;
-                if (imageFile != string.Empty)
-                    oCreationPackage.Image = AddOn.Instance.CurrentDirectory + @"\img\" + imageFile;
-                oCreationPackage.Position = 12;
-
-                try
+                if (!oMenus.Exists(menuID))
                 {
-                    oMenuItem = oMenus.AddEx(oCreationPackage);
+                    oCreationPackage = ConnectionController.Instance.Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_MenuCreationParams);
 
-                    Menus.Add(menuID);
-                }
-                catch
-                {
+                    oCreationPackage.Type = popup ? SAPbouiCOM.BoMenuType.mt_POPUP : SAPbouiCOM.BoMenuType.mt_STRING;
+                    oCreationPackage.UniqueID = menuID;
+                    oCreationPackage.String = menuName;
+                    if (imageFile != string.Empty)
+                        oCreationPackage.Image = AddOn.Instance.CurrentDirectory + @"\img\" + imageFile;
+                    oCreationPackage.Position = 12;
+
+                    try
+                    {
+                        oMenuItem = oMenus.AddEx(oCreationPackage);
+
+                        Menus.Add(menuID);
+                    }
+                    catch
+                    {
+                    }
                 }
             }
         }        
