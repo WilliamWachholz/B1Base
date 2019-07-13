@@ -84,7 +84,7 @@ namespace B1Base.DAO
                     if (item.GetByKey(itemCode))
                     {
                         int line = 0;
-
+                        
                         for (line = item.WhsInfo.Count - 1; line >= 0; line--)
                         {
                             item.WhsInfo.SetCurrentLine(line);
@@ -199,6 +199,35 @@ namespace B1Base.DAO
                     Marshal.ReleaseComObject(alternateCatNum);
                     GC.Collect();
                 }
+            }
+        }
+
+        public void Save(string itemCode, int priceList, double price)
+        {
+            Items item = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
+            try
+            {
+                if (item.GetByKey(itemCode))
+                {
+                    for (int line = 0; line < item.PriceList.Count; line++)
+                    {
+                        item.PriceList.SetCurrentLine(line);
+
+                        if (item.PriceList.PriceList == priceList)
+                        {
+                            item.PriceList.Price = price;
+                            break;
+                        }
+                    }
+                    item.Update();
+
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(item);
+                GC.Collect();
             }
         }
 

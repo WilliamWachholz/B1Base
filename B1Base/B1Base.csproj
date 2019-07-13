@@ -173,6 +173,9 @@
     <Content Include="SQL\HANA\GetCustomizedTemplate.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="SQL\HANA\GetItemGroupCode.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SQL\HANA\GetLastLogInstance.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
