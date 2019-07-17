@@ -129,6 +129,14 @@ namespace B1Base.View
                 return false;
             }
         }
+
+        public virtual bool SecondaryView
+        {
+            get
+            {
+                return false;
+            }
+        }
         
         public Form SAPForm
         {
@@ -146,7 +154,7 @@ namespace B1Base.View
 
                 Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
 
-                if (!FormUID.Contains("F_"))
+                if (!FormUID.Contains("F_") && !SecondaryView)
                 {
                     SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
                     SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
@@ -1364,7 +1372,7 @@ namespace B1Base.View
         /// </summary>
         public virtual void GotFormData() 
         {
-            if (!FormUID.Contains("F_"))
+            if (!FormUID.Contains("F_") && !SecondaryView)
             {
                 if (m_BrowseItem != string.Empty)
                 {
@@ -1385,7 +1393,7 @@ namespace B1Base.View
         {
             m_addFlag = true;
 
-            if (FormUID.Contains("F_"))
+            if (FormUID.Contains("F_") && !SecondaryView)
             {
                 try
                 {
@@ -1442,7 +1450,7 @@ namespace B1Base.View
         /// </summary>
         public virtual void MenuInsert() 
         {
-            if (!FormUID.Contains("F_"))
+            if (!FormUID.Contains("F_") && !SecondaryView)
             {
                 if (m_BrowseItem != string.Empty)
                 {
@@ -1463,7 +1471,7 @@ namespace B1Base.View
         /// </summary>
         public virtual void MenuSearch() 
         {
-            if (!FormUID.Contains("F_"))
+            if (!FormUID.Contains("F_") && !SecondaryView)
             {
                 if (m_BrowseItem != string.Empty)
                 {
@@ -1493,7 +1501,7 @@ namespace B1Base.View
         {
             LastFormMode = SAPForm.Mode;
 
-            if (!FormUID.Contains("F_"))
+            if (!FormUID.Contains("F_") && !SecondaryView)
             {
                 if (SAPForm.Mode == BoFormMode.fm_FIND_MODE)
                 {
@@ -1554,7 +1562,7 @@ namespace B1Base.View
 
         public virtual void ButtonOkPress()
         {
-            if (!FormUID.Contains("F_"))
+            if (!FormUID.Contains("F_") && !SecondaryView)
             {
                 if (SAPForm.Mode == BoFormMode.fm_ADD_MODE)
                 {
