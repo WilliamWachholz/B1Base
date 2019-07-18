@@ -60,7 +60,7 @@ namespace B1Base.Controller
 
             oMenuItem = ConnectionController.Instance.Application.Menus.Item(menuFather);
             
-            if (oMenuItem.Enabled)
+            if (oMenuItem.Enabled && oMenuItem.Checked)
             {
                 oMenus = oMenuItem.SubMenus;
 
