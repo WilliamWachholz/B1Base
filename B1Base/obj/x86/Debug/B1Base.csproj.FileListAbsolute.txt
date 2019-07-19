@@ -42,9 +42,9 @@ C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetBusinessPartnerAgentCode.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetBusinessPartnerAgentCode.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetBranchIsMulti.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetBranchIsMulti.sql
-C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csprojResolveAssemblyReference.cache
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetCustomizedTemplate.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetCustomizedTemplate.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetItemGroupCode.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetMenuIsEnabled.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetMenuIsEnabled.sql
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csprojResolveAssemblyReference.cache
