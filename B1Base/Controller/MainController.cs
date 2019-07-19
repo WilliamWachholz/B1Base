@@ -35,6 +35,7 @@ namespace B1Base.Controller
 
         protected const string MENU_SAP = "43520";
         protected const string MENU_CONFIG_SAP = "43525";
+        
         protected string MENU_ADDON { get { return AddOnID;  } }
         protected string MENU_ADDON_CONFIG { get { return AddOnID + "43525"; } }
         protected string MENU_CONFIG { get { return AddOnID + "Cnf";  } }
@@ -59,8 +60,8 @@ namespace B1Base.Controller
             SAPbouiCOM.MenuCreationParams oCreationPackage = null;
 
             oMenuItem = ConnectionController.Instance.Application.Menus.Item(menuFather);
-            
-            if (oMenuItem.Enabled && oMenuItem.Checked)
+
+            if (ConnectionController.Instance.ExecuteSqlForObject<string>("GetMenuIsEnabled", menuFather, ConnectionController.Instance.User.ToString()) == "Y")
             {
                 oMenus = oMenuItem.SubMenus;
 
@@ -74,7 +75,7 @@ namespace B1Base.Controller
                     if (imageFile != string.Empty)
                         oCreationPackage.Image = AddOn.Instance.CurrentDirectory + @"\img\" + imageFile;
                     oCreationPackage.Position = 12;
-
+                   
                     try
                     {
                         oMenuItem = oMenus.AddEx(oCreationPackage);
