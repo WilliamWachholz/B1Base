@@ -458,6 +458,33 @@ namespace B1Base.View
                 matrix.DeleteRow(1);
         }
 
+        protected void LoadSystemCombo(ComboBox combo, string sqlScript, params string[] variables)
+        {
+            string tempValue = combo.Selected == null ? "" : combo.Selected.Value;
+            
+            combo.ValidValues.LoadSeries("3", BoSeriesMode.sf_Add);
+
+            List<KeyValuePair<dynamic, string>> validValues = Controller.ConnectionController.Instance.ExecuteSqlForList<KeyValuePair<dynamic, string>>(sqlScript, variables);
+
+            foreach (KeyValuePair<dynamic, string> validValue in validValues)
+            {
+                try
+                {
+                    combo.ValidValues.Add(validValue.Key.ToString(), validValue.Value);
+                }
+                catch { }
+            }
+
+            if (validValues.Exists(r => r.Key.ToString() == tempValue))
+            {
+                try
+                {
+                    combo.Select(tempValue, BoSearchKey.psk_ByValue);
+                }
+                catch { }
+            }
+        }
+
         protected void FilterChoose(EditText edit, string field, BoConditionOperation operation, string value)
         {
             if (edit.ChooseFromListUID != string.Empty)
