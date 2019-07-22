@@ -27,6 +27,7 @@ namespace B1Base.DAO
                     itemModel.SWeight1 = item.SalesUnitWeight;
                     itemModel.IWeight1 = item.InventoryWeight;
                     itemModel.SWW = item.SWW;
+                    itemModel.UserText = item.User_Text;
 
                     for (int userField = 0; userField < item.UserFields.Fields.Count; userField++)
                     {
