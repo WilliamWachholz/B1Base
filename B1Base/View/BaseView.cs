@@ -67,6 +67,10 @@ namespace B1Base.View
 
             m_timerInitialize.Elapsed += Initialize;
             m_timerInitialize.Enabled = true;
+
+            m_timerCreateControls.Interval = 1000;
+            m_timerCreateControls.Elapsed += ControlsCreated;
+            m_timerCreateControls.Enabled = true;            
         }
 
         public delegate void ButtonClickEventHandler();
@@ -117,6 +121,12 @@ namespace B1Base.View
 
         protected virtual int DefaultPane { get { return 1; } }
 
+        protected virtual int CreateControlsTime { get { return 1; } }
+
+        private Timer m_timerCreateControls = new Timer(1000);
+
+        private DateTime m_StartTime = DateTime.Now;
+
         public View.BaseView ParentView { get; set; }
 
         private string m_BrowseTable = string.Empty;
@@ -147,7 +157,7 @@ namespace B1Base.View
         }
 
         private void Initialize(object sender, ElapsedEventArgs e)
-        {
+        {                        
             try
             {
                 m_timerInitialize.Enabled = false;                
@@ -213,6 +223,25 @@ namespace B1Base.View
 
             }
         }
+
+        private void ControlsCreated(object sender, ElapsedEventArgs e)
+        {
+            if ((DateTime.Now - m_StartTime).Seconds > CreateControlsTime)
+            {
+                for (int i = 0; i < freezeCount; i ++)
+                    Unfreeze();
+
+                m_timerCreateControls.Enabled = false;
+                SAPForm.Visible = true;        
+            }
+            else
+            {
+                Freeze();
+                freezeCount++;
+            }            
+        }
+
+        int freezeCount = 0;
 
         /// <summary>
         /// Não atribuir a esse evento o botão OK (uid=1). Para esses casos, usar as sobrecargas correspondentes (FindFormData, GotFormData, AddFormData, UpdateFormData e DeleteFormData)
