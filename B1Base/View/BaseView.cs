@@ -131,6 +131,10 @@ namespace B1Base.View
 
         private string m_BrowseTable = string.Empty;
         private string m_BrowseItem = string.Empty;
+        
+        private bool m_ReserveCode = false;
+
+        private bool m_DefaultInsertMode = true;
 
         public virtual bool Invisible
         {
@@ -313,7 +317,7 @@ namespace B1Base.View
         /// <param name="enableNavigation"></param>
         /// <param name="browseTable">tabela de usuário, sem @</param>
         /// <param name="browseItem">nome do item do Code da tabela</param>        
-        protected void ControlMenus(bool enableInsert, bool enableSearch, bool enableNavigation, string browseTable = "", string browseItem = "")
+        protected void ControlMenus(bool enableInsert, bool enableSearch, bool enableNavigation, string browseTable = "", string browseItem = "", bool defaultInsertMode = true, bool reserveCode = false)
         {
             SAPForm.EnableMenu("1282", enableInsert);
             SAPForm.EnableMenu("1281", enableSearch);
@@ -339,7 +343,20 @@ namespace B1Base.View
                     m_BrowseItem = browseItem;
                     m_BrowseTable = browseTable;
 
-                    Controller.ConnectionController.Instance.Application.ActivateMenuItem("1282");
+                    m_DefaultInsertMode = defaultInsertMode;
+
+                    m_ReserveCode = reserveCode;
+
+                    if (m_DefaultInsertMode)
+                    {
+                        Controller.ConnectionController.Instance.Application.ActivateMenuItem("1282");
+                    }
+                    else
+                    {
+                        SAPForm.Mode = BoFormMode.fm_FIND_MODE;
+
+                        MenuSearch();
+                    }
                 }                            
             }
         }
@@ -612,6 +629,7 @@ namespace B1Base.View
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EXTEDIT)
             {
                 EditText extEdit = (EditText)SAPForm.Items.Item(item).Specific;
+                extEdit.String = string.Empty;
 
                 UserDataSource userDataSource = SAPForm.DataSources.UserDataSources.Item(extEdit.DataBind.Alias);
 
@@ -1436,6 +1454,10 @@ namespace B1Base.View
 
                     SetValue(m_BrowseItem, code);
 
+                    SAPForm.ActiveItem = "DUMMY";
+
+                    SAPForm.Items.Item(m_BrowseItem).Enabled = false;
+
                     SAPForm.EnableMenu("1282", true);
                     SAPForm.EnableMenu("1281", true);
                 }
@@ -1512,7 +1534,12 @@ namespace B1Base.View
                 {
                     SAPForm.ActiveItem = "DUMMY";
 
-                    SetValue(m_BrowseItem, Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", m_BrowseTable, DAO.ConfigSeqDAO.AddOnSequenceTableName));
+                    int code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", m_BrowseTable, DAO.ConfigSeqDAO.AddOnSequenceTableName);
+
+                    SetValue(m_BrowseItem, code);
+
+                    if (m_ReserveCode)
+                        Controller.ConnectionController.Instance.ExecuteStatement("UpdateLastCode", m_BrowseTable, DAO.ConfigSeqDAO.AddOnSequenceTableName, code.ToString());
 
                     SAPForm.Items.Item(m_BrowseItem).Enabled = false;
 
@@ -1630,9 +1657,18 @@ namespace B1Base.View
 
                         SAPForm.Mode = BoFormMode.fm_OK_MODE;
 
-                        SAPForm.EnableMenu("1282", true);
+                        if (m_DefaultInsertMode)
+                        {
+                            SAPForm.EnableMenu("1282", true);
 
-                        AddOn.Instance.MainController.OpenMenuInsert();
+                            Controller.ConnectionController.Instance.Application.ActivateMenuItem("1282");
+                        }
+                        else
+                        {
+                            SAPForm.Mode = BoFormMode.fm_FIND_MODE;
+
+                            MenuSearch();
+                        }                        
                     }
                     else
                     {
