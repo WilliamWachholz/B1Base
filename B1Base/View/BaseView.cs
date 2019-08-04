@@ -193,9 +193,7 @@ namespace B1Base.View
 
                     try
                     {
-                        CreateControls();
-
-                        SAPForm.PaneLevel = DefaultPane;
+                        CreateControls();                        
                     }
                     catch (Exception ex)
                     {
@@ -209,6 +207,11 @@ namespace B1Base.View
                             throw ex;
                         }
                     }
+
+                    SAPForm.PaneLevel = DefaultPane;
+
+                    if (SAPForm.BusinessObject != null && SAPForm.BusinessObject.Key != string.Empty)
+                        GotFormData();
 
                     if (DocCopyEvents.Count > 0)
                     {
