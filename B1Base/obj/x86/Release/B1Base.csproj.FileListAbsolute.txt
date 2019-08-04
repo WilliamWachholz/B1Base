@@ -74,3 +74,4 @@ C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\GetMenuIsEnabled.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\SQLSERVER\GetMenuIsEnabled.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\UpdateLastCode.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\SQLSERVER\UpdateLastCode.sql
+C:\AddOn\B1Base\B1Base\obj\x86\Release\B1Base.csprojResolveAssemblyReference.cache
