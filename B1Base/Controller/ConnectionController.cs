@@ -178,6 +178,11 @@ namespace B1Base.Controller
             }
         }
 
+        public void Finalize()
+        {
+            this.Company.Disconnect();
+        }
+
         public void CreateMetadata<T>() where T : Model.BaseModel
         {
             List<FieldMetadata> listFieldMetadata = PrepareObject<T>();

@@ -47,7 +47,7 @@ namespace B1Base
                         EventLog.WriteEntry(m_ServiceController.ServiceName, "Iniciado", EventLogEntryType.Information);
                         ServiceBase[] ServicesToRun;
                         ServicesToRun = new ServiceBase[] { (ServiceBase)m_ServiceController };
-
+                        
                         ServiceBase.Run(ServicesToRun);
                     }
                 }
