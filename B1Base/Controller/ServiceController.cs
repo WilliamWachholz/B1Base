@@ -57,23 +57,29 @@ namespace B1Base.Controller
             {
                 AddLog("Initializing");
 
-                AddLog("Executing");
 
-                B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("AddOnId"),
-                    ConfigurationSettings.AppSettings.Get("Server"),
-                    ConfigurationSettings.AppSettings.Get("CompanyDB"),
-                    ConfigurationSettings.AppSettings.Get("UserName"),
-                    ConfigurationSettings.AppSettings.Get("Password"),
-                    ConfigurationSettings.AppSettings.Get("LicenseServer"),
-                    ConfigurationSettings.AppSettings.Get("DBUserName"),
-                    ConfigurationSettings.AppSettings.Get("DBPassword"),
-                    ConfigurationSettings.AppSettings.Get("DBServerType"));
+                try
+                {
+                    B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("AddOnId"),
+                        ConfigurationSettings.AppSettings.Get("Server"),
+                        ConfigurationSettings.AppSettings.Get("CompanyDB"),
+                        ConfigurationSettings.AppSettings.Get("UserName"),
+                        ConfigurationSettings.AppSettings.Get("Password"),
+                        ConfigurationSettings.AppSettings.Get("LicenseServer"),
+                        ConfigurationSettings.AppSettings.Get("DBUserName"),
+                        ConfigurationSettings.AppSettings.Get("DBPassword"),
+                        ConfigurationSettings.AppSettings.Get("DBServerType"));
 
-                Execute();
+                    AddLog("Executing");
 
-                AddLog("Executed");
+                    Execute();
 
-                B1Base.Controller.ConnectionController.Instance.Finalize();
+                    AddLog("Executed");
+                }
+                finally
+                {
+                    B1Base.Controller.ConnectionController.Instance.Finalize();
+                }
 
                 AddLog("Finalized");
             }
