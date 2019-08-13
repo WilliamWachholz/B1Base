@@ -168,6 +168,20 @@ namespace B1Base.View
 
                 Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
 
+                bool formReady = true;
+
+                try
+                {
+                    Controller.ConnectionController.Instance.Application.Forms.Item(FormUID);
+                }
+                catch
+                {
+                    formReady = false;
+                }
+
+                if (!formReady)
+                    System.Threading.Thread.Sleep(1000);                
+
                 if (!FormUID.Contains("F_") && !SecondaryView)
                 {
                     SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
@@ -191,15 +205,18 @@ namespace B1Base.View
                     LastFormMode = SAPForm.Mode;
                     LastModifier = BoModifiersEnum.mt_None;
 
+                    bool retry = false;
+
                     try
                     {
                         CreateControls();                        
                     }
                     catch (Exception ex)
                     {
-                        if (ex.Message.ToUpper().Contains("INVALID ITEM"))
+                        if (!retry)
                         {
-                            System.Threading.Thread.Sleep(500);
+                            retry = true;
+                            System.Threading.Thread.Sleep(1000);
                             CreateControls();
                         }
                         else
@@ -222,7 +239,8 @@ namespace B1Base.View
                 }
                 catch (Exception ex)
                 {
-                    B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText(ex.Message);
+                    if (ex.Message.ToUpper() != "FORM - INVALID FORM")
+                        B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOn.Instance.MainController.AddOnID + "]" + ex.Message + ". FormType: " + this.GetType().Name);
                 }
             }
             finally
@@ -233,19 +251,33 @@ namespace B1Base.View
 
         private void ControlsCreated(object sender, ElapsedEventArgs e)
         {
-            if ((DateTime.Now - m_StartTime).Seconds > CreateControlsTime)
-            {
-                for (int i = 0; i < freezeCount; i ++)
-                    Unfreeze();
+            bool formReady = true;
 
-                m_timerCreateControls.Enabled = false;
-                SAPForm.Visible = true;        
-            }
-            else
+            try                
             {
-                Freeze();
-                freezeCount++;
-            }            
+                Controller.ConnectionController.Instance.Application.Forms.Item(FormUID);
+            }
+            catch
+            {
+                formReady = false;
+            }
+
+            if (formReady)
+            {
+                if ((DateTime.Now - m_StartTime).Seconds > CreateControlsTime)
+                {
+                    for (int i = 0; i < freezeCount; i++)
+                        Unfreeze();
+
+                    m_timerCreateControls.Enabled = false;
+                    SAPForm.Visible = true;
+                }
+                else
+                {
+                    Freeze();
+                    freezeCount++;
+                }
+            }
         }
 
         int freezeCount = 0;

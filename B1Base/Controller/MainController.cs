@@ -276,7 +276,7 @@ namespace B1Base.Controller
             {
                 if (LogIsActive)
                 {
-                    ConnectionController.Instance.Application.StatusBar.SetText(ex.Message);
+                    ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + ex.Message);
                 }
                 return null;
             }
@@ -392,8 +392,8 @@ namespace B1Base.Controller
                 catch (Exception e)
                 {
                     if (LogIsActive)
-                    {                        
-                        ConnectionController.Instance.Application.StatusBar.SetText("114 - " + e.Message);
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 114 - " + e.Message);
                     }
                 }
             }
@@ -445,7 +445,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("138 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 138 - " + e.Message);
                     }
                 }
             }
@@ -471,7 +471,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("163 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 163 - " + e.Message);
                     }
                 }
 
@@ -502,7 +502,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("259 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 259 - " + e.Message);
                     }
                 }
             }
@@ -561,7 +561,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("187 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 187 - " + e.Message);
                     }
                 }
             }            
@@ -628,7 +628,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("211 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 211 - " + e.Message);
                     }
                 }
             }
@@ -693,7 +693,7 @@ namespace B1Base.Controller
                     {
                         if (LogIsActive)
                         {
-                            ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
+                            ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 235 - " + e.Message);
                         }
                     }
                 }
@@ -762,7 +762,7 @@ namespace B1Base.Controller
             {
                 if (LogIsActive)
                 {
-                    ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
+                    ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 235 - " + e.Message);
                 }
             }
         }
@@ -786,7 +786,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("259 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 259 - " + e.Message);
                     }
                 }
             }
@@ -910,7 +910,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("299 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 299 - " + e.Message);
                     }
                 }
             }
@@ -935,7 +935,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);                        
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 323 - " + e.Message);                        
                     }
                 }
             }
@@ -963,7 +963,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 323 - " + e.Message);
                     }
                 }
             }
@@ -991,7 +991,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 323 - " + e.Message);
                     }
                 }
             }
@@ -1014,7 +1014,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 323 - " + e.Message);
                     }
                 }
             }
@@ -1039,7 +1039,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 323 - " + e.Message);
                     }
                 }
             }
@@ -1068,7 +1068,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("323 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 323 - " + e.Message);
                     }
                 }
             }
@@ -1112,7 +1112,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("344 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 344 - " + e.Message);
                     }
                 }
             }
@@ -1147,7 +1147,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("344 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 344 - " + e.Message);
                     }
                 }
             }
@@ -1182,7 +1182,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("384 - " + e.Message);                        
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 384 - " + e.Message);                        
                     }
                 }
             }
@@ -1232,7 +1232,7 @@ namespace B1Base.Controller
                     {
                         if (LogIsActive)
                         {
-                            ConnectionController.Instance.Application.StatusBar.SetText("414 - " + e.Message);
+                            ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 414 - " + e.Message);
                         }
                     }
                 }
@@ -1268,7 +1268,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("444 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 444 - " + e.Message);
                     }
                 }
             }
@@ -1303,7 +1303,7 @@ namespace B1Base.Controller
                 {
                     if (LogIsActive)
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("444 - " + e.Message);
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 444 - " + e.Message);
                     }
                 }
             }
