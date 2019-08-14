@@ -314,7 +314,7 @@ namespace B1Base.Controller
 
                 try
                 {
-                    if (SuppressChoose)
+                    if (SuppressChoose && pVal.FormType == 10003)
                     {
                         ConnectionController.Instance.Application.Forms.Item(pVal.FormUID).Close();
                         SuppressChoose = false;
