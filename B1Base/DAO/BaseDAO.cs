@@ -93,7 +93,7 @@ namespace B1Base.DAO
         {
             Type type = typeof(T);
 
-            var props = type.GetProperties().Where(r => r.Name != "Changed");
+            var props = type.GetProperties().Where(r => r.Name != "Changed" && r.Name != "Code");
 
             UserTable userTable = (UserTable)Controller.ConnectionController.Instance.Company.UserTables.Item(TableName);
             try
@@ -124,13 +124,7 @@ namespace B1Base.DAO
                     userTable.Update();
                 }
                 else
-                {
-                    if (model.Code == 0)
-                        model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, ConfigSeqDAO.AddOnSequenceTableName);
-
-                    userTable.Code = model.Code.ToString();
-                    userTable.Name = model.Code.ToString();
-
+                {                    
                     foreach (var prop in props)
                     {
                         Model.BaseModel.NonDB nonDB = prop.GetCustomAttribute(typeof(Model.BaseModel.NonDB)) as Model.BaseModel.NonDB;
@@ -151,6 +145,13 @@ namespace B1Base.DAO
                             }
                         }
                     }
+
+                    if (model.Code == 0)
+                        model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, ConfigSeqDAO.AddOnSequenceTableName);
+
+                    userTable.UserFields.Fields.Item("U_Code").Value = model.Code;
+                    userTable.Code = model.Code.ToString();
+                    userTable.Name = model.Code.ToString();
 
                     userTable.Add();
                 }
