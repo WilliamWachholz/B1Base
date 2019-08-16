@@ -114,7 +114,7 @@ namespace B1Base.View
         public BoFormMode LastFormMode { get; private set; }
         public int LastCopiedDocEntry { get; private set; }
         public int LastDocEntry { get; private set; }
-        public int LastAbsEntry { get; private set; }
+        public int LastAbsEntry { get; protected set; }
         public Model.EnumObjType LastCopiedObjType { get; private set; }
         public bool Frozen { get; private set; }
         public BoModifiersEnum LastModifier { get; private set; }
@@ -1837,26 +1837,30 @@ namespace B1Base.View
                 }
                 else
                 {
-                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);                            
-                    
                     try
                     {
-                        if (dataTable.Columns.Item("_" + editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
-                            dataTable.SetValue("_" + editText.Item.Description, 0, values[0]);
-                        else
-                            dataTable.SetValue("_" + editText.Item.Description, 0, Convert.ToInt32(values[0]));
-                        if (dataTable.Columns.Item(editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
-                            dataTable.SetValue(editText.Item.Description, 0, values[1]);
-                        else
-                            dataTable.SetValue(editText.Item.Description, 0, Convert.ToInt32(values[1]));
+                        DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
+
+                        try
+                        {
+                            if (dataTable.Columns.Item("_" + editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
+                                dataTable.SetValue("_" + editText.Item.Description, 0, values[0]);
+                            else
+                                dataTable.SetValue("_" + editText.Item.Description, 0, Convert.ToInt32(values[0]));
+                            if (dataTable.Columns.Item(editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
+                                dataTable.SetValue(editText.Item.Description, 0, values[1]);
+                            else
+                                dataTable.SetValue(editText.Item.Description, 0, Convert.ToInt32(values[1]));
+                        }
+                        catch
+                        {
+                            if (dataTable.Columns.Item(editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
+                                dataTable.SetValue(editText.Item.Description, 0, values[0]);
+                            else
+                                dataTable.SetValue(editText.Item.Description, 0, Convert.ToInt32(values[0]));
+                        }
                     }
-                    catch 
-                    {
-                        if (dataTable.Columns.Item(editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
-                            dataTable.SetValue(editText.Item.Description, 0, values[0]);
-                        else
-                            dataTable.SetValue(editText.Item.Description, 0, Convert.ToInt32(values[0]));
-                    }
+                    catch { }
                 }
 
                 ChooseFromEvents[edit](values);
