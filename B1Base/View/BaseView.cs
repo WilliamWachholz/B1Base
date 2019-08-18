@@ -239,7 +239,7 @@ namespace B1Base.View
                 }
                 catch (Exception ex)
                 {
-                    if (ex.Message.ToUpper() != "FORM - INVALID FORM")
+                    if (new Controller.ConfigController<Model.ConfigModel>().GetConfig().ActivateLog)
                         B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOn.Instance.MainController.AddOnID + "]" + ex.Message + ". FormType: " + this.GetType().Name);
                 }
             }
@@ -427,9 +427,20 @@ namespace B1Base.View
 
         protected Item CreateItem(string item, BoFormItemTypes itemType, int top, int left, int fromPane = 0, int toPane = 0, bool enabled = true, bool visible = true)
         {
+
+            int templateId = 0;
+
+            try
+            {
+                DBDataSource dbTemplate = AddOn.Instance.ConnectionController.Application.Forms.GetFormByTypeAndCount(234000021, 1).DataSources.DBDataSources.Item(0);
+
+                templateId = Convert.ToInt32(dbTemplate.GetValue(0, dbTemplate.Offset));
+            }
+            catch { }
+
             Item _item = SAPForm.Items.Add(item, itemType);
             
-            Model.CustomizedTemplateModel customizedTemplateModel = AddOn.Instance.ConnectionController.ExecuteSqlForObject<Model.CustomizedTemplateModel>("GetCustomizedTemplate", AddOn.Instance.ConnectionController.User.ToString(), FormType, item);
+            Model.CustomizedTemplateModel customizedTemplateModel = AddOn.Instance.ConnectionController.ExecuteSqlForObject<Model.CustomizedTemplateModel>("GetCustomizedTemplate", AddOn.Instance.ConnectionController.User.ToString(), FormType, item, templateId.ToString());
 
             _item.FromPane = fromPane;
             _item.ToPane = toPane;
