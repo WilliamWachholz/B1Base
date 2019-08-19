@@ -31,6 +31,8 @@ namespace B1Base.Controller
         private bool SuppressChoose { get; set; }
         private bool SupressPicker { get; set; }
 
+        private bool ConfigOpened { get; set; }
+
         Timer m_timerFinalize = new Timer(60000);
 
         protected const string MENU_SAP = "43520";
@@ -181,6 +183,8 @@ namespace B1Base.Controller
 
         public virtual void MenuConfigOpen()
         {
+            ConfigOpened = true;
+
             OpenView(true, "B1Base.View.ConfigView");
         }
 
@@ -334,6 +338,11 @@ namespace B1Base.Controller
 
                             if (type == null)
                                 return;
+
+                            if (pVal.FormTypeEx == "ConfigView" && !ConfigOpened)
+                                return;
+                            else
+                                ConfigOpened = false;
 
                             if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
                             {
