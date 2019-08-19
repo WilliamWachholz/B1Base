@@ -50,6 +50,17 @@ namespace B1Base.View
             }
         }
 
+        protected System.Globalization.NumberFormatInfo DefaultSQLNumberFormat
+        {
+            get
+            {
+                System.Globalization.NumberFormatInfo result = new System.Globalization.NumberFormatInfo();
+                result.NumberDecimalSeparator = ".";
+
+                return result;
+            }
+        }
+
         protected double ConvertDouble(string doubleValue)
         {
             return double.Parse((doubleValue.Contains(",") ? doubleValue.Replace(".", "").Replace(",", ".") : doubleValue).Replace("R$", "").Replace("%", ""), System.Globalization.CultureInfo.InvariantCulture);
