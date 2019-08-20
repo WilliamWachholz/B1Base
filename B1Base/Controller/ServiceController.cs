@@ -57,7 +57,6 @@ namespace B1Base.Controller
             {
                 AddLog("Initializing");
 
-
                 try
                 {
                     B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("AddOnId"),
@@ -86,6 +85,8 @@ namespace B1Base.Controller
             catch (Exception ex)
             {
                 AddLog("Error: " + ex.Message);
+
+                Environment.Exit(-1);
             }
         }
 

@@ -181,6 +181,12 @@ namespace B1Base.Controller
         public void Finalize()
         {
             this.Company.Disconnect();
+
+            GC.Collect();
+
+            GC.WaitForPendingFinalizers();
+
+            GC.Collect();
         }
 
         public void CreateMetadata<T>() where T : Model.BaseModel

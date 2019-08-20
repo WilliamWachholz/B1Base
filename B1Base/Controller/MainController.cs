@@ -31,7 +31,7 @@ namespace B1Base.Controller
         private bool SuppressChoose { get; set; }
         private bool SupressPicker { get; set; }
 
-        private bool ConfigOpened { get; set; }
+        protected bool ConfigOpened { get; set; }
 
         Timer m_timerFinalize = new Timer(60000);
 
