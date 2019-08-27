@@ -150,11 +150,11 @@ namespace B1Base.DAO
                 else
                 {
                     itemGroup.GroupName = itemGroupModel.GroupName;
-                    itemGroup.InventoryAccount = "1.01.01.01.01";
-                    itemGroup.CostAccount = "1.01.01.01.01";
-                    itemGroup.TransfersAccount = "1.01.01.01.01";
-                    itemGroup.VarianceAccount = "1.01.01.01.01";
-                    itemGroup.PriceDifferencesAccount = "1.01.01.01.01";
+                    //itemGroup.InventoryAccount = "1.01.01.01.01";
+                    //itemGroup.CostAccount = "1.01.01.01.01";
+                    //itemGroup.TransfersAccount = "1.01.01.01.01";
+                    //itemGroup.VarianceAccount = "1.01.01.01.01";
+                    //itemGroup.PriceDifferencesAccount = "1.01.01.01.01";
 
                     foreach (KeyValuePair<string, dynamic> userField in itemGroupModel.UserFields)
                     {
