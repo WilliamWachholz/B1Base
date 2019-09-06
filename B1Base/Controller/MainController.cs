@@ -52,7 +52,7 @@ namespace B1Base.Controller
             return result;
         }        
 
-        protected void CreateMenu(string menuFather, string menuID, string menuName, string imageFile, bool popup)
+        protected void CreateMenu(string menuFather, string menuID, string menuName, string imageFile, bool popup, int position = 99)
         {
             if (menuFather == MENU_ADDON)
                 CreateMenu(MENU_SAP, MENU_ADDON, AddOnName, "", true);
@@ -76,7 +76,7 @@ namespace B1Base.Controller
                     oCreationPackage.String = menuName;
                     if (imageFile != string.Empty)
                         oCreationPackage.Image = AddOn.Instance.CurrentDirectory + @"\img\" + imageFile;
-                    oCreationPackage.Position = 12;
+                    oCreationPackage.Position = position;
                    
                     try
                     {
