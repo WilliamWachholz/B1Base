@@ -134,7 +134,7 @@ namespace B1Base.View
 
         protected virtual int CreateControlsTime { get { return 1; } }
 
-        protected bool ControlsCreated { get { return m_timerCreateControls.Enabled; } }
+        protected bool ControlsCreated { get { return !m_timerCreateControls.Enabled; } }
 
         private Timer m_timerCreateControls = new Timer(1000);
 
