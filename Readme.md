@@ -12,7 +12,7 @@ B1Base is currently built with visual studio 2017 and targets .net 4.5
 * ConnectionController to control DI API Basics together with Models and DAOs of DI API Objects.
 * Support both HANA and SQL Server. 
 * Queries can be changed directly in the addOn installation directory.
-* Easy grouping of addOns created separetely.
+* Easy grouping of addOns created separately.
 
 # Development
 B1Base is developed with the following workflow:
@@ -26,5 +26,5 @@ days at the most.  Small pull requests are best as they are easier to review.
 
 ### Core Team
 
-* [Wachholz](https://github.com/WilliamWachholz
+* [Wachholz](https://github.com/WilliamWachholz)
 

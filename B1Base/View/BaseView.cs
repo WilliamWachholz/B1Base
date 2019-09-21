@@ -283,7 +283,7 @@ namespace B1Base.View
                         Unfreeze();
 
                     m_timerCreateControls.Enabled = false;
-                    SAPForm.Visible = true;
+                    SAPForm.Visible = true;                    
                 }
                 else
                 {
