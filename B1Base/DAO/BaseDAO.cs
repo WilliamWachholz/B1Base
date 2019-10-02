@@ -12,6 +12,7 @@ namespace B1Base.DAO
 {
     public class BaseDAO<T> where T : Model.BaseModel
     {
+        
         protected virtual string TableName
         {
             get

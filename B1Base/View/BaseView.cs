@@ -93,6 +93,7 @@ namespace B1Base.View
         public delegate void ColChooseFromEventHandler(int row, Dictionary<string, string> values);        
         public delegate void MatixRowEnterEventHandler(int row, string column, bool rowChanged, bool rowSelected);
         public delegate void MatixRowDoubleClickEventHandler(int row, string column, bool rowChanged);
+        public delegate void GridRowClickEventHandler(int row, string column);
         public delegate void GridRowDoubleClickEventHandler(int row);    
         public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void MatrixCustomMenuEventHandler(int row, string column);
@@ -312,6 +313,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, ColChooseFromEventHandler> ColChooseFromEvents { get { return new Dictionary<string, ColChooseFromEventHandler>(); } }
 
         protected virtual Dictionary<string, GridRowDoubleClickEventHandler> GridRowDoubleClickEvents { get { return new Dictionary<string, GridRowDoubleClickEventHandler>(); } }
+
+        protected virtual Dictionary<string, GridRowClickEventHandler> GridRowClickEvents { get { return new Dictionary<string, GridRowClickEventHandler>(); } }
 
         protected virtual Dictionary<string, MatixRowEnterEventHandler> MatrixRowEnterEvents { get { return new Dictionary<string, MatixRowEnterEventHandler>(); } }
 
@@ -709,6 +712,16 @@ namespace B1Base.View
 
                 LastBeforeRows.Remove(item);
                 LastRows.Remove(item);
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_GRID)
+            {
+                Grid grid = (Grid)SAPForm.Items.Item(item).Specific;                
+                grid.DataTable.Rows.Clear();
+            }
+            else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_PICTURE)
+            {
+                PictureBox picture = (PictureBox)SAPForm.Items.Item(item).Specific;
+                picture.Picture = string.Empty;
             }
         }
 
@@ -1960,6 +1973,14 @@ namespace B1Base.View
             if (GridRowDoubleClickEvents.ContainsKey(grid) && !Frozen)
             {
                 GridRowDoubleClickEvents[grid](row);
+            }
+        }
+
+        public void GridRowClick(string grid, int row, string column)
+        {
+            if (GridRowClickEvents.ContainsKey(grid) && !Frozen)
+            {
+                GridRowClickEvents[grid](row, column);
             }
         }
 

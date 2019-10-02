@@ -976,6 +976,29 @@ namespace B1Base.Controller
                     }
                 }
             }
+
+            if (pVal.EventType == BoEventTypes.et_CLICK && pVal.BeforeAction == false)
+            {
+                try
+                {
+                    if (pVal.Row >= 0)
+                    {
+                        string formType = pVal.FormTypeEx;
+
+                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).GridRowClick(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 323 - " + e.Message);
+                    }
+                }
+            }
         }
 
         private void HandleMatrixRowClick(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
