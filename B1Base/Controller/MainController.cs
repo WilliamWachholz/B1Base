@@ -84,8 +84,8 @@ namespace B1Base.Controller
 
                         Menus.Add(menuID);
                     }
-                    catch
-                    {
+                    catch (Exception e)
+                    {                        
                     }
                 }
             }

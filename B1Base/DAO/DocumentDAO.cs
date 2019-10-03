@@ -37,8 +37,8 @@ namespace B1Base.DAO
 
                         document.Lines.ItemCode = documentItemModel.ItemCode;
                         document.Lines.Quantity = documentItemModel.Quantity;
-                        document.Lines.Price = documentItemModel.Price;
-
+                        document.Lines.Price = documentItemModel.Price;                        
+                        
                         foreach (KeyValuePair<string, dynamic> userField in documentItemModel.UserFields)
                         {
                             document.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
@@ -262,6 +262,8 @@ namespace B1Base.DAO
                         documentItemModel.ItemCode = document.Lines.ItemCode;
                         documentItemModel.Price = document.Lines.Price;
                         documentItemModel.Quantity = document.Lines.Quantity;
+                        documentItemModel.Total = document.Lines.LineTotal;
+                        documentItemModel.Discount = document.Lines.DiscountPercent;
 
                         for (int userField = 0; userField < document.Lines.UserFields.Fields.Count; userField++)
                         {

@@ -13,7 +13,7 @@ namespace B1Base.Model
         public double Quantity { get; set; }
         public double Price { get; set; }
         public double Discount { get; set; }
-
+        public double Total { get; set; }
         public Dictionary<string, dynamic> UserFields { get; set; }
 
         public DocumentItemModel()
@@ -23,6 +23,7 @@ namespace B1Base.Model
             Quantity = 0;
             Price = 0;
             Discount = 0;
+            Total = 0;
 
             UserFields = new Dictionary<string, dynamic>();
         }
