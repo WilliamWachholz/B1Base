@@ -287,6 +287,11 @@ namespace B1Base.DAO
             return documentModel;
         }
 
+        public int GetDocEntry(int docNum, Model.EnumObjType objType)
+        {
+            return Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetDocEntry", ((int)objType).ToString(), docNum.ToString());
+        }
+
         private Documents GetDIObject(Model.EnumObjType objType)
         {
             switch (objType)
