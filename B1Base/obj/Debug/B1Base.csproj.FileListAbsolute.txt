@@ -53,3 +53,12 @@ C:\AddOn\B1Base\B1Base\obj\Debug\B1Base.Properties.Resources.resources
 C:\AddOn\B1Base\B1Base\obj\Debug\B1Base.csproj.GenerateResource.Cache
 C:\AddOn\B1Base\B1Base\obj\Debug\B1Base.dll
 C:\AddOn\B1Base\B1Base\obj\Debug\B1Base.pdb
+C:\AddOn\B1Base\B1Base\bin\Debug\SQL\HANA\GetCustomizedTemplate.sql
+C:\AddOn\B1Base\B1Base\bin\Debug\SQL\HANA\GetDocEntry.sql
+C:\AddOn\B1Base\B1Base\bin\Debug\SQL\HANA\GetItemGroupCode.sql
+C:\AddOn\B1Base\B1Base\bin\Debug\SQL\HANA\GetMenuIsEnabled.sql
+C:\AddOn\B1Base\B1Base\bin\Debug\SQL\HANA\UpdateLastCode.sql
+C:\AddOn\B1Base\B1Base\bin\Debug\SQL\SQLSERVER\GetCustomizedTemplate.sql
+C:\AddOn\B1Base\B1Base\bin\Debug\SQL\SQLSERVER\GetDocEntry.sql
+C:\AddOn\B1Base\B1Base\bin\Debug\SQL\SQLSERVER\GetMenuIsEnabled.sql
+C:\AddOn\B1Base\B1Base\bin\Debug\SQL\SQLSERVER\UpdateLastCode.sql

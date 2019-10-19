@@ -20,19 +20,34 @@ namespace B1Base.Controller
         public abstract string ServiceTitle { get; }
         public abstract string ServiceDescription { get; }
 
-        protected abstract void Execute();
+        protected virtual void Init()
+        {
+
+        }
+
+        protected virtual void Execute()
+        {
+
+        }
 
         protected override void OnStart(string[] args)
         {
             try
             {
-                AddLog("Starting");                
+                AddLog("Starting");
 
-                timer = new System.Timers.Timer(Convert.ToInt32(ConfigurationSettings.AppSettings.Get("TimeInMiliseconds")));
-                timer.Elapsed += new System.Timers.ElapsedEventHandler(timer_Tick);
-                timer.Enabled = true;
-                timer.Start();
-                
+                AddLog("Initializing");
+
+                Init();
+
+                if (Convert.ToInt32(ConfigurationSettings.AppSettings.Get("TimeInMiliseconds")) > 0)
+                {
+                    timer = new System.Timers.Timer(Convert.ToInt32(ConfigurationSettings.AppSettings.Get("TimeInMiliseconds")));
+                    timer.Elapsed += new System.Timers.ElapsedEventHandler(timer_Tick);
+                    timer.Enabled = true;
+                    timer.Start();
+                }
+
                 AddLog("Started");
             }
             catch (Exception exception)

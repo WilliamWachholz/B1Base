@@ -28,6 +28,8 @@ namespace B1Base.DAO
                     itemModel.IWeight1 = item.InventoryWeight;
                     itemModel.SWW = item.SWW;
                     itemModel.UserText = item.User_Text;
+                    itemModel.ValidFor = item.Valid == BoYesNoEnum.tYES;
+                    itemModel.FrozenFor = item.Frozen == BoYesNoEnum.tYES;
 
                     for (int userField = 0; userField < item.UserFields.Fields.Count; userField++)
                     {

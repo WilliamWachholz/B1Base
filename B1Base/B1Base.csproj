@@ -88,6 +88,7 @@
     <Compile Include="DAO\ItemDAO.cs" />
     <Compile Include="DAO\BaseDAO.cs" />
     <Compile Include="Controller\ConnectionController.cs" />
+    <Compile Include="DAO\ItemDI.cs" />
     <Compile Include="DAO\JournalDAO.cs" />
     <Compile Include="DAO\PaymentTermDAO.cs" />
     <Compile Include="Model\AttachmentModel.cs" />
