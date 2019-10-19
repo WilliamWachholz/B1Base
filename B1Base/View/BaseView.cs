@@ -2100,17 +2100,22 @@ namespace B1Base.View
 
                 if (ValidateFormData(out msg, true))
                 {
-                    BeforeDeleteFormData();
+                    if (B1Base.AddOn.Instance.ConnectionController.Application.MessageBox("Deseja realmente remover esse registro?", 2, "Sim", "Não") == 1)
+                    {
+                        BeforeDeleteFormData();
 
-                    DeleteFormData();
+                        DeleteFormData();
 
-                    SAPForm.Mode = BoFormMode.fm_OK_MODE;
+                        SAPForm.Mode = BoFormMode.fm_OK_MODE;
 
-                    AfterDeleteFormData();
+                        AfterDeleteFormData();
 
-                    SAPForm.EnableMenu("1282", true);
+                        SAPForm.EnableMenu("1282", true);
 
-                    AddOn.Instance.MainController.OpenMenuInsert();
+                        AddOn.Instance.MainController.OpenMenuInsert();
+
+                        B1Base.AddOn.Instance.ConnectionController.Application.StatusBar.SetText("Operação completadao com êxito.", BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Success);
+                    }
                 }
                 else
                 {
