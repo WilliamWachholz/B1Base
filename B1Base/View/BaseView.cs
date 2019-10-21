@@ -1419,9 +1419,10 @@ namespace B1Base.View
             }
         }
 
-        public void SetValue<T>(DataTable dataTable, Matrix matrix, List<T> list, bool addLastLine = true) where T : Model.BaseModel
+        public void SetValue<T>(DataTable dataTable, Matrix matrix, List<T> list, bool addLastLine = true, bool clearRows = true) where T : Model.BaseModel
         {
-            dataTable.Rows.Clear();
+            if (clearRows)
+                dataTable.Rows.Clear();
 
             Type type = typeof(T);
 

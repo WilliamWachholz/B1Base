@@ -9,10 +9,11 @@ namespace B1Base.Model
 {
     public enum EnumObjType
     {
+        [Description("")]
         None = -1,        
         ChartOfAccount = 1,
         [Description("NF")]
-        Invoice = 13,
+        Invoice = 13,        
         PurchaseRequest = 1470000113,
         PurchaseQuotation = 540000006,
         PurchaseOrder = 22,       
