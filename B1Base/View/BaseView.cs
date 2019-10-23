@@ -2189,7 +2189,6 @@ namespace B1Base.View
                 if (((Matrix)SAPForm.Items.Item(matrix).Specific).Columns.Item(column).Type != BoFormItemTypes.it_CHECK_BOX)
                 {
                     Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
-
                     for (int colPos = 1; colPos < matrixItem.Columns.Count; colPos++)
                     {
                         if (matrixItem.Columns.Item(colPos).UniqueID == column)
@@ -2198,9 +2197,9 @@ namespace B1Base.View
                             break;
                         }
                     }
-
-                    MatrixSortEvents[matrix](column);
                 }
+
+                MatrixSortEvents[matrix](column);
             }
         }
 
