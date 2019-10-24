@@ -63,6 +63,8 @@ namespace B1Base.Controller
 
             oMenuItem = ConnectionController.Instance.Application.Menus.Item(menuFather);
 
+            ConnectionController.Instance.Application.StatusBar.SetText("Criando menu " + menuID, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Warning);
+
             if (ConnectionController.Instance.ExecuteSqlForObject<string>("GetMenuIsEnabled", menuFather, ConnectionController.Instance.User.ToString()) == "Y")
             {
                 oMenus = oMenuItem.SubMenus;
@@ -83,11 +85,22 @@ namespace B1Base.Controller
                         oMenuItem = oMenus.AddEx(oCreationPackage);
 
                         Menus.Add(menuID);
+
+                        ConnectionController.Instance.Application.StatusBar.SetText("Menu criado.", BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Warning);
                     }
                     catch (Exception e)
-                    {                        
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("Erro ao criar menu: " + e.Message);
                     }
                 }
+                else
+                {
+                    ConnectionController.Instance.Application.StatusBar.SetText("Menu já existe.", BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Warning);
+                }
+            }
+            else
+            {
+                ConnectionController.Instance.Application.StatusBar.SetText("Menu pai " + menuFather + " não habilitado para o usuário.", BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Warning);
             }
         }        
 

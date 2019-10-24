@@ -79,6 +79,37 @@ namespace B1Base.Controller
                 throw new Exception(string.Format("Código do erro: {0}. Mensagem: {1}.", errorCode, errorMessage));
         }
 
+        public void Initialize(string addOnID, bool singleSign)
+        {
+            AddOnID = addOnID;
+            try
+            {
+                SAPbouiCOM.SboGuiApi sboGuiApi = new SAPbouiCOM.SboGuiApi();
+
+                string connectionString = "0030002C0030002C00530041005000420044005F00440061007400650076002C0050004C006F006D0056004900490056";
+
+                Desenv = false;
+
+                sboGuiApi.Connect(connectionString);
+                this.Application = sboGuiApi.GetApplication(-1);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(string.Format("Erro ao conectar a aplicação: {0}.", e.Message));
+            }
+
+            try
+            {
+                Company = this.Application.Company.GetDICompany();
+
+                DBServerType = Company.DbServerType == SAPbobsCOM.BoDataServerTypes.dst_HANADB ? "HANA" : "SQLSERVER";
+            }
+            catch (Exception e)
+            {
+                throw new Exception(string.Format("Erro ao conectar ao SAP Business One: {0}.", e.Message));
+            }
+        }
+
         public void Initialize(string addOnID) 
         {
             AddOnID = addOnID;

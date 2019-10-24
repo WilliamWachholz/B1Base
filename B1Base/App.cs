@@ -40,16 +40,22 @@ namespace B1Base
         
         public void Initialize()
         {
-            B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("AddOnId"),
-                ConfigurationSettings.AppSettings.Get("Server"),
-                ConfigurationSettings.AppSettings.Get("CompanyDB"),
-                ConfigurationSettings.AppSettings.Get("UserName"),
-                ConfigurationSettings.AppSettings.Get("Password"),
-                ConfigurationSettings.AppSettings.Get("LicenseServer"),
-                ConfigurationSettings.AppSettings.Get("DBUserName"),
-                ConfigurationSettings.AppSettings.Get("DBPassword"),
-                ConfigurationSettings.AppSettings.Get("DBServerType"));
-
+            if (ConfigurationSettings.AppSettings.Get("SingleSign") == "true")
+            {
+                B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("AddOnId"), true);
+            }
+            else
+            {
+                B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("AddOnId"),
+                    ConfigurationSettings.AppSettings.Get("Server"),
+                    ConfigurationSettings.AppSettings.Get("CompanyDB"),
+                    ConfigurationSettings.AppSettings.Get("UserName"),
+                    ConfigurationSettings.AppSettings.Get("Password"),
+                    ConfigurationSettings.AppSettings.Get("LicenseServer"),
+                    ConfigurationSettings.AppSettings.Get("DBUserName"),
+                    ConfigurationSettings.AppSettings.Get("DBPassword"),
+                    ConfigurationSettings.AppSettings.Get("DBServerType"));
+            }
         }
 
         public void AddTextLog(string text)
