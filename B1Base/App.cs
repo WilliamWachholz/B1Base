@@ -29,9 +29,12 @@ namespace B1Base
 
             m_AppView.Show();
 
-            AddTextLog("Conectando ao SAP Business One...");
+            if (m_AppView.LaziInitialization == false)
+            {
+                AddTextLog("Conectando ao SAP Business One...");
 
-            Initialize();
+                Initialize();
+            }
 
             ClearLog();
 
@@ -42,19 +45,19 @@ namespace B1Base
         {
             if (ConfigurationSettings.AppSettings.Get("SingleSign") == "true")
             {
-                B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("AddOnId"), true);
+                B1Base.Controller.ConnectionController.Instance.Initialize(AddOnId, true);
             }
             else
             {
-                B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("AddOnId"),
-                    ConfigurationSettings.AppSettings.Get("Server"),
-                    ConfigurationSettings.AppSettings.Get("CompanyDB"),
-                    ConfigurationSettings.AppSettings.Get("UserName"),
-                    ConfigurationSettings.AppSettings.Get("Password"),
-                    ConfigurationSettings.AppSettings.Get("LicenseServer"),
-                    ConfigurationSettings.AppSettings.Get("DBUserName"),
-                    ConfigurationSettings.AppSettings.Get("DBPassword"),
-                    ConfigurationSettings.AppSettings.Get("DBServerType"));
+                B1Base.Controller.ConnectionController.Instance.Initialize(AddOnId,
+                    Server,
+                    CompanyDB,
+                    UserName,
+                    Password,
+                    LicenseServer,
+                    DBUserName,
+                    DBPassword,
+                    DBServerType);
             }
         }
 
@@ -103,6 +106,78 @@ namespace B1Base
             get
             {
                 return System.IO.Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath);
+            }
+        }
+
+        public string AddOnId
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("AddOnId");
+            }
+        }
+
+        public string Server
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("Server");
+            }
+        }
+
+        public string CompanyDB
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("CompanyDB");
+            }
+        }
+
+        public string UserName
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("UserName");
+            }
+        }
+
+        public string Password
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("Password");
+            }
+        }
+
+        public string LicenseServer
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("LicenseServer");
+            }
+        }
+
+        public string DBUserName
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("DBUserName");
+            }
+        }
+
+        public string DBPassword
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("DBPassword");
+            }
+        }
+
+        public string DBServerType
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("DBServerType");
             }
         }
 

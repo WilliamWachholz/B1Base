@@ -23,6 +23,8 @@ namespace B1Base.View
 
         public virtual void Ready() { }
 
+        public virtual bool LaziInitialization { get { return false; } }
+
         public void AddTextLog(string text)
         {
             this.Invoke(new MethodInvoker(delegate()
@@ -69,6 +71,6 @@ namespace B1Base.View
                 this.Refresh();
                 this.Update();
             }));
-        }
+        }        
     }
 }
