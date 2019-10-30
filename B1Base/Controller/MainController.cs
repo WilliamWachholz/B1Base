@@ -79,6 +79,7 @@ namespace B1Base.Controller
                     if (imageFile != string.Empty)
                         oCreationPackage.Image = AddOn.Instance.CurrentDirectory + @"\img\" + imageFile;
                     oCreationPackage.Position = position;
+                    oCreationPackage.Enabled = true;                             
                    
                     try
                     {
