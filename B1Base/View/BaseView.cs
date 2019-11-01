@@ -987,7 +987,15 @@ namespace B1Base.View
                 {
                     DataTable dataTable = SAPForm.DataSources.DataTables.Item(combo.DataBind.TableName);
 
-                    return dataTable.GetValue(combo.Item.Description, 0);
+                    string alias = combo.Item.Description;
+
+                    try
+                    {
+                        alias = combo.DataBind.Alias;
+                    }
+                    catch { }
+
+                    return dataTable.GetValue(alias, 0);
                 }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EDIT)
@@ -1033,20 +1041,28 @@ namespace B1Base.View
                 {
                     DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
 
+                    string alias = editText.Item.Description;
+
+                    try
+                    {
+                        alias = editText.DataBind.Alias;
+                    }
+                    catch { }
+
                     if (editText.ChooseFromListUID != string.Empty)
                     {
                         try
                         {
-                            return dataTable.GetValue("_" + editText.Item.Description, 0);
+                            return dataTable.GetValue("_" + alias, 0);
                         }
                         catch
                         {
-                            return dataTable.GetValue(editText.Item.Description, 0);
+                            return dataTable.GetValue(alias, 0);
                         }
                     }
                     else
                     {
-                        return dataTable.GetValue(editText.Item.Description, 0);
+                        return dataTable.GetValue(alias, 0);
                     }
                 }
             }
@@ -1064,7 +1080,15 @@ namespace B1Base.View
                 {
                     DataTable dataTable = SAPForm.DataSources.DataTables.Item(checkBox.DataBind.TableName);
 
-                    return dataTable.GetValue(checkBox.Item.Description, 0).ToString() == "Y";
+                    string alias = checkBox.Item.Description;
+
+                    try
+                    {
+                        alias = checkBox.DataBind.Alias;
+                    }
+                    catch { }
+
+                    return dataTable.GetValue(alias, 0).ToString() == "Y";
                 }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_PICTURE)
@@ -1102,7 +1126,15 @@ namespace B1Base.View
                 {
                     DataTable dataTable = SAPForm.DataSources.DataTables.Item(extEdit.DataBind.TableName);
 
-                    return dataTable.GetValue(extEdit.Item.Description, 0);
+                    string alias = extEdit.Item.Description;
+
+                    try
+                    {
+                        alias = extEdit.DataBind.Alias;
+                    }
+                    catch { }
+
+                    return dataTable.GetValue(alias, 0);
                 }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_OPTION_BUTTON)
@@ -1360,6 +1392,14 @@ namespace B1Base.View
                     {
                         DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
 
+                        string alias = editText.Item.Description;
+
+                        try
+                        {
+                            alias = editText.DataBind.Alias;
+                        }
+                        catch { }
+
                         if (editText.ChooseFromListUID != string.Empty)
                         {
                             ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(editText.ChooseFromListUID);
@@ -1369,23 +1409,23 @@ namespace B1Base.View
                             try
                             {
                                 if (dataTable.Columns.Item("_" + editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
-                                    dataTable.SetValue("_" + editText.Item.Description, 0, value);
+                                    dataTable.SetValue("_" + alias, 0, value);
                                 else
-                                    dataTable.SetValue("_" + editText.Item.Description, 0, Convert.ToInt32(value));
+                                    dataTable.SetValue("_" + alias, 0, Convert.ToInt32(value));
 
-                                dataTable.SetValue(editText.Item.Description, 0, descValue);
+                                dataTable.SetValue(alias, 0, descValue);
                             }
                             catch
                             {
-                                if (dataTable.Columns.Item(editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
-                                    dataTable.SetValue(editText.Item.Description, 0, value);
+                                if (dataTable.Columns.Item(alias).Type == BoFieldsType.ft_AlphaNumeric)
+                                    dataTable.SetValue(alias, 0, value);
                                 else
-                                    dataTable.SetValue(editText.Item.Description, 0, Convert.ToInt32(value));
+                                    dataTable.SetValue(alias, 0, Convert.ToInt32(value));
                             }
                         }
                         else
                         {
-                            dataTable.SetValue(editText.Item.Description, 0, value);
+                            dataTable.SetValue(alias, 0, value);
                         }
                     }
                     catch
@@ -1506,6 +1546,70 @@ namespace B1Base.View
                 catch { }
             }
         }
+
+        public void SetPerformaticValue<T>(DataTable dataTable, Matrix matrix, List<T> list, bool addLastLine = true, bool clearRows = true) where T : Model.BaseModel
+        {
+            if (clearRows)
+                dataTable.Rows.Clear();
+
+            //create LOCAL TEMPORARY TABLE #LOCALTEMPTABLE 
+
+
+            Type type = typeof(T);
+
+            var props = type.GetProperties().Where(r => r.Name != "Changed");
+
+            foreach (T model in list)
+            {
+                //insert into #LOCALTEMPTABLE values
+
+                for (int col = 0; col < dataTable.Columns.Count; col++)
+                {
+                    if (props.Where(r => r.Name == dataTable.Columns.Item(col).Name).Count() > 0)
+                    {
+                        var prop = props.First(r => r.Name == dataTable.Columns.Item(col).Name);
+
+                        if (prop.PropertyType == typeof(Boolean))
+                        {
+                            dataTable.SetValue(col, dataTable.Rows.Count - 1, (bool)prop.GetValue(model) ? "Y" : "N");
+                        }
+                        else if (prop.PropertyType.IsEnum)
+                        {
+                            dataTable.SetValue(col, dataTable.Rows.Count - 1, (int)prop.GetValue(model)); ;
+                        }
+                        else
+                        {
+                            dataTable.SetValue(col, dataTable.Rows.Count - 1, prop.GetValue(model));
+                        }
+                    }
+                }
+            }
+
+            dataTable.ExecuteQuery("select * from #LOCALTEMPTABLE");
+
+            //    DROP TABLE #LOCALTEMPTABLE;
+
+            if (addLastLine)
+                dataTable.Rows.Add();
+
+            matrix.LoadFromDataSource();
+
+            if (addLastLine)
+            {
+                if (matrix.RowCount == 0)
+                {
+                    matrix.AddRow();
+                }
+
+                try
+                {
+                    if (matrix.Columns.Item(0).Description == "Pos" || matrix.Columns.Item(0).DataBind.Alias == "Pos")
+                        ((EditText)matrix.Columns.Item(0).Cells.Item(matrix.RowCount).Specific).String = matrix.RowCount.ToString();
+                }
+                catch { }
+            }
+        }
+
 
         public virtual int FindFormData()
         {
@@ -1879,26 +1983,34 @@ namespace B1Base.View
                     {
                         DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
 
+                        string alias = editText.Item.Description;
+
                         try
                         {
-                            if (dataTable.Columns.Item("_" + editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
-                                dataTable.SetValue("_" + editText.Item.Description, 0, values[0]);
+                            alias = editText.DataBind.Alias;
+                        }
+                        catch { }
+
+                        try
+                        {
+                            if (dataTable.Columns.Item("_" + alias).Type == BoFieldsType.ft_AlphaNumeric)
+                                dataTable.SetValue("_" + alias, 0, values[0]);
                             else
-                                dataTable.SetValue("_" + editText.Item.Description, 0, Convert.ToInt32(values[0]));
-                            if (dataTable.Columns.Item(editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
-                                dataTable.SetValue(editText.Item.Description, 0, values[1]);
+                                dataTable.SetValue("_" + alias, 0, Convert.ToInt32(values[0]));
+                            if (dataTable.Columns.Item(alias).Type == BoFieldsType.ft_AlphaNumeric)
+                                dataTable.SetValue(alias, 0, values[1]);
                             else
-                                dataTable.SetValue(editText.Item.Description, 0, Convert.ToInt32(values[1]));
+                                dataTable.SetValue(alias, 0, Convert.ToInt32(values[1]));
                         }
                         catch
                         {
-                            if (dataTable.Columns.Item(editText.Item.Description).Type == BoFieldsType.ft_AlphaNumeric)
-                                dataTable.SetValue(editText.Item.Description, 0, values[0]);
+                            if (dataTable.Columns.Item(alias).Type == BoFieldsType.ft_AlphaNumeric)
+                                dataTable.SetValue(alias, 0, values[0]);
                             else
-                                dataTable.SetValue(editText.Item.Description, 0, Convert.ToInt32(values[0]));
+                                dataTable.SetValue(alias, 0, Convert.ToInt32(values[0]));
                         }
                     }
-                    catch { }
+                    catch (Exception e) { string s = e.Message; }
                 }
 
                 ChooseFromEvents[edit](values);

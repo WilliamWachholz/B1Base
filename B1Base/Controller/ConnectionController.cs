@@ -400,6 +400,8 @@ namespace B1Base.Controller
         public void ExecuteStatement(string sqlScript, params string[] variables)
         {
             string sql = GetSQL(sqlScript, variables);
+
+            //Application.StatusBar.SetText(sql);
    
             Recordset recordSet = null;
             try
@@ -548,6 +550,48 @@ namespace B1Base.Controller
             catch (Exception e)
             {
                 throw new Exception(sqlScript + " - " + e.Message);
+            }
+        }
+
+        public void ExecutePerformaticSQLForMatriz(string sqlScript, Matrix matrix, DataTable dataTable, bool addLastLine, params string[] variables)
+        {
+            var bytes = new byte[20];
+            var rnd = new Random();
+            rnd.NextBytes(bytes);
+            string tempTable = Convert.ToBase64String(bytes).Replace("=", "").Replace("+", "").Replace("/", "");
+
+            string sql = GetSQL(sqlScript, variables);
+
+            ExecuteStatement("AddTempTableSelect", tempTable, sql);
+
+            try
+            {
+                sql = GetSQL("GetTempTableSelect", tempTable);
+
+                dataTable.ExecuteQuery(sql);
+
+                matrix.LoadFromDataSource();
+
+                if (addLastLine)
+                {
+                    matrix.AddRow();
+                    matrix.ClearRowData(matrix.RowCount);
+
+                    if (matrix.Columns.Item(0).Description == "Pos")
+                    {
+                        ((EditText)matrix.Columns.Item(0).Cells.Item(matrix.RowCount).Specific).String = matrix.RowCount.ToString();
+                    }
+
+                    matrix.AutoResizeColumns();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(sqlScript + " - " + e.Message);
+            }
+            finally
+            {
+                ExecuteStatement("DropTempTableSelect", tempTable);
             }
         }
 
