@@ -1571,7 +1571,7 @@ namespace B1Base.View
                 selects.Add(" select " + type.GetProperty("Code").GetValue(model) + "," + string.Join(",", values.ToArray()) + (Controller.ConnectionController.Instance.DBServerType == "HANA" ? " from dummy " : " "));   
             }
 
-            dataTable.ExecuteQuery(string.Join("union", selects.ToArray()));
+            dataTable.ExecuteQuery(string.Join("union all", selects.ToArray()));
 
             matrix.LoadFromDataSource();
         }
