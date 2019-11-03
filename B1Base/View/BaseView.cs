@@ -187,6 +187,7 @@ namespace B1Base.View
                 try
                 {
                     Controller.ConnectionController.Instance.Application.Forms.Item(FormUID);
+
                 }
                 catch
                 {
@@ -238,6 +239,8 @@ namespace B1Base.View
                             throw ex;
                         }
                     }
+
+                    AfterCreateControls();
 
                     SAPForm.PaneLevel = DefaultPane;
 
@@ -359,6 +362,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, ColSuppressActionEventHandler> ColSupressActionEvents { get { return new Dictionary<string, ColSuppressActionEventHandler>(); } }
 
         protected virtual void CreateControls() { }
+
+        protected virtual void AfterCreateControls() { }
 
         /// <summary>
         /// Controla os menus da barra superior do SAP
@@ -1515,6 +1520,64 @@ namespace B1Base.View
             }
         }
 
+        public void SetValuePro<T>(DataTable dataTable, Matrix matrix, List<T> list) where T : Model.BaseModel
+        {
+            Type type = typeof(T);
+
+            var props = type.GetProperties().Where(r => r.Name != "Changed" && r.Name != "Code");
+
+            List<string> selects = new List<string>();
+
+            foreach (T model in list)
+            {
+                List<string> columns = new List<string>();
+                List<string> values = new List<string>();
+
+                foreach (var prop in props)
+                {
+                    Model.BaseModel.NonDB nonDB = prop.GetCustomAttribute(typeof(Model.BaseModel.NonDB)) as Model.BaseModel.NonDB;
+
+                    if (nonDB == null)
+                    {
+                        columns.Add("U_" + prop.Name);
+
+                        if (prop.PropertyType == typeof(Boolean))
+                        {
+                            values.Add((bool)prop.GetValue(model) ? "Y" : "N");
+                        }
+                        else if (prop.PropertyType.IsEnum)
+                        {
+                            values.Add(((int)prop.GetValue(model)).ToString());
+                        }
+                        else if (prop.PropertyType == typeof(DateTime))
+                        {
+                            values.Add("cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)");
+                        }
+                        else if (prop.PropertyType == typeof(Int32))
+                        {
+                            values.Add(prop.GetValue(model).ToString());
+                        }
+                        else if (prop.PropertyType == typeof(double))
+                        {
+                            values.Add(Convert.ToDouble(prop.GetValue(model)).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture));
+                        }
+                        else
+                        {
+                            values.Add("'" + prop.GetValue(model) + "'");
+                        }
+                    }
+                }
+
+                selects.Add(" select " + type.GetProperty("Code").GetValue(model) + "," + string.Join(",", values.ToArray()) + (Controller.ConnectionController.Instance.DBServerType == "HANA" ? " from dummy " : " "));   
+            }
+
+            dataTable.ExecuteQuery(string.Join("union", selects.ToArray()));
+
+            matrix.LoadFromDataSource();
+        }
+
+
+
         public void SetValue<T>(DataTable dataTable, T model) where T : Model.BaseModel
         {
             dataTable.Rows.Clear();
@@ -1546,70 +1609,6 @@ namespace B1Base.View
                 catch { }
             }
         }
-
-        public void SetPerformaticValue<T>(DataTable dataTable, Matrix matrix, List<T> list, bool addLastLine = true, bool clearRows = true) where T : Model.BaseModel
-        {
-            if (clearRows)
-                dataTable.Rows.Clear();
-
-            //create LOCAL TEMPORARY TABLE #LOCALTEMPTABLE 
-
-
-            Type type = typeof(T);
-
-            var props = type.GetProperties().Where(r => r.Name != "Changed");
-
-            foreach (T model in list)
-            {
-                //insert into #LOCALTEMPTABLE values
-
-                for (int col = 0; col < dataTable.Columns.Count; col++)
-                {
-                    if (props.Where(r => r.Name == dataTable.Columns.Item(col).Name).Count() > 0)
-                    {
-                        var prop = props.First(r => r.Name == dataTable.Columns.Item(col).Name);
-
-                        if (prop.PropertyType == typeof(Boolean))
-                        {
-                            dataTable.SetValue(col, dataTable.Rows.Count - 1, (bool)prop.GetValue(model) ? "Y" : "N");
-                        }
-                        else if (prop.PropertyType.IsEnum)
-                        {
-                            dataTable.SetValue(col, dataTable.Rows.Count - 1, (int)prop.GetValue(model)); ;
-                        }
-                        else
-                        {
-                            dataTable.SetValue(col, dataTable.Rows.Count - 1, prop.GetValue(model));
-                        }
-                    }
-                }
-            }
-
-            dataTable.ExecuteQuery("select * from #LOCALTEMPTABLE");
-
-            //    DROP TABLE #LOCALTEMPTABLE;
-
-            if (addLastLine)
-                dataTable.Rows.Add();
-
-            matrix.LoadFromDataSource();
-
-            if (addLastLine)
-            {
-                if (matrix.RowCount == 0)
-                {
-                    matrix.AddRow();
-                }
-
-                try
-                {
-                    if (matrix.Columns.Item(0).Description == "Pos" || matrix.Columns.Item(0).DataBind.Alias == "Pos")
-                        ((EditText)matrix.Columns.Item(0).Cells.Item(matrix.RowCount).Specific).String = matrix.RowCount.ToString();
-                }
-                catch { }
-            }
-        }
-
 
         public virtual int FindFormData()
         {

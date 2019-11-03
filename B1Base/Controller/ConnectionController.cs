@@ -401,8 +401,6 @@ namespace B1Base.Controller
         {
             string sql = GetSQL(sqlScript, variables);
 
-            //Application.StatusBar.SetText(sql);
-   
             Recordset recordSet = null;
             try
             {

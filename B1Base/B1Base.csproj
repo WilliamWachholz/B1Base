@@ -226,8 +226,6 @@
     <Content Include="SQL\HANA\UpdateLastCode.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SQL\SQLSERVER\AddTempTableSelect.sql" />
-    <Content Include="SQL\SQLSERVER\DropTempTableSelct.sql" />
     <Content Include="SQL\SQLSERVER\GetAttachmentFolder.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -285,7 +283,6 @@
     <Content Include="SQL\SQLSERVER\GetTableExists.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SQL\SQLSERVER\GetTempTableSelect.sql" />
     <Content Include="SQL\SQLSERVER\GetUserIsSuper.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
