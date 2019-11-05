@@ -35,6 +35,179 @@ namespace B1Base.DAO
                     {
                         itemModel.UserFields.Add(item.UserFields.Fields.Item(userField).Name, item.UserFields.Fields.Item(userField).Value);
                     }
+
+                    itemModel.DfltWH = item.DefaultWarehouse;
+                    itemModel.ItmsGrpCod = item.ItemsGroupCode;
+                    itemModel.FirmCode = item.Manufacturer;
+                    itemModel.NCMCode = item.NCMCode;
+                    itemModel.DNFEntry = item.DNFEntry;
+                    itemModel.UgpEntry = item.UoMGroupEntry;
+                    itemModel.ShipType = item.ShipType;
+                    itemModel.MatGrp = item.MaterialGroup;
+                    itemModel.InvntryUom = item.InventoryUOM;
+                    itemModel.AvgPrice = item.AvgStdPrice;
+                    itemModel.PrdStdCst = item.ProdStdCost;
+                    itemModel.ReorderQty = item.DesiredInventory;
+                    itemModel.MinLevel = item.MinInventory;
+                    itemModel.MaxLevel = item.MaxInventory;
+                    if (item.OrderIntervals != string.Empty)
+                        itemModel.OrdrIntrvl = Convert.ToInt32(item.OrderIntervals);
+                    itemModel.OrdrMulti = item.OrderMultiple;
+                    itemModel.MinOrdrQty = item.MinOrderQuantity;
+                    itemModel.LeadTime = item.LeadTime;
+                    item.ToleranceDays = itemModel.ToleranDay;
+                    itemModel.PicturName = item.Picture;
+                    item.User_Text = itemModel.UserText;
+                    itemModel.AtcEntry = item.AttachmentEntry;
+
+                    if (itemModel.IssuePriBy > 0)
+                    {
+                        itemModel.IssuePriBy = Convert.ToInt32(item.IssuePrimarilyBy) + 1;
+                        itemModel.MngMethod = Convert.ToInt32(item.SRIAndBatchManageMethod);
+                    }
+
+                    itemModel.MatType = Convert.ToInt32(item.MaterialType);
+                    itemModel.NoDiscount = item.NoDiscounts == BoYesNoEnum.tYES;
+                    itemModel.ByWh = item.ManageStockByWarehouse == BoYesNoEnum.tYES;
+                    itemModel.InvntItem = item.InventoryItem == BoYesNoEnum.tYES;
+                    itemModel.SellItem = item.SalesItem == BoYesNoEnum.tYES;
+                    itemModel.PrchseItem = item.PurchaseItem == BoYesNoEnum.tYES;
+                    itemModel.InCostRoll = item.InCostRollup == BoYesNoEnum.tYES;
+                    itemModel.CardCode = item.Mainsupplier;
+
+                    for (int line = 0; line < item.PreferredVendors.Count; line++)
+                    {
+                        item.PreferredVendors.SetCurrentLine(line);
+                        itemModel.CardCodes.Add(item.PreferredVendors.BPCode);
+                    }
+
+                    itemModel.ValidFrom = item.ValidFrom;
+                    itemModel.ValidTo = item.ValidTo;
+                    itemModel.ValidComm = item.ValidRemarks;
+                    itemModel.FrozenFrom = item.FrozenFrom;
+                    itemModel.FrozenTo = item.FrozenTo;
+                    itemModel.FrozenComm = item.FrozenRemarks;
+                    itemModel.BuyUnitMsr = item.PurchaseUnit;
+                    itemModel.NumInBuy = item.PurchaseItemsPerUnit;
+                    itemModel.PurPackMsr = item.PurchasePackagingUnit;
+                    itemModel.PurPackUn = item.PurchaseQtyPerPackUnit;
+
+                    item.PurchaseUnitLength = itemModel.BLength1;
+                    item.PurchaseUnitWidth = itemModel.BWidth1;
+                    item.PurchaseUnitHeight = itemModel.BHeigth1;
+                    item.PurchaseUnitVolume = itemModel.BVolume1;
+
+                    if (itemModel.BVolUnit > 0)
+                        item.PurchaseVolumeUnit = itemModel.BVolUnit;
+                    else
+                        item.PurchaseVolumeUnit = 4;
+
+                    item.PurchaseUnitWeight = itemModel.BWeight1;
+
+                    if (itemModel.PurFactor1 > 0)
+                        item.PurchaseFactor1 = itemModel.PurFactor1;
+                    else
+                        item.PurchaseFactor1 = 1;
+
+                    if (itemModel.PurFactor2 > 0)
+                        item.PurchaseFactor2 = itemModel.PurFactor2;
+                    else
+                        item.PurchaseFactor2 = 1;
+
+                    if (itemModel.PurFactor3 > 0)
+                        item.PurchaseFactor3 = itemModel.PurFactor3;
+                    else
+                        item.PurchaseFactor3 = 1;
+
+                    if (itemModel.PurFactor4 > 0)
+                        item.PurchaseFactor4 = itemModel.PurFactor4;
+                    else
+                        item.PurchaseFactor4 = 1;
+
+                    item.SalesUnit = itemModel.SalUnitMsr;
+                    if (itemModel.NumInSale > 0)
+                        item.SalesItemsPerUnit = itemModel.NumInSale;
+                    else
+                        item.SalesItemsPerUnit = 1;
+
+                    item.SalesPackagingUnit = itemModel.PurPackMsr;
+
+                    if (itemModel.PurPackUn > 0)
+                        item.SalesQtyPerPackUnit = itemModel.PurPackUn;
+                    else
+                        item.SalesQtyPerPackUnit = 1;
+
+                    item.SalesUnitLength = itemModel.SLength1;
+                    item.SalesUnitWidth = itemModel.SWidth1;
+                    item.SalesUnitHeight = itemModel.SHeigth1;
+                    item.SalesUnitVolume = itemModel.SVolume1;
+                    itemModel.SVolUnit = item.SalesVolumeUnit;
+                    itemModel.SWeight1 = item.SalesUnitWeight;
+                    itemModel.SalFactor1 = item.SalesFactor1;
+                    itemModel.SalFactor2 = item.SalesFactor2;
+                    itemModel.SalFactor3 = item.SalesFactor3;
+                    itemModel.SalFactor4 = item.SalesFactor4;
+
+                    switch (item.GLMethod)
+                    {
+                        case BoGLMethods.glm_WH:
+                            itemModel.GLMethod = "W";
+                            break;
+                        case BoGLMethods.glm_ItemClass:
+                            itemModel.GLMethod = "C";
+                            break;
+                        case BoGLMethods.glm_ItemLevel:
+                            itemModel.GLMethod = "L";
+                            break;
+                    }
+
+                    switch (item.CostAccountingMethod)
+                    {
+                        case BoInventorySystem.bis_FIFO:
+                            itemModel.EvalSystem = "F";
+                            break;
+                        case BoInventorySystem.bis_MovingAverage:
+                            itemModel.EvalSystem = "A";
+                            break;
+                        case BoInventorySystem.bis_Standard:
+                            itemModel.EvalSystem = "S";
+                            break;
+                    }
+
+                    switch (item.PlanningSystem)
+                    {
+                        case BoPlanningSystem.bop_None:
+                            itemModel.PlaningSys = "N";
+                            break;
+                        case BoPlanningSystem.bop_MRP:
+                            itemModel.PlaningSys = "M";
+                            break;
+                    }
+
+                    switch (item.IssueMethod)
+                    {
+                        case BoIssueMethod.im_Backflush:
+                            itemModel.IssueMthd = "B";
+                            break;
+                        case BoIssueMethod.im_Manual:
+                            itemModel.IssueMthd = "M";
+                            break;
+                    }
+
+
+                    switch (item.ProcurementMethod)
+                    {
+                        case BoProcurementMethod.bom_Buy:
+                            itemModel.PrcrmntMtd = "B";
+                            break;
+                        case BoProcurementMethod.bom_Make:
+                            itemModel.PrcrmntMtd = "M";
+                            break;
+                    }
+
+                    itemModel.IsPhantom = item.IsPhantom == BoYesNoEnum.tYES;
+
+
                 }
             }
             finally
