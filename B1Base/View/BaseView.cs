@@ -1543,7 +1543,7 @@ namespace B1Base.View
 
                         if (prop.PropertyType == typeof(Boolean))
                         {
-                            values.Add((bool)prop.GetValue(model) ? "Y" : "N");
+                            values.Add((bool)prop.GetValue(model) ? "'Y'" : "'N'");
                         }
                         else if (prop.PropertyType.IsEnum)
                         {
@@ -1563,7 +1563,7 @@ namespace B1Base.View
                         }
                         else
                         {
-                            values.Add("'" + prop.GetValue(model) + "'");
+                            values.Add("cast('" + prop.GetValue(model) + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))");
                         }
                     }
                 }
@@ -1571,7 +1571,10 @@ namespace B1Base.View
                 selects.Add(" select " + type.GetProperty("Code").GetValue(model) + "," + string.Join(",", values.ToArray()) + (Controller.ConnectionController.Instance.DBServerType == "HANA" ? " from dummy " : " "));   
             }
 
-            dataTable.ExecuteQuery(string.Join("union all", selects.ToArray()));
+            if (list.Count == 0)
+                dataTable.Rows.Clear();
+            else
+                dataTable.ExecuteQuery(string.Join("union all", selects.ToArray()));
 
             matrix.LoadFromDataSource();
         }
