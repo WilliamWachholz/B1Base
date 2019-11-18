@@ -896,7 +896,8 @@ namespace B1Base.View
                                     unboundCols++;
                                 if (matrix.Columns.Item(column).UniqueID == matrix.Columns.Item(col).UniqueID)
                                 {
-                                    fieldType = dataTable.Columns.Item(col - unboundCols).Type;
+                                    
+                                    fieldType = dataTable.Columns.Item(col - unboundCols).Type;                                    
                                     break;
                                 }
                             }
@@ -1559,7 +1560,7 @@ namespace B1Base.View
                         }
                         else if (prop.PropertyType == typeof(double))
                         {
-                            values.Add(Convert.ToDouble(prop.GetValue(model)).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture));
+                            values.Add(Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat));
                         }
                         else
                         {
