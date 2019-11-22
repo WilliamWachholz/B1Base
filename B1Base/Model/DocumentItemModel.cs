@@ -10,6 +10,8 @@ namespace B1Base.Model
     {
         public int DocEntry { get; set; }
         public string ItemCode { get; set; }
+        public string AcctCode { get; set; }
+        public string Dscription { get; set; }
         public double Quantity { get; set; }
         public double Price { get; set; }
         public double Discount { get; set; }
@@ -20,6 +22,8 @@ namespace B1Base.Model
         {
             DocEntry = 0;
             ItemCode = string.Empty;
+            AcctCode = string.Empty;
+            Dscription = string.Empty;
             Quantity = 0;
             Price = 0;
             Discount = 0;

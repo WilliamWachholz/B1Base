@@ -62,6 +62,8 @@ namespace B1Base.DAO
                     document.CardCode = documentModel.CardCode;
                     document.DocDate = documentModel.DocDate;
 
+                    document.DocType = documentModel.DocType == Model.EnumDocType.Item ? BoDocumentTypes.dDocument_Items : BoDocumentTypes.dDocument_Service;
+
                     line = 0;
 
                     foreach (Model.DocumentItemModel documentItemModel in documentModel.DocumentItemList)
@@ -71,9 +73,21 @@ namespace B1Base.DAO
 
                         document.Lines.SetCurrentLine(line);
 
-                        document.Lines.ItemCode = documentItemModel.ItemCode;
-                        document.Lines.Quantity = documentItemModel.Quantity;
-                        document.Lines.Price = documentItemModel.Price;
+                        if (documentModel.DocType == Model.EnumDocType.Item)
+                        {
+                            document.Lines.ItemCode = documentItemModel.ItemCode;
+                            document.Lines.Quantity = documentItemModel.Quantity;
+                            document.Lines.UnitPrice = documentItemModel.Price;
+                            
+                        }
+                        else
+                        {
+                            document.Lines.AccountCode = documentItemModel.AcctCode;
+                            document.Lines.ItemDescription = documentItemModel.Dscription;
+                        }
+
+
+                        document.Comments = documentModel.Comments;
 
                         foreach (KeyValuePair<string, dynamic> userField in documentItemModel.UserFields)
                         {
@@ -115,7 +129,7 @@ namespace B1Base.DAO
                 try
                 {
                     if (document.GetByKey(docEntry))
-                    {
+                    {                        
                         int line = 0;
 
                         for (line = document.Installments.Count - 1; line >= 0; line--)

@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace B1Base.Model
 {
-    class EnumDocStatus
+    public enum EnumDocType
     {
-        
+        Item,
+        Service
     }
 }
