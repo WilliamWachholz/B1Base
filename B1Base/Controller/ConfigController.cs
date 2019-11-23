@@ -19,28 +19,34 @@ namespace B1Base.Controller
 
         public T GetConfig()
         {
-            try
-            {
-                return m_ConfigDAO.Get(1);
-            }
-            catch (Exception e)
-            {
-                Controller.ConnectionController.Instance.Application.StatusBar.SetText(e.Message);
-            }
+            Type modelType = typeof(T);
 
-            return new Model.ConfigModel() as T;
+            Type daoType = Type.GetType(modelType.AssemblyQualifiedName.Replace("Model", "DAO"));
+
+            if (daoType == null)
+                return m_ConfigDAO.Get(1);
+            else
+            {
+                var dao = (DAO.BaseDAO<T>)Activator.CreateInstance(daoType);
+
+                return dao.Get(1);
+            }
         }
 
         public void SaveConfig(Model.ConfigModel configModel)
         {
-            try
-            {
+            Type modelType = typeof(T);
+
+            Type daoType = Type.GetType(modelType.AssemblyQualifiedName.Replace("Model", "DAO"));
+
+            if (daoType == null)
                 m_ConfigDAO.Save(configModel as T);
-            }
-            catch (Exception e)
+            else
             {
-                Controller.ConnectionController.Instance.Application.StatusBar.SetText(e.Message);
-            }
+                var dao = (DAO.BaseDAO<T>)Activator.CreateInstance(daoType);
+
+                dao.Save(configModel as T);
+            }            
         }
 
         public List<Model.ConfigSeqModel> GetListConfigSeq()
@@ -50,14 +56,7 @@ namespace B1Base.Controller
 
         public void SaveConfigSeq(List<Model.ConfigSeqModel> configSeqList)
         {
-            try
-            {
-                Save<Model.ConfigSeqModel>(GetListConfigSeq(), configSeqList);
-            }
-            catch (Exception e)
-            {
-                Controller.ConnectionController.Instance.Application.StatusBar.SetText(e.Message);
-            }
+            Save<Model.ConfigSeqModel>(GetListConfigSeq(), configSeqList);
         }
     }
 }
