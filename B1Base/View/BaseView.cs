@@ -55,7 +55,7 @@ namespace B1Base.View
             get
             {
                 System.Globalization.NumberFormatInfo result = new System.Globalization.NumberFormatInfo();
-                result.NumberDecimalSeparator = ".";
+                result.NumberDecimalSeparator = ".";                
 
                 return result;
             }
@@ -1560,7 +1560,7 @@ namespace B1Base.View
                         }
                         else if (prop.PropertyType == typeof(double))
                         {
-                            values.Add(Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat));
+                            values.Add(Convert.ToDouble(prop.GetValue(model)).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture));
                         }
                         else
                         {

@@ -62,6 +62,8 @@ namespace B1Base.DAO
                     document.CardCode = documentModel.CardCode;
                     document.DocDate = documentModel.DocDate;
 
+                    document.BPL_IDAssignedToInvoice = 1;
+
                     document.DocType = documentModel.DocType == Model.EnumDocType.Item ? BoDocumentTypes.dDocument_Items : BoDocumentTypes.dDocument_Service;
 
                     line = 0;
@@ -76,16 +78,16 @@ namespace B1Base.DAO
                         if (documentModel.DocType == Model.EnumDocType.Item)
                         {
                             document.Lines.ItemCode = documentItemModel.ItemCode;
-                            document.Lines.Quantity = documentItemModel.Quantity;
-                            document.Lines.UnitPrice = documentItemModel.Price;
-                            
+                            document.Lines.Quantity = documentItemModel.Quantity;                                                       
                         }
                         else
                         {
                             document.Lines.AccountCode = documentItemModel.AcctCode;
                             document.Lines.ItemDescription = documentItemModel.Dscription;
+                            document.Lines.TaxCode = documentItemModel.TaxCode;
                         }
 
+                        document.Lines.UnitPrice = documentItemModel.Price;
 
                         document.Comments = documentModel.Comments;
 
@@ -101,6 +103,169 @@ namespace B1Base.DAO
                     foreach (KeyValuePair<string, dynamic> userField in documentModel.UserFields)
                     {
                         document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                    }
+
+                    document.UserFields.Fields.Item("U_DIUpdate").Value = "Y";
+                    document.Add();
+
+                    documentModel.DocEntry = Controller.ConnectionController.Instance.LastObjectCode;
+
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(document);
+                GC.Collect();
+            }
+        }
+
+        public void Save(Model.DocumentModel documentModel, List<Model.DocumentInstallmentModel> documentInstallmentList)
+        {
+            Documents document = GetDIObject(documentModel.ObjType);
+            try
+            {
+                int line = 0;
+
+                if (document.GetByKey(documentModel.DocEntry))
+                {
+                    for (line = document.Lines.Count - 1; line >= 0; line--)
+                    {
+                        document.Lines.SetCurrentLine(line);
+
+                        document.Lines.Delete();
+                    }
+
+                    line = 0;
+
+                    foreach (Model.DocumentItemModel documentItemModel in documentModel.DocumentItemList)
+                    {
+                        if (line > document.Lines.Count - 1)
+                            document.Lines.Add();
+
+                        document.Lines.SetCurrentLine(line);
+
+                        document.Lines.ItemCode = documentItemModel.ItemCode;
+                        document.Lines.Quantity = documentItemModel.Quantity;
+                        document.Lines.Price = documentItemModel.Price;
+
+                        foreach (KeyValuePair<string, dynamic> userField in documentItemModel.UserFields)
+                        {
+                            document.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                        }
+
+                        line++;
+                    }
+
+                    foreach (KeyValuePair<string, dynamic> userField in documentModel.UserFields)
+                    {
+                        document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                    }
+
+                    line = 0;
+
+                    for (line = document.Installments.Count - 1; line >= 0; line--)
+                    {
+                        document.Installments.SetCurrentLine(line);
+
+                        document.Installments.Delete();
+                    }
+
+                    line = 0;
+
+                    foreach (Model.DocumentInstallmentModel documentInstallmentModel in documentInstallmentList)
+                    {
+                        if (line > document.Installments.Count - 1)
+                            document.Installments.Add();
+
+                        document.Installments.SetCurrentLine(line);
+                        document.Installments.DueDate = documentInstallmentModel.DueDate;
+                        document.Installments.Percentage = documentInstallmentModel.InstPrcnt;
+                        if (document.DocTotalFc > 0)
+                            document.Installments.TotalFC = documentInstallmentModel.InsTotal;
+                        else
+                            document.Installments.Total = documentInstallmentModel.InsTotal;
+
+                        foreach (KeyValuePair<string, dynamic> userField in documentInstallmentModel.UserFields)
+                        {
+                            document.Installments.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                        }
+
+                        line++;
+                    }
+
+                    document.UserFields.Fields.Item("U_DIUpdate").Value = "Y";
+                    document.Update();
+
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                }
+                else
+                {
+                    document.CardCode = documentModel.CardCode;
+                    document.DocDate = documentModel.DocDate;
+
+                    document.DocType = documentModel.DocType == Model.EnumDocType.Item ? BoDocumentTypes.dDocument_Items : BoDocumentTypes.dDocument_Service;
+
+                    line = 0;
+
+                    foreach (Model.DocumentItemModel documentItemModel in documentModel.DocumentItemList)
+                    {
+                        if (line > document.Lines.Count - 1)
+                            document.Lines.Add();
+
+                        document.Lines.SetCurrentLine(line);
+
+                        if (documentModel.DocType == Model.EnumDocType.Item)
+                        {
+                            document.Lines.ItemCode = documentItemModel.ItemCode;
+                            document.Lines.Quantity = documentItemModel.Quantity;
+                        }
+                        else
+                        {
+                            document.Lines.AccountCode = documentItemModel.AcctCode;
+                            document.Lines.ItemDescription = documentItemModel.Dscription;
+                            document.Lines.TaxCode = documentItemModel.TaxCode;
+                        }
+
+                        document.Lines.UnitPrice = documentItemModel.Price;
+
+                        document.Comments = documentModel.Comments;
+
+                        foreach (KeyValuePair<string, dynamic> userField in documentItemModel.UserFields)
+                        {
+                            document.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                        }
+
+                        line++;
+                    }
+
+
+                    foreach (KeyValuePair<string, dynamic> userField in documentModel.UserFields)
+                    {
+                        document.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                    }
+
+                    line = 0;
+
+                    foreach (Model.DocumentInstallmentModel documentInstallmentModel in documentInstallmentList)
+                    {
+                        if (line > document.Installments.Count - 1)
+                            document.Installments.Add();
+
+                        document.Installments.SetCurrentLine(line);
+                        document.Installments.DueDate = documentInstallmentModel.DueDate;
+                        document.Installments.Percentage = documentInstallmentModel.InstPrcnt;
+                        if (document.DocTotalFc > 0)
+                            document.Installments.TotalFC = documentInstallmentModel.InsTotal;
+                        else
+                            document.Installments.Total = documentInstallmentModel.InsTotal;
+
+                        foreach (KeyValuePair<string, dynamic> userField in documentInstallmentModel.UserFields)
+                        {
+                            document.Installments.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                        }
+
+                        line++;
                     }
 
                     document.UserFields.Fields.Item("U_DIUpdate").Value = "Y";
