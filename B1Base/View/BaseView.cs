@@ -1560,7 +1560,7 @@ namespace B1Base.View
                         }
                         else if (prop.PropertyType == typeof(double))
                         {
-                            values.Add(Convert.ToDouble(prop.GetValue(model)).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture));
+                            values.Add(Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat));
                         }
                         else
                         {

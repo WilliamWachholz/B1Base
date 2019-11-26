@@ -29,6 +29,8 @@ namespace B1Base.Model
         [Description("NE")]
         PurchaseInvoice = 18,
         [Description("DS")]
-        InvoiceReturn = 14
+        InvoiceReturn = 14,
+        [Description("LC")]
+        JournalEntry = 30
     }
 }
