@@ -1560,7 +1560,14 @@ namespace B1Base.View
                         }
                         else if (prop.PropertyType == typeof(double))
                         {
-                            values.Add(Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat));
+                            if (Convert.ToDouble(prop.GetValue(model)) == 0)
+                            {
+                                values.Add("0.0");
+                            }
+                            else
+                            {
+                                values.Add(Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat));
+                            }
                         }
                         else
                         {

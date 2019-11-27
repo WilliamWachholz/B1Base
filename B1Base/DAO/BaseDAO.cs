@@ -148,7 +148,19 @@ namespace B1Base.DAO
                     }
 
                     if (model.Code == 0)
-                        model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, ConfigSeqDAO.AddOnSequenceTableName);
+                    {
+                        Type seqDAOType = Type.GetType(type.AssemblyQualifiedName.Replace("Model", "DAO").Replace(type.Name.Replace("Model", "DAO"), "ConfigSeqDAO"));
+
+                        if (seqDAOType == null)
+                            model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, ConfigSeqDAO.AddOnSequenceTableName);
+                        else
+                        {
+                            var dao = (DAO.ConfigSeqDAO)Activator.CreateInstance(seqDAOType);
+
+                            model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, dao.TableName);
+                        }
+
+                    }
 
                     userTable.UserFields.Fields.Item("U_Code").Value = model.Code;
                     userTable.Code = model.Code.ToString();

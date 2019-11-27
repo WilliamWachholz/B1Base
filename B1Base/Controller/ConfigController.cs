@@ -31,7 +31,7 @@ namespace B1Base.Controller
 
                 return dao.Get(1);
             }
-        }
+        }        
 
         public void SaveConfig(Model.ConfigModel configModel)
         {

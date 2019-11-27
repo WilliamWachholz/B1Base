@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace B1Base.DAO
 {
-    class ConfigSeqDAO : BaseDAO<Model.ConfigSeqModel>
+    public class ConfigSeqDAO : BaseDAO<Model.ConfigSeqModel>
     {
         protected override string TableName
         {
