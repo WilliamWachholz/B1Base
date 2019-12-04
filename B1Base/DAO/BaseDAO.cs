@@ -174,6 +174,7 @@ namespace B1Base.DAO
             finally
             {
                 Marshal.ReleaseComObject(userTable);
+                GC.Collect();
             }
         }
 
@@ -194,6 +195,7 @@ namespace B1Base.DAO
             finally
             {
                 Marshal.ReleaseComObject(userTable);
+                GC.Collect();
             }
         }
 
@@ -214,6 +216,7 @@ namespace B1Base.DAO
             finally
             {
                 Marshal.ReleaseComObject(userTable);
+                GC.Collect();
             }            
         }
     }

@@ -16,8 +16,7 @@ namespace B1Base.DAO
 
         public void InitializeObject(string itemCode)
         {
-            _businessObject = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
-            _newObject = !_businessObject.GetByKey(itemCode);
+            _businessObject = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);            
 
             if (!_businessObject.GetByKey(itemCode))
             {
