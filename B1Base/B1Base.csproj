@@ -80,6 +80,7 @@
     </Compile>
     <Compile Include="DAO\AttachmentDAO.cs" />
     <Compile Include="DAO\BusinessPartnerDAO.cs" />
+    <Compile Include="DAO\BusinessPartnerDI.cs" />
     <Compile Include="DAO\CompanyDAO.cs" />
     <Compile Include="DAO\ConfigDAO.cs" />
     <Compile Include="DAO\ConfigSeqDAO.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="Model\DiscountGroupModel.cs" />
     <Compile Include="Model\DocumentItemModel.cs" />
     <Compile Include="Model\DocumentModel.cs" />
+    <Compile Include="Model\EnumAdresType.cs" />
     <Compile Include="Model\EnumDocStatus.cs" />
     <Compile Include="Model\EnumDocType.cs" />
     <Compile Include="Model\EnumObjType.cs" />
