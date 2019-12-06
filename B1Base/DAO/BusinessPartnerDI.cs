@@ -69,114 +69,235 @@ namespace B1Base.DAO
             _businessObject.Phone2 = value == null ? "" : value; ;
         }
 
-        public void SetAddressName(string value, int line)
+        public int SetAddressName(string value, int line = -1)
         {
-            for (int i = _businessObject.Address.Count(); i <= line; i++)
+            if (line == -1)
+            {
                 _businessObject.Addresses.Add();
+
+                line = _businessObject.Address.Count() - 1;                
+            }
+            else
+            {
+                for (int i = _businessObject.Address.Count(); i <= line; i++)
+                    _businessObject.Addresses.Add();
+            }
 
             _businessObject.Addresses.SetCurrentLine(line);
 
-            _businessObject.Addresses.AddressName = value == null ? "" : value; ;            
+            _businessObject.Addresses.AddressName = value == null ? "" : value;
+
+            return line;
         }
 
-        public void SetAddressAdresType(BoAddressType value, int line)
+        public int SetAddressAdresType(BoAddressType value, int line = -1)
         {
-            for (int i = _businessObject.Address.Count(); i <= line; i++)
+            if (line == -1)
+            {
                 _businessObject.Addresses.Add();
+
+                line = _businessObject.Address.Count() - 1;
+            }
+            else
+            {
+                for (int i = _businessObject.Address.Count(); i <= line; i++)
+                    _businessObject.Addresses.Add();
+            }
 
             _businessObject.Addresses.SetCurrentLine(line);
 
             _businessObject.Addresses.AddressType = value;
+
+            return line;
         }
 
-        public void SetAddressAddrType(string value, int line)
+        public int SetAddressAddrType(string value, int line = -1)
         {
-            for (int i = _businessObject.Address.Count(); i <= line; i++)
+            if (line == -1)
+            {
                 _businessObject.Addresses.Add();
+
+                line = _businessObject.Address.Count() - 1;
+            }
+            else
+            {
+                for (int i = _businessObject.Address.Count(); i <= line; i++)
+                    _businessObject.Addresses.Add();
+            }
 
             _businessObject.Addresses.SetCurrentLine(line);
 
-            _businessObject.Addresses.TypeOfAddress = value == null ? "" : value; ;
+            _businessObject.Addresses.TypeOfAddress = value == null ? "" : value;
+
+            return line;
         }
 
-        public void SetAddressStreet(string value, int line)
+        public int SetAddressStreet(string value, int line = -1)
         {
-            for (int i = _businessObject.Address.Count(); i <= line; i++)
+            if (line == -1)
+            {
                 _businessObject.Addresses.Add();
+
+                line = _businessObject.Address.Count() - 1;
+            }
+            else
+            {
+                for (int i = _businessObject.Address.Count(); i <= line; i++)
+                    _businessObject.Addresses.Add();
+            }
 
             _businessObject.Addresses.SetCurrentLine(line);
 
             _businessObject.Addresses.Street = value == null ? "" : value;
+
+            return line;
         }
 
-        public void SetAddressBuilding(string value, int line)
+        public int SetAddressBuilding(string value, int line = -1)
         {
-            for (int i = _businessObject.Address.Count(); i <= line; i++)
+            if (line == -1)
+            {
                 _businessObject.Addresses.Add();
 
-            _businessObject.Addresses.SetCurrentLine(line);            
+                line = _businessObject.Address.Count() - 1;
+            }
+            else
+            {
+                for (int i = _businessObject.Address.Count(); i <= line; i++)
+                    _businessObject.Addresses.Add();
+            }
+
+            _businessObject.Addresses.SetCurrentLine(line);
 
             _businessObject.Addresses.BuildingFloorRoom = value.ToString();
+
+            return line;
         }
 
-        public void SetAddressSreetNo(int value, int line)
+        public int SetAddressSreetNo(int value, int line = -1)
         {
-            for (int i = _businessObject.Address.Count(); i <= line; i++)
+            if (line == -1)
+            {
                 _businessObject.Addresses.Add();
+
+                line = _businessObject.Address.Count() - 1;
+            }
+            else
+            {
+                for (int i = _businessObject.Address.Count(); i <= line; i++)
+                    _businessObject.Addresses.Add();
+            }
 
             _businessObject.Addresses.SetCurrentLine(line);
 
             _businessObject.Addresses.StreetNo = value.ToString();
+
+            return line;
         }
 
-        public void SetAddressBlock(string value, int line)
+        public int SetAddressBlock(string value, int line = -1)
         {
-            for (int i = _businessObject.Address.Count(); i <= line; i++)
+            if (line == -1)
+            {
                 _businessObject.Addresses.Add();
+
+                line = _businessObject.Address.Count() - 1;
+            }
+            else
+            {
+                for (int i = _businessObject.Address.Count(); i <= line; i++)
+                    _businessObject.Addresses.Add();
+            }
 
             _businessObject.Addresses.SetCurrentLine(line);
 
             _businessObject.Addresses.Block = value == null ? "" : value;
+
+            return line;
         }
 
-        public void SetAddressCity(string value, int line)
+        public int SetAddressCity(string value, int line = -1)
         {
-            for (int i = _businessObject.Address.Count(); i <= line; i++)
+            if (line == -1)
+            {
                 _businessObject.Addresses.Add();
+
+                line = _businessObject.Address.Count() - 1;
+            }
+            else
+            {
+                for (int i = _businessObject.Address.Count(); i <= line; i++)
+                    _businessObject.Addresses.Add();
+            }
 
             _businessObject.Addresses.SetCurrentLine(line);
 
             _businessObject.Addresses.City = value == null ? "" : value;
+
+            return line;
         }
 
-        public void SetAddressState(string value, int line)
+        public int SetAddressState(string value, int line = -1)
         {
-            for (int i = _businessObject.Address.Count(); i <= line; i++)
+            if (line == -1)
+            {
                 _businessObject.Addresses.Add();
+
+                line = _businessObject.Address.Count() - 1;
+            }
+            else
+            {
+                for (int i = _businessObject.Address.Count(); i <= line; i++)
+                    _businessObject.Addresses.Add();
+            }
 
             _businessObject.Addresses.SetCurrentLine(line);
 
             _businessObject.Addresses.State = value == null ? "" : value;
+
+            return line;
         }
 
-        public void SetAddressCountry(string value, int line)
+        public int SetAddressCountry(string value, int line = -1)
         {
-            for (int i = _businessObject.Address.Count(); i <= line; i++)
+            if (line == -1)
+            {
                 _businessObject.Addresses.Add();
+
+                line = _businessObject.Address.Count() - 1;
+            }
+            else
+            {
+                for (int i = _businessObject.Address.Count(); i <= line; i++)
+                    _businessObject.Addresses.Add();
+            }
 
             _businessObject.Addresses.SetCurrentLine(line);
 
             _businessObject.Addresses.Country = value == null ? "" : value;
+
+            return line;
         }
 
-        public void SetAddressZipCode(string value, int line)
+        public int SetAddressZipCode(string value, int line)
         {
-            for (int i = _businessObject.Address.Count(); i <= line; i++)
+            if (line == -1)
+            {
                 _businessObject.Addresses.Add();
+
+                line = _businessObject.Address.Count() - 1;
+            }
+            else
+            {
+                for (int i = _businessObject.Address.Count(); i <= line; i++)
+                    _businessObject.Addresses.Add();
+            }
 
             _businessObject.Addresses.SetCurrentLine(line);
 
             _businessObject.Addresses.ZipCode = value == null ? "" : value;
+
+            return line;
         }
 
         public void SetCpf(string value, string address = "", BoAddressType adresType = BoAddressType.bo_ShipTo)
@@ -302,7 +423,8 @@ namespace B1Base.DAO
 
             Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
 
-            _businessObject.CardCode = Controller.ConnectionController.Instance.LastObjectCode;
+            if (_businessObject.CardCode == string.Empty)
+                _businessObject.CardCode = Controller.ConnectionController.Instance.LastObjectCode;
         }
 
         public BusinessPartners BusinessObject

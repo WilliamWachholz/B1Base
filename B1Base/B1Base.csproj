@@ -86,6 +86,7 @@
     <Compile Include="DAO\ConfigSeqDAO.cs" />
     <Compile Include="DAO\DiscountDAO.cs" />
     <Compile Include="DAO\DocumentDAO.cs" />
+    <Compile Include="DAO\DocumentDI.cs" />
     <Compile Include="DAO\ItemDAO.cs" />
     <Compile Include="DAO\BaseDAO.cs" />
     <Compile Include="Controller\ConnectionController.cs" />
