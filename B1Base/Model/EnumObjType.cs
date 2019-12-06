@@ -31,6 +31,7 @@ namespace B1Base.Model
         [Description("DS")]
         InvoiceReturn = 14,
         [Description("LC")]
-        JournalEntry = 30
+        JournalEntry = 30,
+        BusinessPartner = 2
     }
 }

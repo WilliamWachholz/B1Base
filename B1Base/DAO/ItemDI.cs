@@ -28,6 +28,9 @@ namespace B1Base.DAO
         public void FinalizeObject()
         {
             Marshal.ReleaseComObject(_businessObject);
+
+            _businessObject = null;
+
             GC.Collect();
         }
 

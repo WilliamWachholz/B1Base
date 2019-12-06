@@ -101,7 +101,6 @@
     <Compile Include="Model\DiscountGroupModel.cs" />
     <Compile Include="Model\DocumentItemModel.cs" />
     <Compile Include="Model\DocumentModel.cs" />
-    <Compile Include="Model\EnumAdresType.cs" />
     <Compile Include="Model\EnumDocStatus.cs" />
     <Compile Include="Model\EnumDocType.cs" />
     <Compile Include="Model\EnumObjType.cs" />
@@ -169,6 +168,9 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="SQL\HANA\GetAutoSeries.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SQL\HANA\GetBranchIsMulti.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -230,6 +232,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\SQLSERVER\GetAttachmentFolder.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SQL\SQLSERVER\GetAutoSeries.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\SQLSERVER\GetBranchIsMulti.sql">

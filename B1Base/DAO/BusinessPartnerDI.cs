@@ -14,91 +14,104 @@ namespace B1Base.DAO
 
         bool _newObject = false;
 
-        public void InitializeObject(string cardCode)
+        public void InitializeObject(string cardCode, BoCardTypes cardType = BoCardTypes.cCustomer,  bool autoSeries = false)
         {
             _businessObject = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
+
+            if (cardCode == null)
+                cardCode = string.Empty;
 
             if (!_businessObject.GetByKey(cardCode))
             {
                 _newObject = true;
                 _businessObject.CardCode = cardCode;
+                _businessObject.CardType = cardType;
+
+                if (autoSeries)
+                {
+                    _businessObject.Series = B1Base.Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetAutoSeries", ((int) Model.EnumObjType.BusinessPartner).ToString(),
+                        cardType == BoCardTypes.cCustomer ? "C" : "S");
+                }
             }
         }
 
         public void FinalizeObject()
         {
             Marshal.ReleaseComObject(_businessObject);
+
+            _businessObject = null;
+
             GC.Collect();
         }
 
         public void SetCardName(string value)
         {
-            _businessObject.CardName = value;
+            _businessObject.CardName = value == null ? "" : value;
         }
 
         public void SetCardFName(string value)
         {
-            _businessObject.CardForeignName = value;
+            _businessObject.CardForeignName = value == null ? "" : value; ;
         }
 
         public void SetEMail(string value)
         {
-            _businessObject.EmailAddress = value;
+            _businessObject.EmailAddress = value == null ? "" : value; ;
         }
 
         public void SetPhone1(string value)
         {
-            _businessObject.Phone1 = value;
+            _businessObject.Phone1 = value == null ? "" : value; ;
         }
 
         public void SetPhone2(string value)
         {
-            _businessObject.Phone2 = value;
+            _businessObject.Phone2 = value == null ? "" : value; ;
         }
 
         public void SetAddressName(string value, int line)
         {
-            while (_businessObject.Address.Count() >= line)
+            for (int i = _businessObject.Address.Count(); i <= line; i++)
                 _businessObject.Addresses.Add();
 
             _businessObject.Addresses.SetCurrentLine(line);
 
-            _businessObject.Addresses.AddressName = value;            
+            _businessObject.Addresses.AddressName = value == null ? "" : value; ;            
         }
 
-        public void SetAddressAdresType(Model.EnumAdresType value, int line)
+        public void SetAddressAdresType(BoAddressType value, int line)
         {
-            while (_businessObject.Address.Count() >= line)
+            for (int i = _businessObject.Address.Count(); i <= line; i++)
                 _businessObject.Addresses.Add();
 
             _businessObject.Addresses.SetCurrentLine(line);
 
-            _businessObject.Addresses.AddressType = value == Model.EnumAdresType.Bill ? BoAddressType.bo_BillTo : BoAddressType.bo_ShipTo;
+            _businessObject.Addresses.AddressType = value;
         }
 
         public void SetAddressAddrType(string value, int line)
         {
-            while (_businessObject.Address.Count() >= line)
+            for (int i = _businessObject.Address.Count(); i <= line; i++)
                 _businessObject.Addresses.Add();
 
             _businessObject.Addresses.SetCurrentLine(line);
 
-            _businessObject.Addresses.TypeOfAddress = value;
+            _businessObject.Addresses.TypeOfAddress = value == null ? "" : value; ;
         }
 
         public void SetAddressStreet(string value, int line)
         {
-            while (_businessObject.Address.Count() >= line)
+            for (int i = _businessObject.Address.Count(); i <= line; i++)
                 _businessObject.Addresses.Add();
 
             _businessObject.Addresses.SetCurrentLine(line);
 
-            _businessObject.Addresses.Street = value.ToString();
+            _businessObject.Addresses.Street = value == null ? "" : value;
         }
 
         public void SetAddressBuilding(string value, int line)
         {
-            while (_businessObject.Address.Count() >= line)
+            for (int i = _businessObject.Address.Count(); i <= line; i++)
                 _businessObject.Addresses.Add();
 
             _businessObject.Addresses.SetCurrentLine(line);            
@@ -108,7 +121,7 @@ namespace B1Base.DAO
 
         public void SetAddressSreetNo(int value, int line)
         {
-            while (_businessObject.Address.Count() >= line)
+            for (int i = _businessObject.Address.Count(); i <= line; i++)
                 _businessObject.Addresses.Add();
 
             _businessObject.Addresses.SetCurrentLine(line);
@@ -118,55 +131,55 @@ namespace B1Base.DAO
 
         public void SetAddressBlock(string value, int line)
         {
-            while (_businessObject.Address.Count() >= line)
+            for (int i = _businessObject.Address.Count(); i <= line; i++)
                 _businessObject.Addresses.Add();
 
             _businessObject.Addresses.SetCurrentLine(line);
 
-            _businessObject.Addresses.Block = value.ToString();
+            _businessObject.Addresses.Block = value == null ? "" : value;
         }
 
         public void SetAddressCity(string value, int line)
         {
-            while (_businessObject.Address.Count() >= line)
+            for (int i = _businessObject.Address.Count(); i <= line; i++)
                 _businessObject.Addresses.Add();
 
             _businessObject.Addresses.SetCurrentLine(line);
 
-            _businessObject.Addresses.City = value.ToString();
+            _businessObject.Addresses.City = value == null ? "" : value;
         }
 
         public void SetAddressState(string value, int line)
         {
-            while (_businessObject.Address.Count() >= line)
+            for (int i = _businessObject.Address.Count(); i <= line; i++)
                 _businessObject.Addresses.Add();
 
             _businessObject.Addresses.SetCurrentLine(line);
 
-            _businessObject.Addresses.State = value.ToString();
+            _businessObject.Addresses.State = value == null ? "" : value;
         }
 
         public void SetAddressCountry(string value, int line)
         {
-            while (_businessObject.Address.Count() >= line)
+            for (int i = _businessObject.Address.Count(); i <= line; i++)
                 _businessObject.Addresses.Add();
 
             _businessObject.Addresses.SetCurrentLine(line);
 
-            _businessObject.Addresses.Country = value.ToString();
+            _businessObject.Addresses.Country = value == null ? "" : value;
         }
 
         public void SetAddressZipCode(string value, int line)
         {
-            while (_businessObject.Address.Count() >= line)
+            for (int i = _businessObject.Address.Count(); i <= line; i++)
                 _businessObject.Addresses.Add();
 
             _businessObject.Addresses.SetCurrentLine(line);
 
-            _businessObject.Addresses.ZipCode = value.ToString();
+            _businessObject.Addresses.ZipCode = value == null ? "" : value;
         }
 
-        public void SetCpf(string value, string address = "", Model.EnumAdresType adresType = Model.EnumAdresType.Ship)
+        public void SetCpf(string value, string address = "", BoAddressType adresType = BoAddressType.bo_ShipTo)
         {
             bool found = false;
 
@@ -180,13 +193,13 @@ namespace B1Base.DAO
                     break;
                 }
 
-                if (address == _businessObject.FiscalTaxID.Address && _businessObject.FiscalTaxID.AddrType == BoAddressType.bo_BillTo && adresType == Model.EnumAdresType.Bill)
+                if (address == _businessObject.FiscalTaxID.Address && _businessObject.FiscalTaxID.AddrType == BoAddressType.bo_BillTo && adresType == BoAddressType.bo_BillTo)
                 {
                     found = true;
                     break;
                 }
 
-                if (address == _businessObject.FiscalTaxID.Address && _businessObject.FiscalTaxID.AddrType == BoAddressType.bo_ShipTo && adresType == Model.EnumAdresType.Ship)
+                if (address == _businessObject.FiscalTaxID.Address && _businessObject.FiscalTaxID.AddrType == BoAddressType.bo_ShipTo && adresType == BoAddressType.bo_ShipTo)
                 {
                     found = true;
                     break;
@@ -199,10 +212,10 @@ namespace B1Base.DAO
                 _businessObject.FiscalTaxID.SetCurrentLine(_businessObject.FiscalTaxID.Count + 1);
             }
 
-            _businessObject.FiscalTaxID.TaxId4 = value;
+            _businessObject.FiscalTaxID.TaxId4 = value == null ? "" : value;
         }
 
-        public void SetCnpj(string value, string address = "", Model.EnumAdresType adresType = Model.EnumAdresType.Ship)
+        public void SetCnpj(string value, string address = "", BoAddressType adresType = BoAddressType.bo_ShipTo)
         {
             bool found = false;
 
@@ -216,13 +229,13 @@ namespace B1Base.DAO
                     break;
                 }
 
-                if (address == _businessObject.FiscalTaxID.Address && _businessObject.FiscalTaxID.AddrType == BoAddressType.bo_BillTo && adresType == Model.EnumAdresType.Bill)
+                if (address == _businessObject.FiscalTaxID.Address && _businessObject.FiscalTaxID.AddrType == BoAddressType.bo_BillTo && adresType == BoAddressType.bo_BillTo)
                 {
                     found = true;
                     break;
                 }
 
-                if (address == _businessObject.FiscalTaxID.Address && _businessObject.FiscalTaxID.AddrType == BoAddressType.bo_ShipTo && adresType == Model.EnumAdresType.Ship)
+                if (address == _businessObject.FiscalTaxID.Address && _businessObject.FiscalTaxID.AddrType == BoAddressType.bo_ShipTo && adresType == BoAddressType.bo_ShipTo)
                 {
                     found = true;
                     break;
@@ -235,10 +248,10 @@ namespace B1Base.DAO
                 _businessObject.FiscalTaxID.SetCurrentLine(_businessObject.FiscalTaxID.Count + 1);
             }
 
-            _businessObject.FiscalTaxID.TaxId0 = value;
+            _businessObject.FiscalTaxID.TaxId0 = value == null ? "" : value;
         }
 
-        public void SetInscricaoEstadual(string value, string address = "", Model.EnumAdresType adresType = Model.EnumAdresType.Ship)
+        public void SetInscricaoEstadual(string value, string address = "", BoAddressType adresType = BoAddressType.bo_ShipTo)
         {
             bool found = false;
 
@@ -252,13 +265,13 @@ namespace B1Base.DAO
                     break;
                 }
 
-                if (address == _businessObject.FiscalTaxID.Address && _businessObject.FiscalTaxID.AddrType == BoAddressType.bo_BillTo && adresType == Model.EnumAdresType.Bill)
+                if (address == _businessObject.FiscalTaxID.Address && _businessObject.FiscalTaxID.AddrType == BoAddressType.bo_BillTo && adresType == BoAddressType.bo_BillTo)
                 {
                     found = true;
                     break;
                 }
 
-                if (address == _businessObject.FiscalTaxID.Address && _businessObject.FiscalTaxID.AddrType == BoAddressType.bo_ShipTo && adresType == Model.EnumAdresType.Ship)
+                if (address == _businessObject.FiscalTaxID.Address && _businessObject.FiscalTaxID.AddrType == BoAddressType.bo_ShipTo && adresType == BoAddressType.bo_ShipTo)
                 {
                     found = true;
                     break;
@@ -271,7 +284,7 @@ namespace B1Base.DAO
                 _businessObject.FiscalTaxID.SetCurrentLine(_businessObject.FiscalTaxID.Count + 1);
             }
 
-            _businessObject.FiscalTaxID.TaxId1 = value;
+            _businessObject.FiscalTaxID.TaxId1 = value == null ? "" : value;
         }
 
         
@@ -288,6 +301,8 @@ namespace B1Base.DAO
             }
 
             Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+
+            _businessObject.CardCode = Controller.ConnectionController.Instance.LastObjectCode;
         }
 
         public BusinessPartners BusinessObject

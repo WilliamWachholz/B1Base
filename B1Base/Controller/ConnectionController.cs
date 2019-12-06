@@ -51,7 +51,7 @@ namespace B1Base.Controller
             }
         }
 
-        public int LastObjectCode
+        public dynamic LastObjectCode
         {
             get
             {
@@ -59,7 +59,12 @@ namespace B1Base.Controller
 
                 Company.GetNewObjectCode(out result);
 
-                return Convert.ToInt32(result);
+                int intResult = 0;
+
+                if (int.TryParse(result, out intResult))
+                    return intResult;
+                else
+                    return result;
             }
         }
 
