@@ -180,7 +180,8 @@ namespace B1Base.DAO
 
                         document.Installments.SetCurrentLine(line);
                         document.Installments.DueDate = documentInstallmentModel.DueDate;
-                        document.Installments.Percentage = documentInstallmentModel.InstPrcnt;
+                        if (documentInstallmentModel.InstPrcnt > 0)
+                            document.Installments.Percentage = documentInstallmentModel.InstPrcnt;
                         if (document.DocTotalFc > 0)
                             document.Installments.TotalFC = documentInstallmentModel.InsTotal;
                         else
@@ -275,6 +276,10 @@ namespace B1Base.DAO
 
                     Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(document.GetAsXML(), ex);
             }
             finally
             {
