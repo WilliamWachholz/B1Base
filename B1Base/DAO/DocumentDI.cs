@@ -14,6 +14,16 @@ namespace B1Base.DAO
 
         bool _newObject = false;
 
+        public void InitializeObject(int docEntry, Model.EnumObjType objType)
+        {
+            _businessObject = GetDIObject(objType);
+
+            if (!_businessObject.GetByKey(docEntry))
+            {
+                _newObject = true;
+            }
+        }
+
         public void SetCardCode(string value)
         {
             _businessObject.CardCode = value == null ? "" : value;
@@ -196,6 +206,25 @@ namespace B1Base.DAO
         public void Save()
         {
             _businessObject.UserFields.Fields.Item("U_DIUpdate").Value = "Y";
+        }
+
+        private Documents GetDIObject(Model.EnumObjType objType)
+        {
+            switch (objType)
+            {
+                case Model.EnumObjType.Invoice:
+                    return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oInvoices);
+                case Model.EnumObjType.SalesOrder:
+                    return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oOrders);
+                case Model.EnumObjType.InvoiceReturn:
+                    return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oCreditNotes);
+                case Model.EnumObjType.PurchaseOrder:
+                    return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oPurchaseOrders);
+                case Model.EnumObjType.PurchaseInvoice:
+                    return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oPurchaseInvoices);
+                default:
+                    return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oInvoices);
+            }
         }
     }
 }

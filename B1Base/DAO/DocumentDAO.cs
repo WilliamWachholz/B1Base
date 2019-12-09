@@ -220,15 +220,15 @@ namespace B1Base.DAO
                         {
                             document.Lines.ItemCode = documentItemModel.ItemCode;
                             document.Lines.Quantity = documentItemModel.Quantity;
+                            document.Lines.UnitPrice = documentItemModel.Price;
                         }
                         else
                         {
                             document.Lines.AccountCode = documentItemModel.AcctCode;
                             document.Lines.ItemDescription = documentItemModel.Dscription;
                             document.Lines.TaxCode = documentItemModel.TaxCode;
-                        }
-
-                        document.Lines.UnitPrice = documentItemModel.Price;
+                            document.Lines.LineTotal = documentItemModel.Price;
+                        }                        
 
                         document.Comments = documentModel.Comments;
 
