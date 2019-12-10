@@ -51,6 +51,6 @@ C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\UpdateLastCode.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\UpdateLastCode.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetDocEntry.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetDocEntry.sql
-C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csprojAssemblyReference.cache
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetAutoSeries.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetAutoSeries.sql
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csprojAssemblyReference.cache

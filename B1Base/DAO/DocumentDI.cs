@@ -24,6 +24,11 @@ namespace B1Base.DAO
             }
         }
 
+        public void SetBplId(int value)
+        {
+            _businessObject.BPL_IDAssignedToInvoice = value;
+        }
+
         public void SetCardCode(string value)
         {
             _businessObject.CardCode = value == null ? "" : value;
@@ -46,7 +51,7 @@ namespace B1Base.DAO
 
         public void SetDocCur(string value)
         {
-            _businessObject.DocCurrency = value == null ? "R$" : value;
+            _businessObject.DocCurrency = value == null ? "" : value;
         }
 
         public void SetTrnspCode(int value)
@@ -58,11 +63,11 @@ namespace B1Base.DAO
         {
             _businessObject.GroupNumber = value;
         }
-
         public void SetPeyMethod(string value)
         {
             _businessObject.PaymentMethod = value == null ? "" : value;
         }
+
         public void SetComments(string value)
         {
             _businessObject.Comments = value == null ? "" : value;
@@ -154,11 +159,12 @@ namespace B1Base.DAO
             }
             catch (Exception ex)
             {
+                throw ex;
                 //guarda em tabela de banco. Criar uma tabela no banco para cada addon para guardar erro select (sql) e objetos DI (xml)
             }
 
-            if (_businessObject.DocEntry == 0)
-                _businessObject.GetByKey(Convert.ToInt32(Controller.ConnectionController.Instance.LastObjectCode));
+            //if (_newObject)
+            //    _businessObject.GetByKey(Controller.ConnectionController.Instance.LastObjectCode);
         }
 
         private Documents GetDIObject(Model.EnumObjType objType)
