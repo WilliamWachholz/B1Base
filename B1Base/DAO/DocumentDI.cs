@@ -46,7 +46,7 @@ namespace B1Base.DAO
 
         public void SetDocCur(string value)
         {
-            _businessObject.DocCurrency = value == null ? "" : value;
+            _businessObject.DocCurrency = value == null ? "R$" : value;
         }
 
         public void SetTrnspCode(int value)
@@ -61,7 +61,7 @@ namespace B1Base.DAO
 
         public void SetPeyMethod(string value)
         {
-            _businessObject.PaymentMethod = value;
+            _businessObject.PaymentMethod = value == null ? "" : value;
         }
         public void SetComments(string value)
         {
@@ -77,16 +77,10 @@ namespace B1Base.DAO
         {
             if (line == -1)
             {
-                _businessObject.Lines.Add();
+                if (_businessObject.Lines.ItemCode != string.Empty)
+                    _businessObject.Lines.Add();
 
                 line = _businessObject.Lines.Count - 1;
-
-                _businessObject.Lines.SetCurrentLine(line);
-            }
-            else
-            {
-                for (int i = _businessObject.Lines.Count; i <= line; i++)
-                    _businessObject.Lines.Add();
             }
 
             _businessObject.Lines.SetCurrentLine(line);
@@ -96,64 +90,22 @@ namespace B1Base.DAO
             return line;
         }
 
-        public void SetItemQuantity(double value, int line = -1)
+        public void SetItemQuantity(double value, int line)
         {
-            if (line == -1)
-            {
-                _businessObject.Lines.Add();
-
-                line = _businessObject.Lines.Count - 1;
-
-                _businessObject.Lines.SetCurrentLine(line);
-            }
-            else
-            {
-                for (int i = _businessObject.Lines.Count; i <= line; i++)
-                    _businessObject.Lines.Add();
-            }
-
             _businessObject.Lines.SetCurrentLine(line);
 
             _businessObject.Lines.Quantity = value;
         }
 
-        public void SetItemPrice(double value, int line = -1)
+        public void SetItemPrice(double value, int line)
         {
-            if (line == -1)
-            {
-                _businessObject.Lines.Add();
-
-                line = _businessObject.Lines.Count - 1;
-
-                _businessObject.Lines.SetCurrentLine(line);
-            }
-            else
-            {
-                for (int i = _businessObject.Lines.Count; i <= line; i++)
-                    _businessObject.Lines.Add();
-            }
-
             _businessObject.Lines.SetCurrentLine(line);
 
             _businessObject.Lines.UnitPrice = value;
         }
 
-        public void SetItemDiscPrcnt(double value, int line = -1)
+        public void SetItemDiscPrcnt(double value, int line)
         {
-            if (line == -1)
-            {
-                _businessObject.Lines.Add();
-
-                line = _businessObject.Lines.Count - 1;
-
-                _businessObject.Lines.SetCurrentLine(line);
-            }
-            else
-            {
-                for (int i = _businessObject.Lines.Count; i <= line; i++)
-                    _businessObject.Lines.Add();
-            }
-
             _businessObject.Lines.SetCurrentLine(line);
 
             _businessObject.Lines.DiscountPercent = value;
@@ -163,16 +115,10 @@ namespace B1Base.DAO
         {
             if (line == -1)
             {
-                _businessObject.Expenses.Add();
+                if (_businessObject.Expenses.ExpenseCode != 0)
+                    _businessObject.Expenses.Add();
 
                 line = _businessObject.Expenses.Count - 1;
-
-                _businessObject.Expenses.SetCurrentLine(line);
-            }
-            else
-            {
-                for (int i = _businessObject.Expenses.Count; i <= line; i++)
-                    _businessObject.Lines.Add();
             }
 
             _businessObject.Expenses.SetCurrentLine(line);
@@ -182,22 +128,8 @@ namespace B1Base.DAO
             return line;
         }
 
-        public void SetExpenseTotal(double value, int line = -1)
-        {
-            if (line == -1)
-            {
-                _businessObject.Expenses.Add();
-
-                line = _businessObject.Expenses.Count - 1;
-
-                _businessObject.Expenses.SetCurrentLine(line);
-            }
-            else
-            {
-                for (int i = _businessObject.Expenses.Count; i <= line; i++)
-                    _businessObject.Lines.Add();
-            }
-
+        public void SetExpenseTotal(double value, int line)
+        {            
             _businessObject.Expenses.SetCurrentLine(line);
 
             _businessObject.Expenses.LineTotal = value;
@@ -206,6 +138,27 @@ namespace B1Base.DAO
         public void Save()
         {
             _businessObject.UserFields.Fields.Item("U_DIUpdate").Value = "Y";
+
+            try
+            {
+                if (_newObject)
+                {
+                    _businessObject.Add();
+                }
+                else
+                {
+                    _businessObject.Update();
+                }
+
+                Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+            }
+            catch (Exception ex)
+            {
+                //guarda em tabela de banco. Criar uma tabela no banco para cada addon para guardar erro select (sql) e objetos DI (xml)
+            }
+
+            if (_businessObject.DocEntry == 0)
+                _businessObject.GetByKey(Convert.ToInt32(Controller.ConnectionController.Instance.LastObjectCode));
         }
 
         private Documents GetDIObject(Model.EnumObjType objType)
