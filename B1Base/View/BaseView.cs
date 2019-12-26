@@ -118,6 +118,7 @@ namespace B1Base.View
         public string LastColumnValue { get; private set; }
         public int LastSortedColPos { get; private set; }
         public string LastButtonClicked { get; private set; }
+        public Dictionary<string, string> LastCols { get; private set; }
         public Dictionary<string, int> LastRows { get; private set; }
         public Dictionary<string, int> LastBeforeRows { get; private set; }
         public int LastRightClickRow { get; private set; }
@@ -210,6 +211,7 @@ namespace B1Base.View
                     LastButtonClicked = string.Empty;
                     LastSortedColPos = 1;
                     LastRows = new Dictionary<string, int>();
+                    LastCols = new Dictionary<string, string>();
                     LastBeforeRows = new Dictionary<string, int>();
                     LastRightClickRow = 1;
                     LastRightClickMatrix = string.Empty;
@@ -717,6 +719,7 @@ namespace B1Base.View
 
                 LastBeforeRows.Remove(item);
                 LastRows.Remove(item);
+                LastCols.Remove(item);
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_GRID)
             {
@@ -1549,35 +1552,7 @@ namespace B1Base.View
                     }
                     else if (prop.PropertyType == typeof(Int32))
                     {
-                        try
-                        {
-                            DataColumn codeCol = dataTable.Columns.Item("_" + prop.Name);
-
-                            DataColumn descCol = dataTable.Columns.Item(prop.Name);
-
-                            string chooseUID = string.Empty;
-
-                            for (int matrixCol = 0; matrixCol < matrix.Columns.Count; matrixCol++)
-                            {
-                                if (matrix.Columns.Item(matrixCol).DataBind.Alias == prop.Name)
-                                {
-                                    chooseUID = matrix.Columns.Item(matrixCol).ChooseFromListUID;
-                                    break;
-                                }
-                            }
-
-                            ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(chooseUID);                                
-
-                            string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, prop.GetValue(model).ToString());
-
-                            values.Add("cast('" + descValue + "' as varchar(" + descCol.MaxLength + ")) as " + prop.Name);
-
-                            values.Add(prop.GetValue(model).ToString() + " as _" + prop.Name);
-                        }
-                        catch
-                        {
-                            values.Add(prop.GetValue(model).ToString() + " as " + prop.Name);
-                        }
+                        values.Add(prop.GetValue(model).ToString() + " as " + prop.Name);
                     }
                     else if (prop.PropertyType == typeof(double))
                     {
@@ -2139,11 +2114,13 @@ namespace B1Base.View
                 {
                     LastBeforeRows[matrix] = LastRows[matrix];
                     LastRows[matrix] = row;
+                    LastCols[matrix] = column;
                 }
                 else
                 {
                     LastBeforeRows.Add(matrix, 1);
                     LastRows.Add(matrix, row);
+                    LastCols.Add(matrix, column);
                 }
 
                 LastModifier = modifier;               
@@ -2180,11 +2157,13 @@ namespace B1Base.View
                 {
                     LastBeforeRows[matrix] = LastRows[matrix];
                     LastRows[matrix] = row;
+                    LastCols[matrix] = column;
                 }
                 else
                 {
                     LastBeforeRows.Add(matrix, 1);
                     LastRows.Add(matrix, row);
+                    LastCols.Add(matrix, column);
                 }
 
                 Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;

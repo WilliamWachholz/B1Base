@@ -27,6 +27,12 @@ namespace B1Base.DAO
                     itemModel.BWeight1 = item.PurchaseUnitWeight;
                     itemModel.SWeight1 = item.SalesUnitWeight;
                     itemModel.IWeight1 = item.InventoryWeight;
+                    itemModel.BWidth1 = item.PurchaseUnitWidth;
+                    itemModel.SWidth1 = item.SalesUnitWidth;
+                    itemModel.BHeigth1 = item.PurchaseUnitHeight;
+                    itemModel.SHeigth1 = item.SalesUnitHeight;
+                    itemModel.BLength1 = item.PurchaseUnitLength;
+                    itemModel.SLength1 = item.SalesUnitLength;
                     itemModel.SWW = item.SWW;
                     itemModel.UserText = item.User_Text;
                     itemModel.ValidFor = item.Valid == BoYesNoEnum.tYES;
@@ -56,9 +62,9 @@ namespace B1Base.DAO
                     itemModel.OrdrMulti = item.OrderMultiple;
                     itemModel.MinOrdrQty = item.MinOrderQuantity;
                     itemModel.LeadTime = item.LeadTime;
-                    item.ToleranceDays = itemModel.ToleranDay;
+                    itemModel.ToleranDay = item.ToleranceDays;
                     itemModel.PicturName = item.Picture;
-                    item.User_Text = itemModel.UserText;
+                    itemModel.UserText = item.User_Text;
                     itemModel.AtcEntry = item.AttachmentEntry;
 
                     if (itemModel.IssuePriBy > 0)
@@ -88,66 +94,63 @@ namespace B1Base.DAO
                     itemModel.FrozenFrom = item.FrozenFrom;
                     itemModel.FrozenTo = item.FrozenTo;
                     itemModel.FrozenComm = item.FrozenRemarks;
+                    
                     itemModel.BuyUnitMsr = item.PurchaseUnit;
-                    itemModel.NumInBuy = item.PurchaseItemsPerUnit;
-                    itemModel.PurPackMsr = item.PurchasePackagingUnit;
-                    itemModel.PurPackUn = item.PurchaseQtyPerPackUnit;
 
-                    item.PurchaseUnitLength = itemModel.BLength1;
-                    item.PurchaseUnitWidth = itemModel.BWidth1;
-                    item.PurchaseUnitHeight = itemModel.BHeigth1;
-                    item.PurchaseUnitVolume = itemModel.BVolume1;
+                    //itemModel.NumInBuy = item.PurchaseItemsPerUnit;
+                    //itemModel.PurPackMsr = item.PurchasePackagingUnit;
+                    //itemModel.PurPackUn = item.PurchaseQtyPerPackUnit;
 
-                    if (itemModel.BVolUnit > 0)
-                        item.PurchaseVolumeUnit = itemModel.BVolUnit;
-                    else
-                        item.PurchaseVolumeUnit = 4;
+                    //if (itemModel.BVolUnit > 0)
+                    //    item.PurchaseVolumeUnit = itemModel.BVolUnit;
+                    //else
+                    //    item.PurchaseVolumeUnit = 4;
 
-                    item.PurchaseUnitWeight = itemModel.BWeight1;
+                    //item.PurchaseUnitWeight = itemModel.BWeight1;
 
-                    if (itemModel.PurFactor1 > 0)
-                        item.PurchaseFactor1 = itemModel.PurFactor1;
-                    else
-                        item.PurchaseFactor1 = 1;
+                    //if (itemModel.PurFactor1 > 0)
+                    //    item.PurchaseFactor1 = itemModel.PurFactor1;
+                    //else
+                    //    item.PurchaseFactor1 = 1;
 
-                    if (itemModel.PurFactor2 > 0)
-                        item.PurchaseFactor2 = itemModel.PurFactor2;
-                    else
-                        item.PurchaseFactor2 = 1;
+                    //if (itemModel.PurFactor2 > 0)
+                    //    item.PurchaseFactor2 = itemModel.PurFactor2;
+                    //else
+                    //    item.PurchaseFactor2 = 1;
 
-                    if (itemModel.PurFactor3 > 0)
-                        item.PurchaseFactor3 = itemModel.PurFactor3;
-                    else
-                        item.PurchaseFactor3 = 1;
+                    //if (itemModel.PurFactor3 > 0)
+                    //    item.PurchaseFactor3 = itemModel.PurFactor3;
+                    //else
+                    //    item.PurchaseFactor3 = 1;
 
-                    if (itemModel.PurFactor4 > 0)
-                        item.PurchaseFactor4 = itemModel.PurFactor4;
-                    else
-                        item.PurchaseFactor4 = 1;
+                    //if (itemModel.PurFactor4 > 0)
+                    //    item.PurchaseFactor4 = itemModel.PurFactor4;
+                    //else
+                    //    item.PurchaseFactor4 = 1;
 
-                    item.SalesUnit = itemModel.SalUnitMsr;
-                    if (itemModel.NumInSale > 0)
-                        item.SalesItemsPerUnit = itemModel.NumInSale;
-                    else
-                        item.SalesItemsPerUnit = 1;
+                    itemModel.SalUnitMsr = item.SalesUnit;
+                    //if (itemModel.NumInSale > 0)
+                    //    item.SalesItemsPerUnit = itemModel.NumInSale;
+                    //else
+                    //    item.SalesItemsPerUnit = 1;
 
-                    item.SalesPackagingUnit = itemModel.PurPackMsr;
+                    //item.SalesPackagingUnit = itemModel.PurPackMsr;
 
-                    if (itemModel.PurPackUn > 0)
-                        item.SalesQtyPerPackUnit = itemModel.PurPackUn;
-                    else
-                        item.SalesQtyPerPackUnit = 1;
+                    //if (itemModel.PurPackUn > 0)
+                    //    item.SalesQtyPerPackUnit = itemModel.PurPackUn;
+                    //else
+                    //    item.SalesQtyPerPackUnit = 1;
 
-                    item.SalesUnitLength = itemModel.SLength1;
-                    item.SalesUnitWidth = itemModel.SWidth1;
-                    item.SalesUnitHeight = itemModel.SHeigth1;
-                    item.SalesUnitVolume = itemModel.SVolume1;
+                    //item.SalesUnitLength = itemModel.SLength1;
+                    //item.SalesUnitWidth = itemModel.SWidth1;
+                    //item.SalesUnitHeight = itemModel.SHeigth1;
+                    //item.SalesUnitVolume = itemModel.SVolume1;
                     itemModel.SVolUnit = item.SalesVolumeUnit;
                     itemModel.SWeight1 = item.SalesUnitWeight;
-                    itemModel.SalFactor1 = item.SalesFactor1;
-                    itemModel.SalFactor2 = item.SalesFactor2;
-                    itemModel.SalFactor3 = item.SalesFactor3;
-                    itemModel.SalFactor4 = item.SalesFactor4;
+                    //itemModel.SalFactor1 = item.SalesFactor1;
+                    //itemModel.SalFactor2 = item.SalesFactor2;
+                    //itemModel.SalFactor3 = item.SalesFactor3;
+                    //itemModel.SalFactor4 = item.SalesFactor4;
 
                     switch (item.GLMethod)
                     {
@@ -561,7 +564,7 @@ namespace B1Base.DAO
             item.PurchaseUnitLength = itemModel.BLength1;
             item.PurchaseUnitWidth = itemModel.BWidth1;
             item.PurchaseUnitHeight = itemModel.BHeigth1;
-            item.PurchaseUnitVolume = itemModel.BVolume1;
+          //  item.PurchaseUnitVolume = itemModel.BVolume1;
 
             if (itemModel.BVolUnit > 0)
                 item.PurchaseVolumeUnit = itemModel.BVolUnit;
@@ -606,7 +609,7 @@ namespace B1Base.DAO
             item.SalesUnitLength = itemModel.SLength1;
             item.SalesUnitWidth = itemModel.SWidth1;
             item.SalesUnitHeight = itemModel.SHeigth1;
-            item.SalesUnitVolume = itemModel.SVolume1;
+           // item.SalesUnitVolume = itemModel.SVolume1;
 
             if (itemModel.SVolUnit > 0)
                 item.SalesVolumeUnit = itemModel.SVolUnit;
