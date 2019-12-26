@@ -613,7 +613,7 @@ namespace B1Base.View
                 ChooseFromList choose = (ChooseFromList)SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
 
                 Conditions conditions = new Conditions();
-
+                
                 Condition condition = conditions.Add();
 
                 condition.Alias = field;
@@ -1530,49 +1530,69 @@ namespace B1Base.View
             List<string> selects = new List<string>();
 
             foreach (T model in list)
-            {
-                List<string> columns = new List<string>();
+            {               
                 List<string> values = new List<string>();
 
                 foreach (var prop in props)
                 {
-                    Model.BaseModel.NonDB nonDB = prop.GetCustomAttribute(typeof(Model.BaseModel.NonDB)) as Model.BaseModel.NonDB;
-
-                    if (nonDB == null)
+                    if (prop.PropertyType == typeof(Boolean))
                     {
-                        columns.Add("U_" + prop.Name);
+                        values.Add((bool)prop.GetValue(model) ? "'Y'" : "'N'");
+                    }
+                    else if (prop.PropertyType.IsEnum)
+                    {
+                        values.Add(((int)prop.GetValue(model)).ToString());
+                    }
+                    else if (prop.PropertyType == typeof(DateTime))
+                    {
+                        values.Add("cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)");
+                    }
+                    else if (prop.PropertyType == typeof(Int32))
+                    {
+                        try
+                        {
+                            DataColumn codeCol = dataTable.Columns.Item("_" + prop.Name);
 
-                        if (prop.PropertyType == typeof(Boolean))
-                        {
-                            values.Add((bool)prop.GetValue(model) ? "'Y'" : "'N'");
-                        }
-                        else if (prop.PropertyType.IsEnum)
-                        {
-                            values.Add(((int)prop.GetValue(model)).ToString());
-                        }
-                        else if (prop.PropertyType == typeof(DateTime))
-                        {
-                            values.Add("cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)");
-                        }
-                        else if (prop.PropertyType == typeof(Int32))
-                        {
-                            values.Add(prop.GetValue(model).ToString());
-                        }
-                        else if (prop.PropertyType == typeof(double))
-                        {
-                            if (Convert.ToDouble(prop.GetValue(model)) == 0)
+                            DataColumn descCol = dataTable.Columns.Item(prop.Name);
+
+                            string chooseUID = string.Empty;
+
+                            for (int matrixCol = 0; matrixCol < matrix.Columns.Count; matrixCol++)
                             {
-                                values.Add("0.0");
+                                if (matrix.Columns.Item(matrixCol).DataBind.Alias == prop.Name)
+                                {
+                                    chooseUID = matrix.Columns.Item(matrixCol).ChooseFromListUID;
+                                    break;
+                                }
                             }
-                            else
-                            {
-                                values.Add(Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat));
-                            }
+
+                            ChooseFromList chooseFromList = SAPForm.ChooseFromLists.Item(chooseUID);                                
+
+                            string descValue = Controller.ConnectionController.Instance.ExecuteSqlForObject<string>("GetChooseValue", chooseFromList.ObjectType, prop.GetValue(model).ToString());
+
+                            values.Add("cast('" + descValue + "' as varchar(" + descCol.MaxLength + ")) as " + prop.Name);
+
+                            values.Add(prop.GetValue(model).ToString() + " as _" + prop.Name);
+                        }
+                        catch
+                        {
+                            values.Add(prop.GetValue(model).ToString() + " as " + prop.Name);
+                        }
+                    }
+                    else if (prop.PropertyType == typeof(double))
+                    {
+                        if (Convert.ToDouble(prop.GetValue(model)) == 0)
+                        {
+                            values.Add("0.0");
                         }
                         else
                         {
-                            values.Add("cast('" + prop.GetValue(model) + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))");
+                            values.Add(Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat));
                         }
+                    }
+                    else
+                    {
+                        values.Add("cast('" + prop.GetValue(model) + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))");
                     }
                 }
 

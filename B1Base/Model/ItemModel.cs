@@ -13,6 +13,7 @@ namespace B1Base.Model
         public string ItemName { get; set; }
         public int AtcEntry { get; set; }              
         public int ListNum { get; set; }
+        public string CodeBars { get; set; }
         public bool ValidFor { get; set; }
         public DateTime ValidFrom { get; set; }
         public DateTime ValidTo { get; set; }        

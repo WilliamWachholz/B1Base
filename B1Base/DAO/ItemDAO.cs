@@ -21,6 +21,7 @@ namespace B1Base.DAO
                 {
                     itemModel.ItemCode = item.ItemCode;
                     itemModel.ItemName = item.ItemName;
+                    itemModel.CodeBars = item.BarCode;
                     itemModel.SuppCatNum = item.SupplierCatalogNo;
                     itemModel.CardCode = item.Mainsupplier;
                     itemModel.BWeight1 = item.PurchaseUnitWeight;
@@ -351,7 +352,7 @@ namespace B1Base.DAO
 
         }
 
-        public void Save(string itemCode, string cardCode, string suppCatNum, bool inBPCatalog)
+        public void Save(string itemCode, string cardCode, string suppCatNum, Dictionary<string, dynamic> userFields, bool inBPCatalog)
         {
             if (itemCode != string.Empty && cardCode != string.Empty && suppCatNum != string.Empty)
             {
@@ -364,6 +365,11 @@ namespace B1Base.DAO
                         alternateCatNum.ItemCode = itemCode;
                         alternateCatNum.CardCode = cardCode;
                         alternateCatNum.Substitute = suppCatNum;
+
+                        foreach (KeyValuePair<string, dynamic> userField in userFields)
+                        {
+                            alternateCatNum.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                        }
 
                         alternateCatNum.Add();
 
@@ -427,6 +433,8 @@ namespace B1Base.DAO
         private void SetItemFields(SAPbobsCOM.Items item, Model.ItemModel itemModel)
         {
             item.ItemName = itemModel.ItemName;
+            
+            item.BarCode = itemModel.CodeBars;
 
             item.SupplierCatalogNo = itemModel.SuppCatNum;
 
