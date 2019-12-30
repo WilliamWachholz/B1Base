@@ -181,6 +181,12 @@ namespace B1Base.DAO
             _businessObject.AvgStdPrice = value;
         }
 
+        public void SetDfltWH(string value)
+        {
+            if (value != string.Empty)
+                _businessObject.DefaultWarehouse = value;
+        }
+
         public void SetBWeight1(double value)
         {
             _businessObject.PurchaseUnitWeight = value;
@@ -287,6 +293,22 @@ namespace B1Base.DAO
             _businessObject.PlanningSystem = value;
         }
 
+        public void SetIssueMthd(BoIssueMethod value)
+        {
+            _businessObject.IssueMethod = value;
+        }
+
+        public void SetPrdStdCst(double value)
+        {
+            _businessObject.ProdStdCost = value;
+        }
+
+        public void SetPicturName(string value)
+        {
+            if (value != string.Empty)
+                _businessObject.Picture = value;
+        }
+
         public void SetNCMCode(int value)
         {
             if (value > 0)
@@ -309,6 +331,25 @@ namespace B1Base.DAO
         {
             _businessObject.User_Text = value;
         }
+
+
+        public int SetVendorCode(string value, int line = -1)
+        {
+            if (line == -1)
+            {
+                if (_businessObject.PreferredVendors.BPCode != string.Empty)
+                    _businessObject.PreferredVendors.Add();
+
+                line = _businessObject.PreferredVendors.Count - 1;
+            }
+
+            _businessObject.PreferredVendors.SetCurrentLine(line);
+
+            _businessObject.PreferredVendors.BPCode = value == null ? "" : value;
+
+            return line;
+        }
+
 
         public void SetUserField(string userField, dynamic value)
         {
