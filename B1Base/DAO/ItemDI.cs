@@ -369,5 +369,14 @@ namespace B1Base.DAO
 
             Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
         }
+
+        public Items BusinessObject
+        {
+            get
+
+            {
+                return _businessObject;
+            }
+        }
     }
 }
