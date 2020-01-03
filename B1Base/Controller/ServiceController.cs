@@ -30,6 +30,8 @@ namespace B1Base.Controller
 
         }
 
+        protected virtual bool LaziInitialization { get { return false; } }
+
         protected override void OnStart(string[] args)
         {
             try
@@ -70,19 +72,22 @@ namespace B1Base.Controller
         {
             try
             {
-                AddLog("Initializing");
-
                 try
                 {
-                    B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("AddOnId"),
-                        ConfigurationSettings.AppSettings.Get("Server"),
-                        ConfigurationSettings.AppSettings.Get("CompanyDB"),
-                        ConfigurationSettings.AppSettings.Get("UserName"),
-                        ConfigurationSettings.AppSettings.Get("Password"),
-                        ConfigurationSettings.AppSettings.Get("LicenseServer"),
-                        ConfigurationSettings.AppSettings.Get("DBUserName"),
-                        ConfigurationSettings.AppSettings.Get("DBPassword"),
-                        ConfigurationSettings.AppSettings.Get("DBServerType"));
+                    if (!LaziInitialization)
+                    {
+                        AddLog("Connecting");
+
+                        B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("AddOnId"),
+                            ConfigurationSettings.AppSettings.Get("Server"),
+                            ConfigurationSettings.AppSettings.Get("CompanyDB"),
+                            ConfigurationSettings.AppSettings.Get("UserName"),
+                            ConfigurationSettings.AppSettings.Get("Password"),
+                            ConfigurationSettings.AppSettings.Get("LicenseServer"),
+                            ConfigurationSettings.AppSettings.Get("DBUserName"),
+                            ConfigurationSettings.AppSettings.Get("DBPassword"),
+                            ConfigurationSettings.AppSettings.Get("DBServerType"));
+                    }
 
                     AddLog("Executing");
 
@@ -92,10 +97,13 @@ namespace B1Base.Controller
                 }
                 finally
                 {
-                    B1Base.Controller.ConnectionController.Instance.Finalize();
-                }
+                    if (!LaziInitialization)
+                    {
+                        AddLog("Desconnecting");
 
-                AddLog("Finalized");
+                        B1Base.Controller.ConnectionController.Instance.Finalize();                        
+                    }
+                }                
             }
             catch (Exception ex)
             {
@@ -106,12 +114,81 @@ namespace B1Base.Controller
         }
 
 
+        public string AddOnID
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("AddOnID");
+            }
+        }
+
+        public string Server
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("Server");
+            }
+        }
+
+        public string CompanyDB
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("CompanyDB");
+            }
+        }
+
+        public string UserName
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("UserName");
+            }
+        }
+
+        public string Password
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("Password");
+            }
+        }
+
+        public string LicenseServer
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("LicenseServer");
+            }
+        }
+
+        public string DBUserName
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("DBUserName");
+            }
+        }
+
+        public string DBPassword
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("DBPassword");
+            }
+        }
+
+        public string DBServerType
+        {
+            get
+            {
+                return ConfigurationSettings.AppSettings.Get("DBServerType");
+            }
+        }
 
 
 
 
-
-        
 
     }
 }
