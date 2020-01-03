@@ -381,6 +381,30 @@ namespace B1Base.DAO
         public void LoadBean()
         {
             _bean.ItemCode = _businessObject.ItemCode;
+            _bean.SuppCatNum = _businessObject.SupplierCatalogNo;
+            _bean.BWeight1 = _businessObject.PurchaseUnitWeight;
+            _bean.IWeight1 = _businessObject.InventoryWeight;
+            _bean.SWeight1 = _businessObject.SalesUnitWeight;
+            _bean.BWidth1 = _businessObject.PurchaseUnitWidth;
+            _bean.SWidth1 = _businessObject.SalesUnitWidth;
+            _bean.BHeight1 = _businessObject.PurchaseUnitHeight;
+            _bean.SHeight1 = _businessObject.SalesUnitHeight;
+            _bean.BLength1 = _businessObject.PurchaseUnitLength;
+            _bean.SLength1 = _businessObject.SalesUnitLength;
+            _bean.UgpEntry = _businessObject.UoMGroupEntry;
+            _bean.BuyUnitMsr = _businessObject.PurchaseUnit;
+            _bean.SalUnitMsr = _businessObject.SalesUnit;
+            _bean.PlaningSys = _businessObject.PlanningSystem;
+            _bean.OrdrIntrvl = _businessObject.OrderIntervals == "" ? 0 : Convert.ToInt32(_businessObject.OrderIntervals);
+            _bean.OrdrMulti = _businessObject.OrderMultiple;
+            _bean.MinOrdrQty = _businessObject.MinOrderQuantity;
+            _bean.LeadTime = _businessObject.LeadTime;
+            _bean.ToleranDay = _businessObject.ToleranceDays;
+            _bean.NCMCode = _businessObject.NCMCode;
+            _bean.CodeBars = _businessObject.BarCode;
+            _bean.ValidFor = _businessObject.Valid == BoYesNoEnum.tYES;
+            _bean.FrozenFor = _businessObject.Frozen == BoYesNoEnum.tYES;
+
             _bean.SWW = _businessObject.SWW;
 
             _bean.Xml = _businessObject.GetAsXML();
@@ -402,9 +426,63 @@ namespace B1Base.DAO
             }
         }
 
+        public bool NewObject
+        {
+            get
+            {
+                return _newObject;
+            }
+        }
+
         public class ItemsBean
         {
             public string ItemCode { get; set; }
+
+            public string SuppCatNum { get; set; }
+
+            public double BWeight1 { get; set; }
+
+            public double IWeight1 { get; set; }
+
+            public double SWeight1 { get; set; }
+
+            public double BWidth1 { get; set; }
+
+            public double SWidth1 { get; set; }
+
+            public double BHeight1 { get; set; }
+
+            public double SHeight1 { get; set; }
+
+            public double BLength1 { get; set; }
+
+            public double SLength1 { get; set; }
+
+            public int UgpEntry { get; set; }
+
+            public string BuyUnitMsr { get; set; }
+
+            public string SalUnitMsr { get; set; }
+
+            public BoPlanningSystem PlaningSys { get; set; }
+
+            public int OrdrIntrvl { get; set; }
+
+            public double OrdrMulti { get; set; }
+
+            public double MinOrdrQty { get; set; }
+
+            public int LeadTime { get; set; }
+
+            public int ToleranDay { get; set; }
+
+            public int NCMCode { get; set; }
+
+            public string CodeBars { get; set; }
+
+            public bool ValidFor { get; set; }
+
+            public bool FrozenFor { get; set; }
 
             public string SWW { get; set; }
 
