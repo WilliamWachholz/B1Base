@@ -407,7 +407,14 @@ namespace B1Base.DAO
 
             _bean.SWW = _businessObject.SWW;
 
+
+            for (int userField = 0; userField < _businessObject.UserFields.Fields.Count; userField++)
+            {
+                _bean.UserFields.Add(_businessObject.UserFields.Fields.Item(userField).Name, _businessObject.UserFields.Fields.Item(userField).Value);
+            }
+
             _bean.Xml = _businessObject.GetAsXML();
+
         }
 
         public Items BusinessObject
@@ -486,7 +493,14 @@ namespace B1Base.DAO
 
             public string SWW { get; set; }
 
+            public Dictionary<string, dynamic> UserFields { get; set; }
+
             public string Xml { get; set; }
+
+            public ItemsBean()
+            {
+                UserFields = new Dictionary<string, dynamic>();
+            }
         }
     }
 }
