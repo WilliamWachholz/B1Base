@@ -12,11 +12,15 @@ namespace B1Base.DAO
     {
         Items _businessObject = null;
 
+        ItemsBean _bean = null;
+
         bool _newObject = false;
 
         public void InitializeObject(string itemCode)
         {
-            _businessObject = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);            
+            _businessObject = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
+
+            _bean = new ItemsBean();
 
             if (!_businessObject.GetByKey(itemCode))
             {
@@ -250,8 +254,6 @@ namespace B1Base.DAO
             _businessObject.SalesUnit = value;
         }
 
-
-
         public void SetToleranDay(int value)
         {
             _businessObject.ToleranceDays = value;
@@ -332,7 +334,6 @@ namespace B1Base.DAO
             _businessObject.User_Text = value;
         }
 
-
         public int SetVendorCode(string value, int line = -1)
         {
             if (line == -1)
@@ -349,7 +350,6 @@ namespace B1Base.DAO
 
             return line;
         }
-
 
         public void SetUserField(string userField, dynamic value)
         {
@@ -370,13 +370,45 @@ namespace B1Base.DAO
             Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
         }
 
+        public void Delete()
+        {
+            if (!_newObject)
+            {
+                _businessObject.Remove();
+            }
+        }
+
+        public void LoadBean()
+        {
+            _bean.ItemCode = _businessObject.ItemCode;
+            _bean.SWW = _businessObject.SWW;
+
+            _bean.Xml = _businessObject.GetAsXML();
+        }
+
         public Items BusinessObject
         {
             get
-
             {
                 return _businessObject;
             }
+        }
+
+        public ItemsBean Bean
+        {
+            get
+            {
+                return _bean;
+            }
+        }
+
+        public class ItemsBean
+        {
+            public string ItemCode { get; set; }
+
+            public string SWW { get; set; }
+
+            public string Xml { get; set; }
         }
     }
 }
