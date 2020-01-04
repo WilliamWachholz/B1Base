@@ -661,13 +661,28 @@ namespace B1Base.Controller
                     String errMsg = String.Format("Object {0} does not have property {1}", type, name);
                     throw new Exception(errMsg);
                 }
-                if (prop.PropertyType != value.GetType() && !prop.PropertyType.IsEnum && prop.PropertyType != typeof(Boolean))
+
+                Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+
+                if (prop.PropertyType != value.GetType() && !prop.PropertyType.IsEnum && prop.PropertyType != typeof(Boolean) && specificType.Value != Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
                 {
                     String errMsg = String.Format("Object {0} has property {1} of type {2}. Statement object type is {3}.", type, name, prop.PropertyType, value.GetType());
                     throw new Exception(errMsg);
                 }
 
-                if (prop.PropertyType == typeof(Boolean))
+
+                if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
+                {
+                    int time = Convert.ToInt32(value);
+
+                    int hours = time / 100;
+                    int minutes = time % 100;
+
+                    DateTime date = DateTime.Today.AddHours(hours).AddMinutes(minutes);
+
+                    prop.SetValue(obj, date, null);
+                }
+                else if (prop.PropertyType == typeof(Boolean))
                 {
                     if (value.GetType() == typeof(string))
                         prop.SetValue(obj, value.ToString().Equals("Y") ? true : false, null);
