@@ -62,8 +62,6 @@ namespace B1Base.DAO
                     document.CardCode = documentModel.CardCode;
                     document.DocDate = documentModel.DocDate;
 
-                    document.BPL_IDAssignedToInvoice = 1;
-
                     document.DocType = documentModel.DocType == Model.EnumDocType.Item ? BoDocumentTypes.dDocument_Items : BoDocumentTypes.dDocument_Service;
 
                     line = 0;
@@ -87,7 +85,7 @@ namespace B1Base.DAO
                             document.Lines.TaxCode = documentItemModel.TaxCode;
                         }
 
-                        document.Lines.UnitPrice = documentItemModel.Price;
+                        document.Lines.Price = documentItemModel.Price;
 
                         document.Comments = documentModel.Comments;
 
@@ -227,7 +225,7 @@ namespace B1Base.DAO
                             document.Lines.AccountCode = documentItemModel.AcctCode;
                             document.Lines.ItemDescription = documentItemModel.Dscription;
                             document.Lines.TaxCode = documentItemModel.TaxCode;
-                            document.Lines.LineTotal = documentItemModel.Price;
+                            document.Lines.Price = documentItemModel.Price;                                                     
                         }                        
 
                         document.Comments = documentModel.Comments;
