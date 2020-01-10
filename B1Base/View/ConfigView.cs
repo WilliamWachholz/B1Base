@@ -78,7 +78,7 @@ namespace B1Base.View
         }
 
         protected override void CreateControls()
-        {
+        {            
             try
             {
                 SAPForm.Title = string.Format(SAPForm.Title, AddOn.Instance.MainController.AddOnName);
@@ -90,7 +90,7 @@ namespace B1Base.View
                 SetFields(configModel);
 
                 List<Model.ConfigSeqModel> configSeqList = new Controller.ConfigController<Model.ConfigModel>().GetListConfigSeq();
-
+                
                 SetValue<Model.ConfigSeqModel>(base.SAPForm.DataSources.DataTables.Item(DATA_SEQ), (Matrix)base.SAPForm.Items.Item(MATRIX_SEQ).Specific, configSeqList);
             }
             catch (Exception e)
@@ -100,10 +100,10 @@ namespace B1Base.View
         }
 
         private new void ButtonOkClick()
-        {
+        {            
             Model.ConfigModel configModel = GetModel();
             GetFields(configModel);
-
+            
             SaveModel(configModel);
 
             new Controller.ConfigController<Model.ConfigModel>().SaveConfigSeq(GetValue<Model.ConfigSeqModel>(base.SAPForm.DataSources.DataTables.Item(DATA_SEQ), (Matrix)base.SAPForm.Items.Item(MATRIX_SEQ).Specific));
@@ -128,6 +128,5 @@ namespace B1Base.View
         {
             base.AddFormData();
         }
-
     }
 }

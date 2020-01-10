@@ -78,3 +78,5 @@ C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\GetDocEntry.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\SQLSERVER\GetDocEntry.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\GetAutoSeries.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\SQLSERVER\GetAutoSeries.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\HANA\GetUoMEntry.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Release\SQL\SQLSERVER\GetUoMEntry.sql

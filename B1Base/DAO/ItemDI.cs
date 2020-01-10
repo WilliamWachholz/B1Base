@@ -247,11 +247,22 @@ namespace B1Base.DAO
         public void SetBuyUnitMsr(string value)
         {
             _businessObject.PurchaseUnit = value;
+
+            if (_businessObject.UoMGroupEntry != -1)
+            {
+                _businessObject.DefaultPurchasingUoMEntry = B1Base.Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetUoMEntry", value);
+            }
         }
 
         public void SetSalUnitMsr(string value)
         {
             _businessObject.SalesUnit = value;
+
+
+            if (_businessObject.UoMGroupEntry != -1)
+            {
+                _businessObject.DefaultSalesUoMEntry = B1Base.Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetUoMEntry", value);
+            }
         }
 
         public void SetToleranDay(int value)
