@@ -258,11 +258,20 @@ namespace B1Base.DAO
         {
             _businessObject.SalesUnit = value;
 
-
             if (_businessObject.UoMGroupEntry != -1)
             {
                 _businessObject.DefaultSalesUoMEntry = B1Base.Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetUoMEntry", value);
             }
+        }
+
+        public void SetPurPackMsr(string value)
+        {
+            _businessObject.PurchasePackagingUnit = value;
+        }
+
+        public void SetSalPackMsr(string value)
+        {
+            _businessObject.SalesPackagingUnit = value;
         }
 
         public void SetToleranDay(int value)
