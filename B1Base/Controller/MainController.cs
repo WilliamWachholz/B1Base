@@ -31,7 +31,7 @@ namespace B1Base.Controller
         private bool SuppressChoose { get; set; }
         private bool SupressPicker { get; set; }
 
-        protected bool ConfigOpened { get; set; }
+        private bool ConfigOpened { get; set; }
 
         Timer m_timerFinalize = new Timer(60000);
 
@@ -185,8 +185,6 @@ namespace B1Base.Controller
 
         public virtual void MenuConfigOpen()
         {
-            ConfigOpened = true;
-
             OpenView(true, "B1Base.View.ConfigView");
         }
 
@@ -265,8 +263,10 @@ namespace B1Base.Controller
                     if (Controller.ConnectionController.Instance.DBServerType == "SQLSERVER")
                         xml = xml.Replace("from dummy", "");
 
-                    if (!FormTypeViews.ContainsKey(newFormType))
-                        FormTypeViews.Add(newFormType, formType);
+                    if (!FormTypeViews.ContainsKey(newFormType + AddOnID))
+                        FormTypeViews.Add(newFormType + AddOnID, formType);
+
+                    ConfigOpened = true;
 
                     Controller.ConnectionController.Instance.Application.LoadBatchActions(ref xml);
                 }
@@ -332,19 +332,17 @@ namespace B1Base.Controller
                     }
                     else if (pVal.FormUID.StartsWith("RW"))
                     {
-                        if (FormTypeViews.ContainsKey(pVal.FormTypeEx))
+                        if (FormTypeViews.ContainsKey(pVal.FormTypeEx + AddOnID))
                         {
-                            Assembly assembly = Assembly.LoadFile(AddOn.Instance.CurrentDirectory + "\\" + FormTypeViews[pVal.FormTypeEx].Split('.')[0] + ".dll");
+                            if (pVal.FormTypeEx == "ConfigView" && !ConfigOpened)
+                                return;                                                    
 
-                            Type type = assembly.GetType(FormTypeViews[pVal.FormTypeEx]);
+                            Assembly assembly = Assembly.LoadFile(AddOn.Instance.CurrentDirectory + "\\" + FormTypeViews[pVal.FormTypeEx + AddOnID].Split('.')[0] + ".dll");
+
+                            Type type = assembly.GetType(FormTypeViews[pVal.FormTypeEx + AddOnID]);
 
                             if (type == null)
                                 return;
-
-                            if (pVal.FormTypeEx == "ConfigView" && !ConfigOpened)
-                                return;
-                            else
-                                ConfigOpened = false;
 
                             if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
                             {
@@ -353,8 +351,10 @@ namespace B1Base.Controller
 
                                 m_Views.Add((View.BaseView)formView);
                             }
+
+                            ConfigOpened = false;
                         }
-                        else
+                        else if (pVal.FormTypeEx != "ConfigView")
                         {
                             string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
 
