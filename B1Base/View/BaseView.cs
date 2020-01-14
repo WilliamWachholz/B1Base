@@ -55,7 +55,7 @@ namespace B1Base.View
             get
             {
                 System.Globalization.NumberFormatInfo result = new System.Globalization.NumberFormatInfo();
-                result.NumberDecimalSeparator = ".";                
+                result.NumberDecimalSeparator = ".";                     
 
                 return result;
             }
@@ -1562,7 +1562,16 @@ namespace B1Base.View
                         }
                         else
                         {
-                            values.Add(Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat));
+                            NumberFormatInfo numberFormatInfo = DefaultSQLNumberFormat;
+
+                            Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+
+                            if (specificType != null)
+                            {
+                                numberFormatInfo.NumberDecimalDigits = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetDisplayDecimalDigits", ((int)specificType.Value).ToString());
+                            }
+
+                            values.Add(Convert.ToDouble(prop.GetValue(model)).ToString(numberFormatInfo));
                         }
                     }
                     else

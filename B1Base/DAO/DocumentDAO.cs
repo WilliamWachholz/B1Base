@@ -224,7 +224,7 @@ namespace B1Base.DAO
                         {
                             document.Lines.AccountCode = documentItemModel.AcctCode;
                             document.Lines.ItemDescription = documentItemModel.Dscription;
-                            document.Lines.TaxCode = documentItemModel.TaxCode;
+                            document.Lines.Usage = documentItemModel.Usage.ToString();
                             document.Lines.Price = documentItemModel.Price;                                                     
                         }                        
 

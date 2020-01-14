@@ -364,13 +364,13 @@ namespace B1Base.DAO
                 {
                     if (!alternateCatNum.GetByKey(itemCode, cardCode, suppCatNum))
                     {
-                        //alternateCatNum.DisplayBPCatalogNumber = inBPCatalog ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+                        alternateCatNum.DisplayBPCatalogNumber = inBPCatalog ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
                         alternateCatNum.ItemCode = itemCode;
                         alternateCatNum.CardCode = cardCode;
                         alternateCatNum.Substitute = suppCatNum;
 
                         foreach (KeyValuePair<string, dynamic> userField in userFields)
-                        {
+                        {                            
                             alternateCatNum.UserFields.Fields.Item(userField.Key).Value = userField.Value;
                         }
 

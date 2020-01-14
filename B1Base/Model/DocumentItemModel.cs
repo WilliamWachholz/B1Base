@@ -17,6 +17,9 @@ namespace B1Base.Model
         public double Discount { get; set; }
         public double Total { get; set; }
         public string TaxCode { get; set; }
+
+        public int Usage { get; set; }
+
         public Dictionary<string, dynamic> UserFields { get; set; }
 
         public DocumentItemModel()
@@ -30,6 +33,7 @@ namespace B1Base.Model
             Discount = 0;
             Total = 0;
             TaxCode = string.Empty;
+            Usage = 0;
 
             UserFields = new Dictionary<string, dynamic>();
         }
