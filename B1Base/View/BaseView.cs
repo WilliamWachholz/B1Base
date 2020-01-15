@@ -1562,16 +1562,16 @@ namespace B1Base.View
                         }
                         else
                         {
-                            NumberFormatInfo numberFormatInfo = DefaultSQLNumberFormat;
-
                             Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+
+                            int decimalDigits = 2;
 
                             if (specificType != null)
                             {
-                                numberFormatInfo.NumberDecimalDigits = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetDisplayDecimalDigits", ((int)specificType.Value).ToString());
+                                decimalDigits = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetDisplayDecimalDigits", ((int)specificType.Value).ToString());                                
                             }
 
-                            values.Add(Convert.ToDouble(prop.GetValue(model)).ToString(numberFormatInfo));
+                            values.Add(string.Format("cast({0} as decimal(10,{1}))", Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat), decimalDigits.ToString()));
                         }
                     }
                     else
