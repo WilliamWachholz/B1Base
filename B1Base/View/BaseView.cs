@@ -1562,14 +1562,14 @@ namespace B1Base.View
                         }
                         else
                         {
-                            //Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+                            Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
 
                             int decimalDigits = 2;
 
-                            //if (specificType != null)
-                            //{
-                            //    decimalDigits = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetDisplayDecimalDigits", ((int)specificType.Value).ToString());                                
-                            //}
+                            if (specificType != null)
+                            {
+                                decimalDigits = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetDisplayDecimalDigits", ((int)specificType.Value).ToString());
+                            }
 
                             values.Add(string.Format("cast({0} as decimal(10,{1}))", Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat), decimalDigits.ToString()));
                         }

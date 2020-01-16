@@ -121,6 +121,7 @@ namespace B1Base.DAO
         public void Save(Model.DocumentModel documentModel, List<Model.DocumentInstallmentModel> documentInstallmentList)
         {
             Documents document = GetDIObject(documentModel.ObjType);
+            
             try
             {
                 int line = 0;
@@ -205,7 +206,8 @@ namespace B1Base.DAO
 
                     document.DocType = documentModel.DocType == Model.EnumDocType.Item ? BoDocumentTypes.dDocument_Items : BoDocumentTypes.dDocument_Service;
 
-                    line = 0;
+
+                        line = 0;
 
                     foreach (Model.DocumentItemModel documentItemModel in documentModel.DocumentItemList)
                     {
@@ -225,7 +227,8 @@ namespace B1Base.DAO
                             document.Lines.AccountCode = documentItemModel.AcctCode;
                             document.Lines.ItemDescription = documentItemModel.Dscription;
                             document.Lines.Usage = documentItemModel.Usage.ToString();
-                            document.Lines.Price = documentItemModel.Price;                                                     
+                            document.Lines.TaxCode = documentItemModel.TaxCode.ToString();                                    
+                            document.Lines.LineTotal = documentItemModel.Price;
                         }                        
 
                         document.Comments = documentModel.Comments;
@@ -253,11 +256,15 @@ namespace B1Base.DAO
 
                         document.Installments.SetCurrentLine(line);
                         document.Installments.DueDate = documentInstallmentModel.DueDate;
-                        document.Installments.Percentage = documentInstallmentModel.InstPrcnt;
-                        if (document.DocTotalFc > 0)
+
+                        if (documentInstallmentModel.InstPrcnt > 0)
+                        {
+                            document.Installments.Percentage = documentInstallmentModel.InstPrcnt;
+                        }
+                        else if (document.DocTotalFc > 0)
                             document.Installments.TotalFC = documentInstallmentModel.InsTotal;
                         else
-                            document.Installments.Total = documentInstallmentModel.InsTotal;
+                            document.Installments.Total = documentInstallmentModel.InsTotal;                       
 
                         foreach (KeyValuePair<string, dynamic> userField in documentInstallmentModel.UserFields)
                         {
