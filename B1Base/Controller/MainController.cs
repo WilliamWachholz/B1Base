@@ -209,9 +209,14 @@ namespace B1Base.Controller
             {
                 bool notExists = false;
 
+                string newFormType = formType;
+
+                if (formType.Split('.').Count() > 2)
+                    newFormType = formType.Split('.')[2].Length > 20 ? formType.Split('.')[2].Substring(0, 20) : formType.Split('.')[2];
+
                 try
                 {
-                    Controller.ConnectionController.Instance.Application.Forms.GetForm(formType, 1);
+                    Controller.ConnectionController.Instance.Application.Forms.GetForm(newFormType, 1);
                 }
                 catch
                 {
@@ -220,7 +225,6 @@ namespace B1Base.Controller
 
                 string formUID = "RW1";
 
-                string newFormType = formType;
 
                 if ((unique == false) || (unique && notExists))
                 {
@@ -234,16 +238,14 @@ namespace B1Base.Controller
 
                         try
                         {
-                            Controller.ConnectionController.Instance.Application.Forms.GetForm(formType, count);
+                            Controller.ConnectionController.Instance.Application.Forms.GetForm(newFormType, count);
                         }
                         catch
                         {
                             next = false;
                         }
                     }
-
-                    newFormType = formType.Split('.')[2].Length > 20 ? formType.Split('.')[2].Substring(0, 20) : formType.Split('.')[2];
-
+                    
                     formUID = string.Format("RW{0}-{1}", count, new Random().Next(999));
 
                     string srfPath = AddOn.Instance.CurrentDirectory + "\\SRF\\" + formType.Split('.')[2] + ".srf";
@@ -273,7 +275,7 @@ namespace B1Base.Controller
 
                 if (wait)
                     System.Threading.Thread.Sleep(1000);
-
+                
                 m_Views.First(r => r.FormUID == formUID && r.FormType == newFormType).ParentView = parentView;
 
                 return m_Views.First(r => r.FormUID == formUID && r.FormType == newFormType);

@@ -377,6 +377,8 @@ namespace B1Base.View
         /// <param name="browseItem">nome do item do Code da tabela</param>        
         protected void ControlMenus(bool enableInsert, bool enableSearch, bool enableNavigation, string browseTable = "", string browseItem = "", bool defaultInsertMode = true, bool reserveCode = false)
         {
+            SAPForm.Select();
+
             SAPForm.EnableMenu("1282", enableInsert);
             SAPForm.EnableMenu("1281", enableSearch);
             SAPForm.EnableMenu("1283", enableNavigation);
