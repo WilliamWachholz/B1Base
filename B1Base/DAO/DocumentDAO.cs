@@ -60,7 +60,7 @@ namespace B1Base.DAO
                 else
                 {
                     document.CardCode = documentModel.CardCode;
-                    document.DocDate = documentModel.DocDate;
+                    document.DocDate = documentModel.DocDate;                    
 
                     document.DocType = documentModel.DocType == Model.EnumDocType.Item ? BoDocumentTypes.dDocument_Items : BoDocumentTypes.dDocument_Service;
 
@@ -204,6 +204,7 @@ namespace B1Base.DAO
                     document.CardCode = documentModel.CardCode;
                     document.DocDate = documentModel.DocDate;
                     document.DocCurrency = documentModel.DocCur;
+                    document.DocRate = documentModel.DocRate;
 
                     document.DocType = documentModel.DocType == Model.EnumDocType.Item ? BoDocumentTypes.dDocument_Items : BoDocumentTypes.dDocument_Service;
 

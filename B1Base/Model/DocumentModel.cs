@@ -14,6 +14,7 @@ namespace B1Base.Model
         public DateTime TaxDate { get; set; }
         public DateTime DueDate { get; set; }
         public string DocCur { get; set; }
+        public double DocRate { get; set; }
         public EnumDocType DocType { get; set; }
         public int SlpCode { get; set; }        
         public EnumObjType ObjType { get; set; }
@@ -30,6 +31,7 @@ namespace B1Base.Model
             DocDate = DateTime.Now;
             TaxDate = DateTime.Now;
             DueDate = DateTime.Now;
+            DocRate = 0;
             DocType = EnumDocType.Item;
             SlpCode = 0;
             ObjType = EnumObjType.None;
