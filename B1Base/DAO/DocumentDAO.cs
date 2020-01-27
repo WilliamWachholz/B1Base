@@ -204,7 +204,8 @@ namespace B1Base.DAO
                     document.CardCode = documentModel.CardCode;
                     document.DocDate = documentModel.DocDate;
                     document.DocCurrency = documentModel.DocCur;
-                    document.DocRate = documentModel.DocRate;
+                    if (documentModel.DocRate > 0)
+                        document.DocRate = documentModel.DocRate;
 
                     document.DocType = documentModel.DocType == Model.EnumDocType.Item ? BoDocumentTypes.dDocument_Items : BoDocumentTypes.dDocument_Service;
 
