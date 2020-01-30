@@ -276,6 +276,7 @@ namespace B1Base.DAO
                         line++;
                     }
 
+                   
                     document.UserFields.Fields.Item("U_DIUpdate").Value = "Y";
                     document.Add();                    
 
