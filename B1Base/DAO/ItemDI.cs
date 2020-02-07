@@ -343,7 +343,7 @@ namespace B1Base.DAO
 
         public void SetCodeBars(string value)
         {
-            _businessObject.BarCode = value;
+           // _businessObject.BarCode = value;
 
             bool found = false;
 
