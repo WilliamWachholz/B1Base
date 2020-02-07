@@ -1,0 +1,1 @@
+﻿select count(*) from "@{0}" where "U_Code" = {1}

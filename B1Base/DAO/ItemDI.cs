@@ -343,32 +343,32 @@ namespace B1Base.DAO
 
         public void SetCodeBars(string value)
         {
-           // _businessObject.BarCode = value;
+            _businessObject.BarCode = value;
 
-            bool found = false;
+            //bool found = false;
 
-            if (value != string.Empty)
-            {
-                for (int i = 0; i < _businessObject.BarCodes.Count; i++)
-                {
-                    _businessObject.BarCodes.SetCurrentLine(i);
+            //if (value != string.Empty)
+            //{
+            //    for (int i = 0; i < _businessObject.BarCodes.Count; i++)
+            //    {
+            //        _businessObject.BarCodes.SetCurrentLine(i);
 
-                    if (_businessObject.BarCodes.BarCode == string.Empty)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
+            //        if (_businessObject.BarCodes.BarCode == string.Empty)
+            //        {
+            //            found = true;
+            //            break;
+            //        }
+            //    }
 
-                if (found == false)
-                {
-                    _businessObject.BarCodes.Add();
-                    _businessObject.BarCodes.SetCurrentLine(_businessObject.BarCodes.Count - 1);
-                }
+            //    if (found == false)
+            //    {
+            //        _businessObject.BarCodes.Add();
+            //        _businessObject.BarCodes.SetCurrentLine(_businessObject.BarCodes.Count - 1);
+            //    }
 
-                _businessObject.BarCodes.BarCode = value;
-                _businessObject.BarCodes.UoMEntry = 1;
-            }            
+            //    _businessObject.BarCodes.BarCode = value;
+            //    _businessObject.BarCodes.UoMEntry = 1;
+            //}            
         }
 
         public void SetSWW(string value)
