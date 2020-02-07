@@ -1588,7 +1588,16 @@ namespace B1Base.View
             if (list.Count == 0)
                 dataTable.Rows.Clear();
             else
-                dataTable.ExecuteQuery(string.Join("union all", selects.ToArray()));
+            {
+                try
+                {
+                    dataTable.ExecuteQuery(string.Join("union all", selects.ToArray()));
+                }
+                catch (Exception ex)
+                {
+                    System.IO.File.WriteAllText("C:\\RNV Soluções\\SQL.txt", string.Join("union all", selects.ToArray()));
+                }
+            }
 
             matrix.LoadFromDataSource();
         }

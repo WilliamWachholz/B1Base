@@ -231,7 +231,7 @@ namespace B1Base.DAO
                             document.Lines.Usage = documentItemModel.Usage.ToString();
                             document.Lines.TaxCode = documentItemModel.TaxCode.ToString();                                    
                             document.Lines.LineTotal = documentItemModel.Price;
-                        }                        
+                        }
 
                         document.Comments = documentModel.Comments;
 

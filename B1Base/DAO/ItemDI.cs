@@ -118,11 +118,13 @@ namespace B1Base.DAO
                 _businessObject.ManageBatchNumbers = value == 2 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
 
                 _businessObject.SRIAndBatchManageMethod = manageMethod;
+
+                _businessObject.InventoryItem = BoYesNoEnum.tYES;
             }
         }
 
         public void SetMatType(BoMaterialTypes value)
-        {
+        {            
             _businessObject.MaterialType = value;
         }
 
@@ -348,6 +350,20 @@ namespace B1Base.DAO
         {
             _businessObject.SWW = value;
         }
+
+        public void SetOSvcCode(string value)
+        {
+            int code = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("AbsEntry", "OSCD", "ServiceCD", "'" + value + "'", "0");
+
+            if (code > 0)
+                _businessObject.OutgoingServiceCode = code;
+        }
+
+        public void SetItemClass(ItemClassEnum value)
+        {
+            _businessObject.ItemClass = value;
+        }
+
 
         public void SetUserText(string value)
         {

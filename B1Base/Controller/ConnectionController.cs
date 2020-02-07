@@ -474,6 +474,61 @@ namespace B1Base.Controller
             }
         }
 
+        public T ExecuteSqlForObject<T>(string valueColumn, string table, string filterColumn, string filterValue, string valueIfNull)
+        {
+            string sql = GetSQL("ExecuteBasicSelect", valueColumn, table, filterColumn, filterValue, valueIfNull);
+
+            Type type = typeof(T);
+            Recordset recordSet = null;
+            try
+            {
+                recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                recordSet.DoQuery(sql);
+                if (!recordSet.EoF)
+                {
+                    if (!isNotCoreType(type))
+                    {
+                        object obj = recordSet.Fields.Item(0).Value;
+
+                        if (type == typeof(bool))
+                        {
+                            if (obj.GetType() != typeof(Int32))
+                            {
+                                String errMsg = String.Format("Object of type {0}, needs to be integer for SQL object of type {1}", obj.GetType(), type);
+                                throw new ArgumentException(errMsg);
+                            }
+
+                            return (T)((Convert.ToInt32(obj) != 0) as object);
+                        }
+                        else
+                        {
+                            if (obj.GetType() != type)
+                            {
+                                String errMsg = String.Format("Object of type {0}. SQL object type is {1}", obj.GetType(), type);
+                                throw new ArgumentException(errMsg);
+                            }
+                            return (T)obj;
+                        }
+                    }
+                    else
+                    {
+                        var ret = PrepareObject<T>(recordSet);
+                        return ret;
+                    }
+                }
+                return default(T);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(sql + " - " + e.Message);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(recordSet);
+                GC.Collect();
+            }
+        }
+
         public List<T> ExecuteSqlForList<T>(string sqlScript, params string[] variables)
         {
             string sql = GetSQL(sqlScript, variables);
