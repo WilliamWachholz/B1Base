@@ -57,6 +57,5 @@ C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetUoMEntry.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetUoMEntry.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetDisplayDecimalDigits.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetDisplayDecimalDigits.sql
-C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csprojAssemblyReference.cache
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\ExecuteBasicSelect.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\ExecuteBasicSelect.sql

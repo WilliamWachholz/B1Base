@@ -363,10 +363,11 @@ namespace B1Base.DAO
                 if (found == false)
                 {
                     _businessObject.BarCodes.Add();
-                    _businessObject.BarCodes.SetCurrentLine(_businessObject.BarCodes.Count + 1);
+                    _businessObject.BarCodes.SetCurrentLine(_businessObject.BarCodes.Count - 1);
                 }
 
                 _businessObject.BarCodes.BarCode = value;
+                _businessObject.BarCodes.UoMEntry = 1;
             }            
         }
 
