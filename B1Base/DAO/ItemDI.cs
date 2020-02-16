@@ -16,6 +16,8 @@ namespace B1Base.DAO
 
         bool _newObject = false;
 
+
+
         public void InitializeObject(string itemCode)
         {
             _businessObject = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
@@ -117,8 +119,8 @@ namespace B1Base.DAO
                 _businessObject.ManageSerialNumbers = value == 1 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
                 _businessObject.ManageBatchNumbers = value == 2 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
 
-                _businessObject.SRIAndBatchManageMethod = manageMethod;
-
+                //_businessObject.SRIAndBatchManageMethod = manageMethod;
+               
                 _businessObject.InventoryItem = BoYesNoEnum.tYES;
             }
         }
@@ -193,9 +195,13 @@ namespace B1Base.DAO
                 _businessObject.DefaultWarehouse = value;
         }
 
+        bool _updateBWeight1 = false;
+
         public void SetBWeight1(double value)
         {
             _businessObject.PurchaseUnitWeight = value;
+
+            _updateBWeight1 = true;
         }
 
         public void SetIWeight1(double value)
@@ -203,39 +209,67 @@ namespace B1Base.DAO
             _businessObject.InventoryWeight = value;
         }
 
+        bool _updateSWeight1 = false;
+
         public void SetSWeight1(double value)
         {
             _businessObject.SalesUnitWeight = value;
+
+            _updateSWeight1 = true;
         }
+
+        bool _updateBWidth1 = false;
 
         public void SetBWidth1(double value)
         {
             _businessObject.PurchaseUnitWidth = value;
+
+            _updateBWidth1 = true;
         }
+
+        bool _updateSWidth1 = false;
 
         public void SetSWidth1(double value)
         {
             _businessObject.SalesUnitWidth = value;
+
+            _updateSWidth1 = true;
         }
+
+        bool _updateBHeight1 = false;
 
         public void SetBHeight1(double value)
         {
             _businessObject.PurchaseUnitHeight = value;
+
+            _updateBHeight1 = true;
         }
+
+        bool _updateSHeight1 = false;
 
         public void SetSHeight1(double value)
         {
             _businessObject.SalesUnitHeight = value;
+
+            _updateSHeight1 = true;
         }
 
+        bool _updateBLength1 = false;
+
         public void SetBLength1(double value)
-        {
+        {            
             _businessObject.PurchaseUnitLength = value;
+
+            _updateBLength1 = true;
         }
+
+        bool _updateSLength1 = false;
 
         public void SetSLength1(double value)
         {
             _businessObject.SalesUnitLength = value;
+
+            _updateSLength1 = true;
         }
 
         public void SetUgpEntry(int value)
@@ -246,14 +280,37 @@ namespace B1Base.DAO
                 _businessObject.UoMGroupEntry = -1;
         }
 
-        public void SetBuyUnitMsr(string value)
+        public void SetCntUnitMsr(string value)
         {
+            if (_businessObject.UoMGroupEntry != -1)
+            {
+                _businessObject.DefaultCountingUoMEntry = B1Base.Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetUoMEntry", value);
+            }
+        }
+
+        public void SetCntUnitMsr(int value)
+        {
+            _businessObject.DefaultCountingUoMEntry = value;            
+        }
+
+        public void SetBuyUnitMsr(int value)
+        {
+            _businessObject.DefaultPurchasingUoMEntry = value;
+        }
+
+        public void SetBuyUnitMsr(string value)
+        {            
             _businessObject.PurchaseUnit = value;
 
             if (_businessObject.UoMGroupEntry != -1)
             {
                 _businessObject.DefaultPurchasingUoMEntry = B1Base.Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetUoMEntry", value);
             }
+        }
+
+        public void SetSalUnitMsr(int value)
+        {
+            _businessObject.DefaultSalesUoMEntry = value;
         }
 
         public void SetSalUnitMsr(string value)
@@ -389,7 +446,6 @@ namespace B1Base.DAO
             _businessObject.ItemClass = value;
         }
 
-
         public void SetUserText(string value)
         {
             _businessObject.User_Text = value;
@@ -412,10 +468,19 @@ namespace B1Base.DAO
             return line;
         }
 
+        public void SetProductSrc(string value)
+        {
+            if (value != string.Empty)
+            {
+                _businessObject.ProductSource = Convert.ToInt32(value);
+            }
+        }
+
         public void SetUserField(string userField, dynamic value)
         {
             _businessObject.UserFields.Fields.Item(userField).Value = value;
         }
+
 
         public void Save()
         {
@@ -429,6 +494,70 @@ namespace B1Base.DAO
             }
 
             Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+
+            if (_updateBWeight1 || _updateSWeight1 || _updateBWidth1 || _updateSWidth1 || _updateBHeight1 || _updateSHeight1 || _updateBLength1 || _updateSLength1)
+            {
+                for (int row = 0; row < _businessObject.UnitOfMeasurements.Count; row++)
+                {
+                    _businessObject.UnitOfMeasurements.SetCurrentLine(row);
+
+                    if (_businessObject.UnitOfMeasurements.UoMType == ItemUoMTypeEnum.iutPurchasing && _businessObject.UnitOfMeasurements.UoMEntry == _businessObject.DefaultPurchasingUoMEntry)
+                    {
+                        if (_updateBWeight1)
+                        {
+                            _businessObject.UnitOfMeasurements.Weight1 = _businessObject.PurchaseUnitWeight;
+                            _businessObject.UnitOfMeasurements.Weight1Unit = 3;
+                        }
+
+                        if (_updateBWidth1)
+                        {
+                            _businessObject.UnitOfMeasurements.Width1 = _businessObject.PurchaseUnitWidth;
+                            _businessObject.UnitOfMeasurements.Width1Unit = 4;
+                        }
+
+                        if (_updateBHeight1)
+                        {
+                            _businessObject.UnitOfMeasurements.Height1 = _businessObject.PurchaseUnitHeight;
+                            _businessObject.UnitOfMeasurements.Height1Unit = 4;
+                        }
+
+                        if (_updateBLength1)
+                        {
+                            _businessObject.UnitOfMeasurements.Length1 = _businessObject.PurchaseUnitLength;
+                            _businessObject.UnitOfMeasurements.Length1Unit = 4;
+                        }
+                    }
+
+                    if (_businessObject.UnitOfMeasurements.UoMType == ItemUoMTypeEnum.iutSales && _businessObject.UnitOfMeasurements.UoMEntry == _businessObject.DefaultSalesUoMEntry)
+                    {
+                        if (_updateSWeight1)
+                        {
+                            _businessObject.UnitOfMeasurements.Weight1 = _businessObject.SalesUnitWeight;
+                            _businessObject.UnitOfMeasurements.Weight1Unit = 3;
+                        }
+
+                        if (_updateSWidth1)
+                        {
+                            _businessObject.UnitOfMeasurements.Width1 = _businessObject.SalesUnitWidth;
+                            _businessObject.UnitOfMeasurements.Width1Unit = 4;
+                        }
+
+                        if (_updateSHeight1)
+                        {
+                            _businessObject.UnitOfMeasurements.Height1 = _businessObject.SalesUnitHeight;
+                            _businessObject.UnitOfMeasurements.Height1Unit = 4;
+                        }
+
+                        if (_updateSLength1)
+                        {
+                            _businessObject.UnitOfMeasurements.Length1 = _businessObject.SalesUnitLength;
+                            _businessObject.UnitOfMeasurements.Length1Unit = 4;
+                        }
+                    }
+                }
+
+                _businessObject.Update();
+            }
         }
 
         public void Delete()
