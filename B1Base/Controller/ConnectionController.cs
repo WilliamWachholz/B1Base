@@ -474,7 +474,7 @@ namespace B1Base.Controller
             }
         }
 
-        public T ExecuteSqlForObject<T>(string valueColumn, string table, string filterColumn, string filterValue, string valueIfNull)
+        public T ExecuteSqlForBasicObject<T>(string valueColumn, string table, string filterColumn, string filterValue, string valueIfNull)
         {
             string sql = GetSQL("ExecuteBasicSelect", valueColumn, table, filterColumn, filterValue, valueIfNull);
 
