@@ -1576,7 +1576,7 @@ namespace B1Base.View
                             values.Add(string.Format("cast({0} as decimal(10,{1}))", Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat), decimalDigits.ToString()));
                         }
                     }
-                    else
+                    else if (prop.PropertyType == typeof(string))
                     {
                         values.Add("cast('" + prop.GetValue(model) + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))");
                     }
