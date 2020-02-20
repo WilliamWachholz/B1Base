@@ -119,7 +119,7 @@ namespace B1Base.DAO
                 _businessObject.ManageSerialNumbers = value == 1 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
                 _businessObject.ManageBatchNumbers = value == 2 ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
 
-                //_businessObject.SRIAndBatchManageMethod = manageMethod;
+                _businessObject.SRIAndBatchManageMethod = manageMethod;
                
                 _businessObject.InventoryItem = BoYesNoEnum.tYES;
             }
@@ -435,7 +435,7 @@ namespace B1Base.DAO
 
         public void SetOSvcCode(string value)
         {
-            int code = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("AbsEntry", "OSCD", "ServiceCD", "'" + value + "'", "0");
+            int code = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForBasicObject<int>("AbsEntry", "OSCD", "ServiceCD", "'" + value + "'", "0");
 
             if (code > 0)
                 _businessObject.OutgoingServiceCode = code;
