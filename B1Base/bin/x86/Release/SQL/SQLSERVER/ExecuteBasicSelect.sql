@@ -1,1 +1,0 @@
-﻿select isnull("{0}", {4}) from {1} where {2} = {3}

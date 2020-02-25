@@ -1,2 +1,0 @@
-﻿select "BitmapPath"
-from "OADP"
