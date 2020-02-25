@@ -310,6 +310,11 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.Menus.Item("1304").Activate();
         }
 
+		public void OpenMenuLastRecord()
+		{
+			Controller.ConnectionController.Instance.Application.Menus.Item("1291").Activate();
+		}
+
         private void HandleFormLoad(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
