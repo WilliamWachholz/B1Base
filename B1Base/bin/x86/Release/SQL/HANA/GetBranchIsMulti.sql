@@ -1,0 +1,2 @@
+﻿select "MltpBrnchs"
+from OADM

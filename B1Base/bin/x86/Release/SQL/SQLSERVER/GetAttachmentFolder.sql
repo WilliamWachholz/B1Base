@@ -1,0 +1,2 @@
+﻿select AttachPath
+from OADP

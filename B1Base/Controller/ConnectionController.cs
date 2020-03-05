@@ -15,7 +15,7 @@ namespace B1Base.Controller
     {
         ConnectionController()
         {
-            
+
         }
 
         static readonly ConnectionController m_Instance = new ConnectionController();
@@ -34,6 +34,8 @@ namespace B1Base.Controller
         public string DBServerType { get; private set; }
 
         public bool Desenv { get; private set; }
+
+        public string LoggedSql { get; private set; }    
 
         public int User
         {
@@ -406,6 +408,8 @@ namespace B1Base.Controller
         {
             string sql = GetSQL(sqlScript, variables);
 
+            LoggedSql = sql;
+
             Recordset recordSet = null;
             try
             {
@@ -419,10 +423,11 @@ namespace B1Base.Controller
             }
         }
 
-
         public T ExecuteSqlForDirectObject<T>(string sql, params string[] variables)
         {
             sql = string.Format(sql, variables);
+
+            LoggedSql = sql;
 
             Type type = typeof(T);
             Recordset recordSet = null;
@@ -478,7 +483,9 @@ namespace B1Base.Controller
         public T ExecuteSqlForObject<T>(string sqlScript, params string[] variables)
         {
             string sql = GetSQL(sqlScript, variables);
-   
+
+            LoggedSql = sql;
+
             Type type = typeof(T);
             Recordset recordSet = null;
             try
@@ -534,6 +541,8 @@ namespace B1Base.Controller
         {
             string sql = GetSQL("ExecuteBasicSelect", valueColumn, table, filterColumn, filterValue, valueIfNull);
 
+            LoggedSql = sql;
+
             Type type = typeof(T);
             Recordset recordSet = null;
             try
@@ -588,7 +597,9 @@ namespace B1Base.Controller
         public List<T> ExecuteSqlForList<T>(string sqlScript, params string[] variables)
         {
             string sql = GetSQL(sqlScript, variables);
-   
+
+            LoggedSql = sql;
+
             var lst = new List<T>();
             Type type = typeof(T);
             Recordset recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
@@ -639,8 +650,7 @@ namespace B1Base.Controller
         {
             string sql = GetSQL(sqlScript, variables);
 
-            //Verifficar locais onde é usado o AddOn.algumacoisa, pois nem sempre estará instanciado. Mover o CurrentDirectory. Colocar manifest em todos os addons para que rodem como adm
-            //File.WriteAllText(AddOn.Instance.CurrentDirectory + "//SQLLog.txt", sql);
+            LoggedSql = sql;
 
             try
             {
@@ -675,6 +685,8 @@ namespace B1Base.Controller
             string tempTable = Convert.ToBase64String(bytes).Replace("=", "").Replace("+", "").Replace("/", "");
 
             string sql = GetSQL(sqlScript, variables);
+
+            LoggedSql = sql;
 
             ExecuteStatement("AddTempTableSelect", tempTable, sql);
 
@@ -712,6 +724,9 @@ namespace B1Base.Controller
         public void ExecuteSQLForGrid(string sqlScript, Grid grid, params string[] variables)
         {
             string sql = GetSQL(sqlScript, variables);
+
+            LoggedSql = sql;
+
             try
             {
                 grid.DataTable.ExecuteQuery(sql);
@@ -725,6 +740,9 @@ namespace B1Base.Controller
         public void ExecuteSQLForForm(string sqlScript, DataTable dataTable, params string[] variables)
         {
             string sql = GetSQL(sqlScript, variables);
+
+            LoggedSql = sql;
+
             try
             {
                 dataTable.ExecuteQuery(sql);

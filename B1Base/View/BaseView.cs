@@ -1578,7 +1578,10 @@ namespace B1Base.View
                     }
                     else if (prop.PropertyType == typeof(string))
                     {
-                        values.Add("cast('" + prop.GetValue(model) + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))");
+                        if (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) != null)
+                            values.Add("cast('" + prop.GetValue(model) + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))");
+                        else
+                            values.Add(prop.GetValue(model).ToString());
                     }
                 }
 
