@@ -8,6 +8,7 @@ using System.Reflection;
 using SAPbouiCOM;
 using SAPbobsCOM;
 using System.IO;
+using System.Data.Odbc;
 
 namespace B1Base.Controller
 {
@@ -40,8 +41,20 @@ namespace B1Base.Controller
         public int User
         {
             get
-            {
+            {                
                 return Company.UserSignature;
+            }
+        }
+
+        public int Branch
+        {
+            get
+            {
+                Users user = Company.GetBusinessObject(BoObjectTypes.oUsers);
+
+                user.GetByKey(User);
+
+                return user.Branch;
             }
         }
 
@@ -756,6 +769,157 @@ namespace B1Base.Controller
             }
         }
 
+        public T ExecuteSqlForObjectODBC<T>(string server, string dbUserName, string password, string companyDB, string sqlScript, params string[] variables)
+        {
+            using (OdbcConnection myConnection = new OdbcConnection())
+            {
+                
+                string myConnectionString;
+                myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);
+                myConnection.ConnectionString = myConnectionString;
+
+                try
+                {
+                    myConnection.Open();
+                }
+                catch (System.Data.Odbc.OdbcException ex)
+                {
+                    throw ex;
+                }
+
+                string sql = GetSQL(sqlScript, variables);
+
+                Type type = typeof(T);
+
+                if (myConnection.State == System.Data.ConnectionState.Open)
+                {
+                    OdbcCommand DbCommand = myConnection.CreateCommand();
+                    DbCommand.CommandText = sql;
+                    OdbcDataReader DbReader = DbCommand.ExecuteReader();
+
+                    try
+                    {
+                        if (DbReader.Read())
+                        {
+                            if (!isNotCoreType(type))
+                            {
+                                object obj = DbReader[0];
+
+                                if (type == typeof(bool))
+                                {
+                                    if (obj.GetType() != typeof(Int32))
+                                    {
+                                        String errMsg = String.Format("Object of type {0}, needs to be integer for SQL object of type {1}", obj.GetType(), type);
+                                        throw new ArgumentException(errMsg);
+                                    }
+
+                                    return (T)((Convert.ToInt32(obj) != 0) as object);
+                                }
+                                else
+                                {
+                                    if (obj.GetType() != type)
+                                    {
+                                        String errMsg = String.Format("Object of type {0}. SQL object type is {1}", obj.GetType(), type);
+                                        throw new ArgumentException(errMsg);
+                                    }
+                                    return (T)obj;
+                                }
+                            }
+                            else
+                            {
+                                var ret = PrepareObject<T>(DbReader);
+                                return ret;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        DbReader.Close();
+                        DbCommand.Dispose();
+                        myConnection.Close();
+                    }
+
+                    return default(T);
+                }
+                else
+                {
+                    throw new Exception("Não foi possível abrir conexão");
+                }
+            }
+        }
+
+        public List<T> ExecuteSqlForListODBC<T>(string server, string dbUserName, string password, string companyDB, string sqlScript, params string[] variables)
+        {
+            string sql = GetSQL(sqlScript, variables);
+
+            LoggedSql = sql;
+
+            var lst = new List<T>();
+            Type type = typeof(T);
+
+            using (OdbcConnection myConnection = new OdbcConnection())
+            {
+
+                string myConnectionString;
+                myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);
+                myConnection.ConnectionString = myConnectionString;
+
+                try
+                {
+                    myConnection.Open();
+                }
+                catch (System.Data.Odbc.OdbcException ex)
+                {
+                    throw ex;
+                }
+
+                if (myConnection.State == System.Data.ConnectionState.Open)
+                {
+                    OdbcCommand DbCommand = myConnection.CreateCommand();
+                    DbCommand.CommandText = sql;
+                    OdbcDataReader DbReader = DbCommand.ExecuteReader();
+
+                    try
+                    {
+                        while (DbReader.Read())
+                        {
+                            T obj;
+                            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                            {
+                                obj = (T)Activator.CreateInstance(type, new[] { DbReader[0].ToString(), DbReader[1].ToString() });
+                            }
+                            else if (isNotCoreType(type))
+                                obj = PrepareObject<T>(DbReader);
+                            else
+                            {
+                                if (DbReader[0].GetType() != type)
+                                {
+                                    String errMsg = String.Format("Object of type {0}. SQL object type is {1}", DbReader[0].GetType(), type);
+                                    throw new Exception(errMsg);
+                                }
+                                obj = (T)DbReader[0];
+                            }
+                            lst.Add(obj);
+                        }
+                    }
+                    finally
+                    {
+                        DbReader.Close();
+                        DbCommand.Dispose();
+                        myConnection.Close();
+                    }
+
+                    return lst;
+                }
+                else
+                {
+                    throw new Exception("Não foi possível abrir conexão");
+                }
+            }
+        }
+
+
+
         private string GetSQL(string sqlScript, params string[] variables)
         {            
             using (var stream = new MemoryStream(File.ReadAllBytes(AddOn.Instance.CurrentDirectory + "//SQL//" + DBServerType + "//" + sqlScript + ".sql")))
@@ -944,6 +1108,57 @@ namespace B1Base.Controller
             }
 
             return result;
+        }
+
+        private T PrepareObject<T>(OdbcDataReader dbReader)
+        {
+            Type type = typeof(T);
+
+            T obj = (T)Activator.CreateInstance(type);
+            for (int i = 0; i < dbReader.FieldCount; i++)
+            {
+                string name = dbReader.GetName(i);
+                object value = dbReader[i];
+                var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                if (prop == null)
+                {
+                    String errMsg = String.Format("Object {0} does not have property {1}", type, name);
+                    throw new Exception(errMsg);
+                }
+
+                B1Base.Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(B1Base.Model.BaseModel.SpecificType)) as B1Base.Model.BaseModel.SpecificType;
+
+                if (prop.PropertyType != value.GetType() && !prop.PropertyType.IsEnum && prop.PropertyType != typeof(Boolean) && specificType.Value != B1Base.Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
+                {
+                    String errMsg = String.Format("Object {0} has property {1} of type {2}. Statement object type is {3}.", type, name, prop.PropertyType, value.GetType());
+                    throw new Exception(errMsg);
+                }
+
+
+                if (specificType != null && specificType.Value == B1Base.Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
+                {
+                    int time = Convert.ToInt32(value);
+
+                    int hours = time / 100;
+                    int minutes = time % 100;
+
+                    DateTime date = DateTime.Today.AddHours(hours).AddMinutes(minutes);
+
+                    prop.SetValue(obj, date, null);
+                }
+                else if (prop.PropertyType == typeof(Boolean))
+                {
+                    if (value.GetType() == typeof(string))
+                        prop.SetValue(obj, value.ToString().Equals("Y") ? true : false, null);
+                    else
+                        prop.SetValue(obj, Convert.ToBoolean(value), null);
+                }
+                else if (prop.PropertyType.IsEnum)
+                    prop.SetValue(obj, Convert.ChangeType(value, Enum.GetUnderlyingType(prop.PropertyType)), null);
+                else
+                    prop.SetValue(obj, value, null);
+            }
+            return obj;
         }
 
         private bool isNotCoreType(Type type)
