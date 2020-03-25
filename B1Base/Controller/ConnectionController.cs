@@ -1119,44 +1119,57 @@ namespace B1Base.Controller
             {
                 string name = dbReader.GetName(i);
                 object value = dbReader[i];
-                var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
-                if (prop == null)
+
+                if (value != DBNull.Value)
                 {
-                    String errMsg = String.Format("Object {0} does not have property {1}", type, name);
-                    throw new Exception(errMsg);
+                    try
+                    {
+                        var prop = type.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                        if (prop == null)
+                        {
+                            String errMsg = String.Format("Object {0} does not have property {1}", type, name);
+                            throw new Exception(errMsg);
+                        }
+
+                        B1Base.Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(B1Base.Model.BaseModel.SpecificType)) as B1Base.Model.BaseModel.SpecificType;
+
+                        if (prop.PropertyType != value.GetType() && !prop.PropertyType.IsEnum && prop.PropertyType != typeof(Boolean) && (specificType != null && specificType.Value != B1Base.Model.BaseModel.SpecificType.SpecificTypeEnum.Time))
+                        {
+                            String errMsg = String.Format("Object {0} has property {1} of type {2}. Statement object type is {3}.", type, name, prop.PropertyType, value.GetType());
+                            throw new Exception(errMsg);
+                        }
+
+
+                        if (specificType != null && specificType.Value == B1Base.Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
+                        {
+                            int time = Convert.ToInt32(value);
+
+                            int hours = time / 100;
+                            int minutes = time % 100;
+
+                            DateTime date = DateTime.Today.AddHours(hours).AddMinutes(minutes);
+
+                            prop.SetValue(obj, date, null);
+                        }
+                        else if (prop.PropertyType == typeof(Boolean))
+                        {
+                            if (value.GetType() == typeof(string))
+                                prop.SetValue(obj, value.ToString().Equals("Y") ? true : false, null);
+                            else
+                                prop.SetValue(obj, Convert.ToBoolean(value), null);
+                        }
+                        else if (prop.PropertyType.IsEnum)
+                            prop.SetValue(obj, Convert.ChangeType(value, Enum.GetUnderlyingType(prop.PropertyType)), null);
+                        else if (prop.PropertyType == typeof(double))
+                            prop.SetValue(obj, Convert.ToDouble(value), null);
+                        else
+                            prop.SetValue(obj, value, null);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(name + value.GetType() + ex.Message);
+                    }
                 }
-
-                B1Base.Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(B1Base.Model.BaseModel.SpecificType)) as B1Base.Model.BaseModel.SpecificType;
-
-                if (prop.PropertyType != value.GetType() && !prop.PropertyType.IsEnum && prop.PropertyType != typeof(Boolean) && specificType.Value != B1Base.Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
-                {
-                    String errMsg = String.Format("Object {0} has property {1} of type {2}. Statement object type is {3}.", type, name, prop.PropertyType, value.GetType());
-                    throw new Exception(errMsg);
-                }
-
-
-                if (specificType != null && specificType.Value == B1Base.Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
-                {
-                    int time = Convert.ToInt32(value);
-
-                    int hours = time / 100;
-                    int minutes = time % 100;
-
-                    DateTime date = DateTime.Today.AddHours(hours).AddMinutes(minutes);
-
-                    prop.SetValue(obj, date, null);
-                }
-                else if (prop.PropertyType == typeof(Boolean))
-                {
-                    if (value.GetType() == typeof(string))
-                        prop.SetValue(obj, value.ToString().Equals("Y") ? true : false, null);
-                    else
-                        prop.SetValue(obj, Convert.ToBoolean(value), null);
-                }
-                else if (prop.PropertyType.IsEnum)
-                    prop.SetValue(obj, Convert.ChangeType(value, Enum.GetUnderlyingType(prop.PropertyType)), null);
-                else
-                    prop.SetValue(obj, value, null);
             }
             return obj;
         }
