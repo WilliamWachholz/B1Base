@@ -250,6 +250,9 @@
     <Content Include="SQL\SQLSERVER\GetAutoSeries.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="SQL\SQLSERVER\GetBranchID.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SQL\SQLSERVER\GetBranchIsMulti.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

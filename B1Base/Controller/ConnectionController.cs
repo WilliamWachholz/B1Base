@@ -50,11 +50,61 @@ namespace B1Base.Controller
         {
             get
             {
-                Users user = Company.GetBusinessObject(BoObjectTypes.oUsers);
+                int result = 0;
 
-                user.GetByKey(User);
+                Form form = null;
 
-                return user.Branch;
+                for (int i = 0; i <= 10; i++)
+                {
+                    try
+                    {
+                        form = Application.Forms.GetFormByTypeAndCount(1174000000, i);
+
+                        if (form != null)
+                            break;
+                    }
+                    catch { }
+                }
+
+                if (form == null)
+                {
+                    for (int i = 0; i <= 10; i++)
+                    {
+                        try
+                        {
+                            form = Application.Forms.GetFormByTypeAndCount(169, i);
+
+                            if (form != null)
+                                break;
+                        }
+                        catch { }
+                    }
+                }
+
+                if (form != null)
+                {
+                    try
+                    {
+                        StaticText staticText;
+                        if (form.Type == 169)
+                        {
+                            staticText = (StaticText)form.Items.Item("7").Specific;
+                        }
+                        else
+                        {
+                            staticText = (StaticText)form.Items.Item("1210000020").Specific;
+                        }
+
+                        string caption = staticText.Caption;
+
+                        string branch = caption.Substring(caption.IndexOf("Filial:") + 7, caption.Length - (caption.IndexOf("Filial:") + 7) - 1).Trim();
+
+                        result = ExecuteSqlForObject<int>("GetBranchID", branch);
+                    }
+                    catch { }
+                }
+
+                return result;
             }
         }
 
@@ -415,6 +465,33 @@ namespace B1Base.Controller
         public void CreateMetadata(bool configTable, string field, FieldTypeEnum fieldType, int size = 10, Dictionary<string, string> validValues = null, string defaultValue = "", string fieldTitle = "")
         {
             CreateMetadata(AddOnID + "Cnf", field, fieldType, size, validValues, defaultValue, fieldTitle);
+        }
+
+        public void RemoveMetadata(string table, string field)
+        {
+            int fieldID = ExecuteSqlForDirectObject<int>("select \"FieldID\" from CUFD where \"TableID\" = '{1}' and \"AliasID\" = '{1}'", table, field);
+
+            UserFieldsMD userField = Company.GetBusinessObject(BoObjectTypes.oUserFields);
+            try
+            {
+                if (userField.GetByKey(table, fieldID))
+                {
+                    Application.StatusBar.SetText("Removendo campo " + table + "." + field, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Warning);
+
+                    userField.Remove();
+
+                    VerifyBussinesObjectSuccess();
+                }
+            }
+            catch (Exception e)
+            {
+                Application.StatusBar.SetText("Erro ao remover campo: " + e.Message, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(userField);
+                GC.Collect();
+            }
         }
 
         public void ExecuteStatement(string sqlScript, params string[] variables)
