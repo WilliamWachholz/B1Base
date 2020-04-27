@@ -21,6 +21,9 @@ namespace B1Base.DAO
                 {
                     journalModel.TransId = transId;
 
+                    journalModel.Ref1 = journal.Reference;
+                    journalModel.Ref2 = journal.Reference2;
+                    journalModel.Memo = journal.Memo;
                     journalModel.RefDate = journal.ReferenceDate;
                     journalModel.TaxDate = journal.TaxDate;
                     journalModel.DueDate = journal.DueDate;
@@ -30,7 +33,9 @@ namespace B1Base.DAO
                         journal.Lines.SetCurrentLine(line);
 
                         Model.JournalLineModel journalLineModel = new Model.JournalLineModel();
+                        journalLineModel.BplId = journal.Lines.BPLID;
                         journalLineModel.Account = journal.Lines.AccountCode;
+                        journalLineModel.ShortName = journal.Lines.ShortName;
                         journalLineModel.Debit = journal.Lines.Debit;
                         journalLineModel.Credit = journal.Lines.Credit;
 
@@ -102,6 +107,9 @@ namespace B1Base.DAO
             journal.TaxDate = journalModel.TaxDate;
             journal.DueDate = journalModel.DueDate;
             journal.Reference = journalModel.Ref1;
+            journal.Reference2 = journalModel.Ref2;
+            journal.Memo = journalModel.Memo;
+
 
             int line = 0;
 
@@ -112,7 +120,13 @@ namespace B1Base.DAO
 
                 journal.Lines.SetCurrentLine(line);
 
-                journal.Lines.AccountCode = journalLineModel.Account;                
+                if (journalLineModel.BplId > 0)
+                    journal.Lines.BPLID = journalLineModel.BplId;
+
+                if (journalLineModel.Account != string.Empty)
+                    journal.Lines.AccountCode = journalLineModel.Account;
+                if (journalLineModel.ShortName != string.Empty)
+                    journal.Lines.ShortName = journalLineModel.ShortName;
                 journal.Lines.Credit = journalLineModel.Credit;
                 journal.Lines.Debit = journalLineModel.Debit;
 

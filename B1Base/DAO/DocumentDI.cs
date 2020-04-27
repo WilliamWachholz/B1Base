@@ -54,6 +54,11 @@ namespace B1Base.DAO
             _businessObject.DocCurrency = value == null ? "" : value;
         }
 
+        public void SetDocRate(double value)
+        {
+            _businessObject.DocRate = value;
+        }
+
         public void SetTrnspCode(int value)
         {
             _businessObject.TransportationCode = value;
@@ -116,6 +121,13 @@ namespace B1Base.DAO
             _businessObject.Lines.DiscountPercent = value;
         }
 
+        public void SetItemUsage(string value, int line)
+        {
+            _businessObject.Lines.SetCurrentLine(line);
+
+            _businessObject.Lines.Usage = value == null ? "" : value;
+        }
+
         public int SetExpenseCode(int value, int line = -1)
         {
             if (line == -1)
@@ -138,6 +150,14 @@ namespace B1Base.DAO
             _businessObject.Expenses.SetCurrentLine(line);
 
             _businessObject.Expenses.LineTotal = value;
+        }
+
+
+        public void SetExpenseDistribuitionMethod(BoAdEpnsDistribMethods value, int line)
+        {
+            _businessObject.Expenses.SetCurrentLine(line);
+
+            _businessObject.Expenses.DistributionMethod = value;
         }
 
         public void Save()

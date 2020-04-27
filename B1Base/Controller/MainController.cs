@@ -212,7 +212,7 @@ namespace B1Base.Controller
                 string newFormType = formType;
 
                 if (formType.Split('.').Count() > 2)
-                    newFormType = formType.Split('.')[2].Length > 20 ? formType.Split('.')[2].Substring(0, 20) : formType.Split('.')[2];
+                    newFormType = formType.Split('.')[2].Length > 40 ? formType.Split('.')[2].Substring(0, 40) : formType.Split('.')[2];
 
                 try
                 {

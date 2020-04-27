@@ -9,7 +9,13 @@ namespace B1Base.Model
     public class JournalModel
     {
         public int TransId { get; set; }
+
         public string Ref1 { get; set; }
+
+        public string Ref2 { get; set; }
+
+        public string Memo { get; set; }
+
         public DateTime RefDate { get; set; }
         public DateTime DueDate { get; set; }
         public DateTime TaxDate { get; set; }       
@@ -21,6 +27,8 @@ namespace B1Base.Model
         {
             TransId = 0;
             Ref1 = string.Empty;
+            Ref2 = string.Empty;
+            Memo = string.Empty;
             RefDate = DateTime.Now;
             DueDate = DateTime.Now;
             TaxDate = DateTime.Now;

@@ -81,6 +81,11 @@ namespace B1Base.DAO
                     attachment.Lines.FileExtension = Path.GetExtension(attachmentModel.Path).Replace(".", "");
                     attachment.Lines.Override = BoYesNoEnum.tYES;
 
+                    foreach (KeyValuePair<string, dynamic> userField in attachmentModel.UserFields)
+                    {
+                        attachment.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                    }
+
                     attachment.Update();
 
                     Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
@@ -91,6 +96,11 @@ namespace B1Base.DAO
                     attachment.Lines.FileName = Path.GetFileNameWithoutExtension(attachmentModel.Path);
                     attachment.Lines.FileExtension = Path.GetExtension(attachmentModel.Path).Replace(".", "");
                     attachment.Lines.Override = BoYesNoEnum.tYES;
+
+                    foreach (KeyValuePair<string, dynamic> userField in attachmentModel.UserFields)
+                    {
+                        attachment.Lines.UserFields.Fields.Item(userField.Key).Value = userField.Value;
+                    }
 
                     attachment.Add();
 

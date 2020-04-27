@@ -13,5 +13,12 @@ namespace B1Base.Model
         public string Path { get; set; }
         public bool Delete { get; set; }
         public bool Insert { get; set; }
+
+        public Dictionary<string, dynamic> UserFields { get; set; }
+
+        public AttachmentModel()
+        {
+            UserFields = new Dictionary<string, dynamic>();
+        }
     }
 }

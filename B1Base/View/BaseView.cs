@@ -121,6 +121,7 @@ namespace B1Base.View
         public Dictionary<string, string> LastCols { get; private set; }
         public Dictionary<string, int> LastRows { get; private set; }
         public Dictionary<string, int> LastBeforeRows { get; private set; }
+        public Dictionary<string, object> LastParameters { get; private set; }
         public int LastRightClickRow { get; private set; }
         public string LastRightClickMatrix { get; private set; }
         public string LastRightClickCol { get; private set; }
@@ -221,6 +222,7 @@ namespace B1Base.View
                     LastAbsEntry = 0;
                     LastFormMode = SAPForm.Mode;
                     LastModifier = BoModifiersEnum.mt_None;
+                    LastParameters = new Dictionary<string, object>();
 
                     bool retry = false;
 
@@ -448,6 +450,14 @@ namespace B1Base.View
             }
 
             SAPForm.ActiveItem = item;
+        }
+
+        public void ForceSave()
+        {
+            if (SAPForm.Mode == BoFormMode.fm_OK_MODE)
+                SAPForm.Mode = BoFormMode.fm_UPDATE_MODE;
+
+            SAPForm.Items.Item("1").Click();
         }
 
         protected Item CreateItem(string item, BoFormItemTypes itemType, int top, int left, int fromPane = 0, int toPane = 0, bool enabled = true, bool visible = true)
