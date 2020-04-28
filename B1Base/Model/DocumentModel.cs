@@ -9,6 +9,7 @@ namespace B1Base.Model
     public class DocumentModel
     {
         public int DocEntry { get; set; }
+        public int BPLId { get; set; }
         public string CardCode { get; set; }
         public DateTime DocDate { get; set; }
         public DateTime TaxDate { get; set; }
@@ -27,6 +28,7 @@ namespace B1Base.Model
         public DocumentModel()
         {
             DocEntry = 0;
+            BPLId = 0;
             CardCode = string.Empty;
             DocDate = DateTime.Now;
             TaxDate = DateTime.Now;

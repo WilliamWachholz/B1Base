@@ -59,6 +59,9 @@ namespace B1Base.DAO
                 }
                 else
                 {
+                    if (documentModel.BPLId > 0)
+                        document.BPL_IDAssignedToInvoice = documentModel.BPLId;
+
                     document.CardCode = documentModel.CardCode;
                     document.DocDate = documentModel.DocDate;                    
 
