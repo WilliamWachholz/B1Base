@@ -21,6 +21,8 @@ namespace B1Base.Model
         public EnumObjType ObjType { get; set; }
         public string Comments { get; set; }
 
+        public int Serial { get; set; }
+
         public List<Model.DocumentItemModel> DocumentItemList { get; set; }
         
         public Dictionary<string, dynamic> UserFields { get; set; }
@@ -38,6 +40,7 @@ namespace B1Base.Model
             SlpCode = 0;
             ObjType = EnumObjType.None;
             Comments = string.Empty;
+            Serial = 0;
 
             DocumentItemList = new List<DocumentItemModel>();           
 

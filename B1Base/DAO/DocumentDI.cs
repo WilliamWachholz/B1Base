@@ -64,6 +64,11 @@ namespace B1Base.DAO
             _businessObject.TransportationCode = value;
         }
 
+        public void SetTrackNo(string value)
+        {
+            _businessObject.TrackingNumber = value == null ? "" : value;
+        }
+
         public void SetGroupNum(int value)
         {
             _businessObject.GroupNumber = value;

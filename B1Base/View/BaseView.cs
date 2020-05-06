@@ -658,6 +658,15 @@ namespace B1Base.View
             }
         }
 
+        protected void ClearFilterChoose(EditText edit)
+        {
+            ChooseFromList choose = (ChooseFromList)SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
+
+            Conditions conditions = new Conditions();
+
+            choose.SetConditions(conditions);
+        }
+
         public void ClearValue(string item)
         {
             if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_COMBO_BOX)

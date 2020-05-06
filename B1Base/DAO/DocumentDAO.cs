@@ -62,6 +62,12 @@ namespace B1Base.DAO
                     if (documentModel.BPLId > 0)
                         document.BPL_IDAssignedToInvoice = documentModel.BPLId;
 
+                    if (documentModel.Serial > 0)
+                    {
+                        document.SequenceCode = -1;                        
+                        document.SequenceSerial = documentModel.Serial;
+                    }
+
                     document.CardCode = documentModel.CardCode;
                     document.DocDate = documentModel.DocDate;                    
 
@@ -90,7 +96,8 @@ namespace B1Base.DAO
 
                         document.Lines.Price = documentItemModel.Price;
 
-                        document.Comments = documentModel.Comments;
+                        if (documentItemModel.Text != string.Empty)
+                            document.Lines.ItemDetails = documentItemModel.Text;
 
                         foreach (KeyValuePair<string, dynamic> userField in documentItemModel.UserFields)
                         {
@@ -100,6 +107,7 @@ namespace B1Base.DAO
                         line++;
                     }
 
+                    document.Comments = documentModel.Comments;
 
                     foreach (KeyValuePair<string, dynamic> userField in documentModel.UserFields)
                     {
@@ -209,6 +217,16 @@ namespace B1Base.DAO
                     document.DocCurrency = documentModel.DocCur;
                     if (documentModel.DocRate > 0)
                         document.DocRate = documentModel.DocRate;
+
+                    if (documentModel.BPLId > 0)
+                        document.BPL_IDAssignedToInvoice = documentModel.BPLId;
+
+                    if (documentModel.Serial > 0)
+                    {
+                        document.SequenceCode = -1;
+                        document.SequenceSerial = documentModel.Serial;
+                    }
+
 
                     document.DocType = documentModel.DocType == Model.EnumDocType.Item ? BoDocumentTypes.dDocument_Items : BoDocumentTypes.dDocument_Service;
 
