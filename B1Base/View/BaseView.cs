@@ -1592,7 +1592,7 @@ namespace B1Base.View
                                 decimalDigits = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetDisplayDecimalDigits", ((int)specificType.Value).ToString());
                             }
 
-                            values.Add(string.Format("cast({0} as decimal(10,{1}))", Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat), decimalDigits.ToString()));
+                            values.Add(string.Format("cast({0} as decimal(15,{1}))", Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat), decimalDigits.ToString()));
                         }
                     }
                     else if (prop.PropertyType == typeof(string))

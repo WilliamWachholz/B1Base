@@ -1,4 +1,3 @@
-﻿select count(*) 
+﻿select '"U_' + "AliasID" + '" as "' + "AliasID" + '"'
 from CUFD
-where (TableId = '@{0}' or TableId = '{0}')
-and AliasId = '{1}'
+where (upper("TableID") = upper('@{0}'))
