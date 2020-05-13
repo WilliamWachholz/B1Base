@@ -59,6 +59,11 @@ namespace B1Base.DAO
             _businessObject.EmailAddress = value == null ? "" : value; ;
         }
 
+        public void SetCurrency(string value)
+        {
+            _businessObject.Currency = value == null ? "##" : value;
+        }
+
         public void SetPhone1(string value)
         {
             _businessObject.Phone1 = value == null ? "" : value; ;
