@@ -107,6 +107,7 @@ namespace B1Base.View
         public delegate void ColumnSelectEventHandler(int row, bool changed);
         public delegate void CheckEventHandler();
         public delegate void OptionEventHandler();
+        public delegate void RightClickMenuEventHandler();
         public delegate void ColumnCheckEventHandler(int row);
         public delegate void LinkEventHandler(View.BaseView linkedView);
         public delegate void DocCopyEventHandler(int docEntry);
@@ -356,6 +357,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, ColumnCheckEventHandler> ColumnCheckEvents { get { return new Dictionary<string, ColumnCheckEventHandler>(); } }
 
         protected virtual Dictionary<string, OptionEventHandler> OptionEvents { get { return new Dictionary<string, OptionEventHandler>(); } }
+
+        protected virtual Dictionary<string, RightClickMenuEventHandler> RightClickMenuEventEvents { get { return new Dictionary<string, RightClickMenuEventHandler>(); } }
 
         protected virtual Dictionary<string, LinkEventHandler> LinkEvents { get { return new Dictionary<string, LinkEventHandler>(); } }
 
@@ -1802,7 +1805,7 @@ namespace B1Base.View
             }
         }
 
-        public virtual void MenuDuplicate() { }
+        public virtual void MenuDuplicate() { }        
 
         public virtual void Resize() { }
 
@@ -2256,6 +2259,14 @@ namespace B1Base.View
             }
         }
 
+        public void RightMenuClicked(string menu)
+        {
+            if (RightClickMenuEventEvents.ContainsKey(menu))
+            {
+                RightClickMenuEventEvents[menu]();
+            }
+        }
+
         public void MenuRightClick(string menu)
         {
             if (menu == "1283")
@@ -2343,7 +2354,7 @@ namespace B1Base.View
                     customEvent.Value.Item2();
                 }
             }
-        }
+        }        
 
         public void MatrixSort(string matrix, string column)
         {

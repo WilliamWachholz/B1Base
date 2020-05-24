@@ -1348,6 +1348,35 @@ namespace B1Base.Controller
                     }
                 }
             }
+            else
+            {
+                try
+                {
+                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
+                    string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
+
+                    if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                    {
+                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).RightMenuClicked(pVal.MenuUID);
+                    }
+                    else if (formId.Contains("F_"))
+                    {
+                        formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
+
+                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).RightMenuClicked(pVal.MenuUID);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 444 - " + e.Message);
+                    }
+                }
+            }
         }
 
         private void HandleMenuAny(ref MenuEvent pVal, out bool bubbleEvent)
