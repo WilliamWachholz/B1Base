@@ -89,6 +89,7 @@ namespace B1Base.View
         public delegate void ButtonOpenViewEventHandler(BaseView view);
         public delegate void FolderSelectEventHandler();
         public delegate void CustomMenuEventHandler();
+        public delegate void KeyDownEventHandler();
         public delegate void ChooseFromEventHandler(params string[] values);
         public delegate void ColChooseFromEventHandler(int row, Dictionary<string, string> values);        
         public delegate void MatixRowEnterEventHandler(int row, string column, bool rowChanged, bool rowSelected);
@@ -315,6 +316,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, ButtonPressEventHandler> ButtonPressEvents { get { return new Dictionary<string, ButtonPressEventHandler>(); } }
 
         protected virtual Dictionary<string, ButtonOpenViewEventHandler> ButtonOpenViewEvents { get { return new Dictionary<string, ButtonOpenViewEventHandler>(); } }
+
+        protected virtual Dictionary<string, KeyDownEventHandler> KeyDownEvents { get { return new Dictionary<string, KeyDownEventHandler>(); } }
 
         protected virtual Dictionary<string, ChooseFromEventHandler> ChooseFromEvents { get { return new Dictionary<string, ChooseFromEventHandler>(); } }
 
@@ -2004,6 +2007,14 @@ namespace B1Base.View
             }
 
             return false;
+        }
+
+        public void KeyDown(string edit)
+        {
+            if (KeyDownEvents.ContainsKey(edit))
+            {
+                KeyDownEvents[edit]();
+            }
         }
 
         public void ChooseFrom(string edit, params string[] values)

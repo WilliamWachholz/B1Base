@@ -9,7 +9,11 @@ namespace B1Base.Model
     public class BusinessPartnerModel
     {
         public string CardCode { get; set; }
+        
         public int SlpCode { get; set; }
+        
+        public int OwnerCode { get; set; }
+        
         public string AgentCode { get; set; }
 
         public Dictionary<string, dynamic> UserFields { get; set; }
@@ -18,6 +22,7 @@ namespace B1Base.Model
         {
             CardCode = string.Empty;
             SlpCode = 0;
+            OwnerCode = 0;
             AgentCode = string.Empty;
 
             UserFields = new Dictionary<string, dynamic>();

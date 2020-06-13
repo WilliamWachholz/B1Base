@@ -20,7 +20,12 @@ namespace B1Base.DAO
                     if (businessPartnerModel.SlpCode == 0)
                         businessPartner.SalesPersonCode = -1;
                     else
-                        businessPartner.SalesPersonCode = businessPartnerModel.SlpCode;                    
+                        businessPartner.SalesPersonCode = businessPartnerModel.SlpCode;
+
+                    if (businessPartnerModel.OwnerCode == 0)
+                        businessPartner.OwnerCode = -1;
+                    else
+                        businessPartner.OwnerCode = businessPartnerModel.OwnerCode;                    
 
                     foreach (KeyValuePair<string, dynamic> userField in businessPartnerModel.UserFields)
                     {
