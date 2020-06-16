@@ -9,6 +9,7 @@ using SAPbouiCOM;
 using SAPbobsCOM;
 using System.IO;
 using System.Data.Odbc;
+using System.Linq.Expressions;
 
 namespace B1Base.Controller
 {
@@ -351,7 +352,14 @@ namespace B1Base.Controller
 
             if (!fieldExists)
             {
-                Application.StatusBar.SetText("Criando campo " + table + "." + field, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Warning);
+                try
+                {
+                    Application.StatusBar.SetText("Criando campo " + table + "." + field, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Warning);
+                }               
+                catch
+                {
+                    App.Instance.AddTextLog("Criando campo " + table + "." + field);
+                }
 
                 UserFieldsMD userField = Company.GetBusinessObject(BoObjectTypes.oUserFields);
                 try
@@ -452,7 +460,14 @@ namespace B1Base.Controller
                 }
                 catch (Exception e)
                 {
-                    Application.StatusBar.SetText("Erro ao criar campo: " + e.Message, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+                    try
+                    {
+                        Application.StatusBar.SetText("Erro ao criar campo: " + e.Message, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+                    }
+                    catch
+                    {
+                        App.Instance.AddTextLog("Erro ao criar campo: " + e.Message);
+                    }                    
                 }
                 finally
                 {
