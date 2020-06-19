@@ -1630,8 +1630,6 @@ namespace B1Base.View
             matrix.LoadFromDataSource();
         }
 
-
-
         public void SetValue<T>(DataTable dataTable, T model) where T : Model.BaseModel
         {
             dataTable.Rows.Clear();
@@ -1661,6 +1659,171 @@ namespace B1Base.View
                     }
                 }
                 catch { }
+            }
+        }
+
+
+
+        public void SetValuePro<T>(DataTable dataTable, T model, string sqlScript, params string[] variables) where T : Model.BaseModel
+        {
+            string select = Controller.ConnectionController.Instance.GetSQL(sqlScript, variables);
+
+            dataTable.Rows.Clear();
+            dataTable.Rows.Add();
+
+            Type type = typeof(T);
+
+            var props = type.GetProperties().Where(r => r.Name != "Changed");
+
+            foreach (var prop in props)
+            {
+                string value = string.Empty;
+
+                if (prop.PropertyType == typeof(Boolean))
+                {
+                    value = (bool)prop.GetValue(model) ? "'Y'" : "'N'";
+                }
+                else if (prop.PropertyType.IsEnum)
+                {
+                    value = ((int)prop.GetValue(model)).ToString();
+                }
+                else if (prop.PropertyType == typeof(DateTime))
+                {
+                    value = "cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)";
+                }
+                else if (prop.PropertyType == typeof(Int32))
+                {
+                    value = prop.GetValue(model).ToString();
+                }
+                else if (prop.PropertyType == typeof(double))
+                {
+                    if (Convert.ToDouble(prop.GetValue(model)) == 0)
+                    {
+                        value = "0.0";
+                    }
+                    else
+                    {
+                        Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+
+                        int decimalDigits = 2;
+
+                        if (specificType != null)
+                        {
+                            decimalDigits = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetDisplayDecimalDigits", ((int)specificType.Value).ToString());
+                        }
+
+                        value = string.Format("cast({0} as decimal(15,{1}))", Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat), decimalDigits.ToString());
+                    }
+                }
+                else if (prop.PropertyType == typeof(string))
+                {
+                    if (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) != null)
+                        value = "cast('" + prop.GetValue(model) + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))";
+                    else
+                    {
+                        Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+
+                        if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Memo)
+                        {
+                            value = "'" + prop.GetValue(model).ToString() + "'";
+                        }
+                        else
+                            value = prop.GetValue(model).ToString();
+                    }
+                }
+
+                select = select.Replace("\"U_" + prop.Name + "\"", value);
+            }
+
+            try
+            {
+                dataTable.ExecuteQuery(select);
+            }
+            catch (Exception ex)
+            {
+                System.IO.File.WriteAllText("C:\\RNV Soluções\\SQL.txt", select);
+            }
+        }
+
+
+        public void SetValuePro<T>(DataTable dataTable, T model) where T : Model.BaseModel
+        {
+            dataTable.Rows.Clear();
+            dataTable.Rows.Add();
+
+            Type type = typeof(T);
+
+            var props = type.GetProperties().Where(r => r.Name != "Changed");
+
+            string select = string.Empty;
+
+            List<string> values = new List<string>();
+
+            foreach (var prop in props)
+            {
+                if (prop.PropertyType == typeof(Boolean))
+                {
+                    values.Add((bool)prop.GetValue(model) ? "'Y'" : "'N'");
+                }
+                else if (prop.PropertyType.IsEnum)
+                {
+                    values.Add(((int)prop.GetValue(model)).ToString());
+                }
+                else if (prop.PropertyType == typeof(DateTime))
+                {
+                    values.Add("cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)");
+                }
+                else if (prop.PropertyType == typeof(Int32))
+                {
+                    values.Add(prop.GetValue(model).ToString() + " as " + prop.Name);
+                }
+                else if (prop.PropertyType == typeof(double))
+                {
+                    if (Convert.ToDouble(prop.GetValue(model)) == 0)
+                    {
+                        values.Add("0.0");
+                    }
+                    else
+                    {
+                        Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+
+                        int decimalDigits = 2;
+
+                        if (specificType != null)
+                        {
+                            decimalDigits = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetDisplayDecimalDigits", ((int)specificType.Value).ToString());
+                        }
+
+                        values.Add(string.Format("cast({0} as decimal(15,{1}))", Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat), decimalDigits.ToString()));
+                    }
+                }
+                else if (prop.PropertyType == typeof(string))
+                {
+                    if (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) != null)
+                        values.Add("cast('" + prop.GetValue(model) + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))");
+                    else
+                    {
+                        Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+
+                        if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Memo)
+                        {
+                            values.Add("'" + prop.GetValue(model).ToString() + "'");
+                        }
+                        else
+                            values.Add(prop.GetValue(model).ToString());
+                    }
+                }
+            }
+
+            select = " select " + type.GetProperty("Code").GetValue(model) + "," + string.Join(",", values.ToArray()) + (Controller.ConnectionController.Instance.DBServerType == "HANA" ? " from dummy " : " ");
+
+            try
+            {
+                dataTable.ExecuteQuery(select);
+            }
+            catch (Exception ex)
+            {
+                System.IO.File.WriteAllText("C:\\RNV Soluções\\SQL.txt", select);
             }
         }
 

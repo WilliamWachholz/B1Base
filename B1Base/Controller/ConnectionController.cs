@@ -1012,7 +1012,7 @@ namespace B1Base.Controller
 
 
 
-        private string GetSQL(string sqlScript, params string[] variables)
+        public string GetSQL(string sqlScript, params string[] variables)
         {            
             using (var stream = new MemoryStream(File.ReadAllBytes(AddOn.Instance.CurrentDirectory + "//SQL//" + DBServerType + "//" + sqlScript + ".sql")))
             {

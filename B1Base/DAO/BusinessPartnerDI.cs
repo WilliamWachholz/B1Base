@@ -139,6 +139,8 @@ namespace B1Base.DAO
 
             _businessObject.Addresses.City = value == null ? "" : value;
 
+            _businessObject.Addresses.County = Controller.ConnectionController.Instance.ExecuteSqlForDirectObject<string>("select coalesce(cast(\"AbsId\" as varchar), 'null') from OCNT where \"State\" = '{0}' and \"Name\" = '{1}'", _businessObject.Addresses.State, value);
+
         }
 
         public void SetAddressState(string value, int line)
