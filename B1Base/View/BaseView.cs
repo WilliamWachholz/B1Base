@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using SAPbouiCOM;
+using B1Base.Controller;
 
 namespace B1Base.View
 {
@@ -75,6 +76,10 @@ namespace B1Base.View
         {
             FormUID = formUID;
             FormType = formType;
+
+            ParentView = AddOn.Instance.MainController.LastParent;
+
+            AddOn.Instance.MainController.LastParent = null;
 
             m_timerInitialize.Elapsed += Initialize;
             m_timerInitialize.Enabled = true;

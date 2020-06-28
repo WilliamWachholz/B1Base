@@ -24,6 +24,8 @@ namespace B1Base.Controller
 
         private Dictionary<string, string> FormTypeViews { get; set; }
 
+        public View.BaseView LastParent { get; set; }
+
         private List<string> Menus { get; set; }
 
         private bool LogIsActive { get; set; }        
@@ -225,6 +227,7 @@ namespace B1Base.Controller
 
                 string formUID = "RW1";
 
+                LastParent = parentView;
 
                 if ((unique == false) || (unique && notExists))
                 {
@@ -276,8 +279,6 @@ namespace B1Base.Controller
                 if (wait)
                     System.Threading.Thread.Sleep(1000);
                 
-                m_Views.First(r => r.FormUID == formUID && r.FormType == newFormType).ParentView = parentView;
-
                 return m_Views.First(r => r.FormUID == formUID && r.FormType == newFormType);
             }
             catch(Exception ex)
