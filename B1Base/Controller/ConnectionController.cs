@@ -707,6 +707,10 @@ namespace B1Base.Controller
 
             var lst = new List<T>();
             Type type = typeof(T);
+
+            var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+
             Recordset recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
 
             try
@@ -717,10 +721,12 @@ namespace B1Base.Controller
                     T obj;
                     if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
                     {
-                        obj = (T)Activator.CreateInstance(type, new[] {recordSet.Fields.Item(0).Value, recordSet.Fields.Item(1).Value.ToString() });                        
+                        obj = (T)Activator.CreateInstance(type, new[] { recordSet.Fields.Item(0).Value, recordSet.Fields.Item(1).Value.ToString() });
                     }
                     else if (isNotCoreType(type))
+                    {
                         obj = PrepareObject<T>(recordSet);
+                    }
                     else
                     {
                         if (recordSet.Fields.Item(0).Value.GetType() != type)
@@ -730,6 +736,47 @@ namespace B1Base.Controller
                         }
                         obj = (T)recordSet.Fields.Item(0).Value;
                     }
+                    lst.Add(obj);
+                    recordSet.MoveNext();
+                }
+                return lst;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(sqlScript + " - " + e.Message);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(recordSet);
+                GC.Collect();
+            }
+        }
+
+        public List<T> ExecuteSqlForListPro<T>(string sqlScript, params string[] variables) where T: Model.BaseModel
+        {
+            string sql = GetSQL(sqlScript, variables);
+
+            LoggedSql = sql;
+
+            var lst = new List<T>();
+            Type type = typeof(T);
+
+            var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+
+            Recordset recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+
+            try
+            {
+                recordSet.DoQuery(sql);
+                while (!recordSet.EoF)
+                {
+                    T obj;
+
+                    obj = (T)Activator.CreateInstance(type);
+
+                    obj.FromRecordSet(recordSet);
+
                     lst.Add(obj);
                     recordSet.MoveNext();
                 }
@@ -1009,8 +1056,6 @@ namespace B1Base.Controller
                 }
             }
         }
-
-
 
         public string GetSQL(string sqlScript, params string[] variables)
         {            

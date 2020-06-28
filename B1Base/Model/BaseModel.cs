@@ -1,8 +1,10 @@
-﻿using System;
+﻿using SAPbobsCOM;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace B1Base.Model
 {
@@ -43,6 +45,11 @@ namespace B1Base.Model
                 Memo,
                 Image
             }
+        }
+
+        public virtual void FromRecordSet(Recordset recordSet)
+        {
+            
         }
 
         public class NonDB : Attribute
