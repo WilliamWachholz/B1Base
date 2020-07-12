@@ -472,11 +472,14 @@ namespace B1Base.DAO
                         document.Lines.SetCurrentLine(line);
 
                         Model.DocumentItemModel documentItemModel = new Model.DocumentItemModel();
+                        documentItemModel.DocEntry = docEntry;
+                        documentItemModel.LineNum = line;
                         documentItemModel.ItemCode = document.Lines.ItemCode;
                         documentItemModel.Price = document.Lines.Price;
                         documentItemModel.Quantity = document.Lines.Quantity;
                         documentItemModel.Total = document.Lines.LineTotal;
                         documentItemModel.Discount = document.Lines.DiscountPercent;
+                        documentItemModel.Usage = Convert.ToInt32(document.Lines.Usage);
 
                         for (int userField = 0; userField < document.Lines.UserFields.Fields.Count; userField++)
                         {

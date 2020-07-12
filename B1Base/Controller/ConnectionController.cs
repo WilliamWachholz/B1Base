@@ -528,6 +528,23 @@ namespace B1Base.Controller
             }
         }
 
+        public void ExecuteStatementDirect(string sql, params string[] variables)
+        {
+            LoggedSql = sql;
+
+            Recordset recordSet = null;
+            try
+            {
+                recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                recordSet.DoQuery(sql);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(recordSet);
+                GC.Collect();
+            }
+        }
+
         public T ExecuteSqlForDirectObject<T>(string sql, params string[] variables)
         {
             sql = string.Format(sql, variables);
