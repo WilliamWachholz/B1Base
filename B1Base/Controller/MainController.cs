@@ -389,9 +389,11 @@ namespace B1Base.Controller
                     {
                         string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
 
-                        foreach (string dll in dlls)
-                        {
-                            Assembly assembly = Assembly.LoadFile(dll);
+                        Assembly assembly = Assembly.LoadFile(AddOn.Instance.CurrentDirectory + "\\" + FormTypeViews[pVal.FormTypeEx + AddOnID].Split('.')[0] + ".dll");
+
+                        //foreach (string dll in dlls)
+                        //{
+                        //Assembly assembly = Assembly.LoadFile(dll);
 
                             Type type = assembly.GetType(assembly.GetName().Name + ".View.Form" + pVal.FormTypeEx + "View");
 
@@ -405,7 +407,7 @@ namespace B1Base.Controller
                                     m_Views.Add((View.BaseView)formView);
                                 }
                             }
-                        }
+                        //}
                     }
                 }
                 catch (Exception e)
