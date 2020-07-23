@@ -28,6 +28,8 @@ namespace B1Base.Model
         PurchaseTaxInvoice = 281,
         [Description("NE")]
         PurchaseInvoice = 18,
+        [Description("CP")]
+        OutgoingPayment = 46,
         [Description("DS")]
         InvoiceReturn = 14,
         [Description("LC")]
