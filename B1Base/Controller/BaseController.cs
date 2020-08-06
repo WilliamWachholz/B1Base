@@ -45,10 +45,12 @@ namespace B1Base.Controller
             dao.Save(model);
         }
 
-        public void Save<T>(List<T> listSource, List<T> listCurrent) where T : Model.BaseModel
+        public void Save<T>(List<T> listSource, List<T> listCurrent, bool log = false) where T : Model.BaseModel
         {
             for (int i = 0; i < listCurrent.Count; i++)
             {
+                if (log)
+                    B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText("Salvando linha " + i.ToString(), SAPbouiCOM.BoMessageTime.bmt_Medium, SAPbouiCOM.BoStatusBarMessageType.smt_Warning);
                 if (listSource.Where(r => r.Code == listCurrent[i].Code).Count() > 0)
                 {
                     if (listCurrent[i].Code == 0)

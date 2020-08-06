@@ -85,6 +85,8 @@ namespace B1Base.DAO
                         if (documentModel.DocType == Model.EnumDocType.Item)
                         {
                             document.Lines.ItemCode = documentItemModel.ItemCode;
+                            if (documentItemModel.Dscription != string.Empty)
+                                document.Lines.ItemDescription = documentItemModel.Dscription;
                             document.Lines.Quantity = documentItemModel.Quantity;                                                       
                         }
                         else
