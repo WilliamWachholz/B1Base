@@ -36,6 +36,7 @@ namespace B1Base.Model
         JournalEntry = 30,
         BusinessPartner = 2,
         [Description("RI")]
-        InternalReconciliation = 321
+        InternalReconciliation = 321,
+        InvoiceReturnRequest = 234000031
     }
 }

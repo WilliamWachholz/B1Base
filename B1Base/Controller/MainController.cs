@@ -389,7 +389,7 @@ namespace B1Base.Controller
                     {
                         string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
 
-                       
+
                         foreach (string dll in dlls)
                         {
                             Assembly assembly = Assembly.LoadFile(dll);

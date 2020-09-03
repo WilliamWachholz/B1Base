@@ -2931,6 +2931,21 @@ namespace B1Base.View
                             }
                         }
                         break;
+                    case "179":
+                        docEntry = GetValue("RIN1.BaseEntry", true);
+                        objType = (Model.EnumObjType)GetValue("RIN1.BaseType", true);
+
+                        if (docEntry > 0)
+                        {
+                            if (DocCopyEvents.ContainsKey(objType))
+                            {
+                                LastCopiedDocEntry = docEntry;
+                                LastCopiedObjType = objType;
+
+                                DocCopyEvents[objType](docEntry);
+                            }
+                        }
+                        break;
                     case "141":
                         docEntry = GetValue("PCH1.BaseEntry", true);
                         objType = (Model.EnumObjType)GetValue("PCH1.BaseType", true);

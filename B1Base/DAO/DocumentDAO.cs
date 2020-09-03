@@ -119,9 +119,9 @@ namespace B1Base.DAO
                     document.UserFields.Fields.Item("U_DIUpdate").Value = "Y";
                     document.Add();
 
-                    documentModel.DocEntry = Controller.ConnectionController.Instance.LastObjectCode;
-
                     Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+
+                    documentModel.DocEntry = Controller.ConnectionController.Instance.LastObjectCode;                    
                 }
             }
             finally
