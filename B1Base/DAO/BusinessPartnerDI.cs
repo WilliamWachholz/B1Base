@@ -54,6 +54,16 @@ namespace B1Base.DAO
             _businessObject.CardForeignName = value == null ? "" : value; ;
         }
 
+        public void SetGroupCode(int value)
+        {
+            _businessObject.GroupCode = value;
+        }
+
+        public void SetAliasName(string value)
+        {
+            _businessObject.AliasName = value == null ? "" : value; ;
+        }
+
         public void SetEMail(string value)
         {
             _businessObject.EmailAddress = value == null ? "" : value; ;
@@ -62,6 +72,16 @@ namespace B1Base.DAO
         public void SetCurrency(string value)
         {
             _businessObject.Currency = value == null ? "##" : value;
+        }
+
+        public void SetListNum(int value)
+        {
+            _businessObject.PriceListNum = value;
+        }
+
+        public void SetIntrstRate(double value)
+        {
+            _businessObject.IntrestRatePercent = value;
         }
 
         public void SetPhone1(string value)
@@ -162,6 +182,23 @@ namespace B1Base.DAO
             _businessObject.Addresses.SetCurrentLine(line);
 
             _businessObject.Addresses.ZipCode = value == null ? "" : value;
+        }
+
+        public void SetAddressUserField(string userField, int line, dynamic value)
+        {
+            _businessObject.Addresses.SetCurrentLine(line);
+
+            _businessObject.Addresses.UserFields.Fields.Item(userField).Value = value;
+        }
+
+        public void SetSlpCode(int value)
+        {
+            _businessObject.SalesPersonCode = value;
+        }
+
+        public void SetQryGroup3(bool value)
+        {
+            _businessObject.Properties[3] = value ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
         }
 
         public void SetCpf(string value, string address = "", BoAddressType adresType = BoAddressType.bo_ShipTo)
@@ -272,7 +309,10 @@ namespace B1Base.DAO
             _businessObject.FiscalTaxID.TaxId1 = value == null ? "" : value;
         }
 
-        
+        public void SetUserField(string userField, dynamic value)
+        {
+            _businessObject.UserFields.Fields.Item(userField).Value = value;
+        }
 
         public void Save()
         {
