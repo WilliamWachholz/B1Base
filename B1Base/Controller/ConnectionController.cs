@@ -927,6 +927,9 @@ namespace B1Base.Controller
 
         public T ExecuteSqlForObjectODBC<T>(string server, string dbUserName, string password, string companyDB, string sqlScript, params string[] variables)
         {
+            if (DBServerType == null)
+                DBServerType = "HANA";
+
             using (OdbcConnection myConnection = new OdbcConnection())
             {
                 
@@ -944,6 +947,8 @@ namespace B1Base.Controller
                 }
 
                 string sql = GetSQL(sqlScript, variables);
+
+                LoggedSql = sql;
 
                 Type type = typeof(T);
 
@@ -1006,6 +1011,9 @@ namespace B1Base.Controller
 
         public List<T> ExecuteSqlForListODBC<T>(string server, string dbUserName, string password, string companyDB, string sqlScript, params string[] variables)
         {
+            if (DBServerType == string.Empty)
+                DBServerType = "HANA";
+
             string sql = GetSQL(sqlScript, variables);
 
             LoggedSql = sql;
@@ -1066,6 +1074,54 @@ namespace B1Base.Controller
                     }
 
                     return lst;
+                }
+                else
+                {
+                    throw new Exception("Não foi possível abrir conexão");
+                }
+            }
+        }
+
+        public void ExecuteStatementODBC(string server, string dbUserName, string password, string companyDB, string sqlScript, params string[] variables)
+        {
+            if (DBServerType == null)
+                DBServerType = "HANA";
+
+            string sql = GetSQL(sqlScript, variables);
+
+            LoggedSql = sql;
+
+            using (OdbcConnection myConnection = new OdbcConnection())
+            {
+
+                string myConnectionString;
+                myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);
+                myConnection.ConnectionString = myConnectionString;
+
+                try
+                {
+                    myConnection.Open();
+                }
+                catch (System.Data.Odbc.OdbcException ex)
+                {
+                    throw ex;
+                }
+
+                if (myConnection.State == System.Data.ConnectionState.Open)
+                {
+                    OdbcCommand DbCommand = myConnection.CreateCommand();
+                    DbCommand.CommandText = sql;
+                    
+                    try
+                    {
+                        DbCommand.ExecuteNonQuery();
+                    }
+                    finally
+                    {
+                        DbCommand.Dispose();
+                        myConnection.Close();
+                    }
+
                 }
                 else
                 {

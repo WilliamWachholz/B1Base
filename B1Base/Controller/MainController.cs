@@ -1400,7 +1400,7 @@ namespace B1Base.Controller
                 case SAPbouiCOM.BoAppEventTypes.aet_CompanyChanged:
                 case SAPbouiCOM.BoAppEventTypes.aet_ServerTerminition:
                 case SAPbouiCOM.BoAppEventTypes.aet_ShutDown:                        
-                    {
+                    {                        
                         foreach (string menu in Menus)
                         {
                             try
@@ -1408,8 +1408,8 @@ namespace B1Base.Controller
                                 ConnectionController.Instance.Application.Menus.RemoveEx(menu);
                             }
                             catch { }
-                        }
-                        ExitApp();
+                        }                        
+                        ExitApp();                                                
                     }
                     break;
             }
