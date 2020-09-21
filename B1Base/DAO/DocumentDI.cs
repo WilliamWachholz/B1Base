@@ -23,6 +23,14 @@ namespace B1Base.DAO
                 _newObject = true;
             }
         }
+        public void FinalizeObject()
+        {
+            Marshal.ReleaseComObject(_businessObject);
+
+            _businessObject = null;
+
+            GC.Collect();
+        }
 
         public void SetBplId(int value)
         {
@@ -132,6 +140,13 @@ namespace B1Base.DAO
 
             _businessObject.Lines.Usage = value == null ? "" : value;
         }
+        
+        public void SetItemTaxCode(string value, int line)
+        {
+            _businessObject.Lines.SetCurrentLine(line);
+
+            _businessObject.Lines.TaxCode = value == null ? "" : value;
+        }
 
         public int SetExpenseCode(int value, int line = -1)
         {
@@ -208,6 +223,15 @@ namespace B1Base.DAO
                     return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oPurchaseInvoices);
                 default:
                     return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oInvoices);
+            }
+        }
+
+
+        public Documents BusinessObject
+        {
+            get
+            {
+                return _businessObject;
             }
         }
     }

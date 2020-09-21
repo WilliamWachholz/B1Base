@@ -94,19 +94,79 @@ namespace B1Base.DAO
             _businessObject.Phone2 = value == null ? "" : value; ;
         }
 
-        public int SetAddressName(string value, int line = -1)
+        public void SetCellular(string value)
         {
-            if (line == -1)
-            {
-                if (_businessObject.Addresses.AddressName != string.Empty)
-                    _businessObject.Addresses.Add();
+            _businessObject.Cellular = value == null ? "" : value; ;
+        }
 
-                line = _businessObject.Addresses.Count - 1;
+        public int SetPaymentMethod(string value, int line = -1)
+        {
+            bool found = false;
+
+            for (int i = 0; i < _businessObject.BPPaymentMethods.Count; i++)
+            {
+                _businessObject.BPPaymentMethods.SetCurrentLine(i);
+
+                if (value == _businessObject.BPPaymentMethods.PaymentMethodCode)
+                {
+                    found = true;
+
+                    line = i;
+
+                    break;
+                }
             }
 
-            _businessObject.Addresses.SetCurrentLine(line);
+            if (!found)
+            {
+                if (line == -1)
+                {
+                    if (_businessObject.BPPaymentMethods.PaymentMethodCode != string.Empty)
+                        _businessObject.BPPaymentMethods.Add();
 
-            _businessObject.Addresses.AddressName = value == null ? "" : value;
+                    line = _businessObject.BPPaymentMethods.Count - 1;
+                }
+
+                _businessObject.BPPaymentMethods.SetCurrentLine(line);
+
+                _businessObject.BPPaymentMethods.PaymentMethodCode = value == null ? "" : value;
+            }
+
+            return line;
+        }
+
+        public int SetAddressName(string value, int line = -1)
+        {
+            bool found = false;
+
+            for (int i = 0; i < _businessObject.Addresses.Count; i++)
+            {
+                _businessObject.Addresses.SetCurrentLine(i);
+
+                if (value == _businessObject.Addresses.AddressName)
+                {
+                    found = true;
+
+                    line = i;
+
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                if (line == -1)
+                {
+                    if (_businessObject.Addresses.AddressName != string.Empty)
+                        _businessObject.Addresses.Add();
+
+                    line = _businessObject.Addresses.Count - 1;
+                }
+
+                _businessObject.Addresses.SetCurrentLine(line);
+
+                _businessObject.Addresses.AddressName = value == null ? "" : value;
+            }
 
             return line;
         }
@@ -182,6 +242,7 @@ namespace B1Base.DAO
             _businessObject.Addresses.SetCurrentLine(line);
 
             _businessObject.Addresses.ZipCode = value == null ? "" : value;
+
         }
 
         public void SetAddressUserField(string userField, int line, dynamic value)
@@ -231,7 +292,12 @@ namespace B1Base.DAO
             if (found == false)
             {
                 _businessObject.FiscalTaxID.Add();
-                _businessObject.FiscalTaxID.SetCurrentLine(_businessObject.FiscalTaxID.Count + 1);
+                _businessObject.FiscalTaxID.SetCurrentLine(_businessObject.FiscalTaxID.Count - 1);
+
+                if (address != string.Empty)
+                {
+                    _businessObject.FiscalTaxID.Address = address;
+                }
             }
 
             _businessObject.FiscalTaxID.TaxId4 = value == null ? "" : value;
@@ -267,7 +333,12 @@ namespace B1Base.DAO
             if (found == false)
             {
                 _businessObject.FiscalTaxID.Add();
-                _businessObject.FiscalTaxID.SetCurrentLine(_businessObject.FiscalTaxID.Count + 1);
+                _businessObject.FiscalTaxID.SetCurrentLine(_businessObject.FiscalTaxID.Count - 1);
+
+                if (address != string.Empty)
+                {
+                    _businessObject.FiscalTaxID.Address = address;
+                }
             }
 
             _businessObject.FiscalTaxID.TaxId0 = value == null ? "" : value;
@@ -303,7 +374,12 @@ namespace B1Base.DAO
             if (found == false)
             {
                 _businessObject.FiscalTaxID.Add();
-                _businessObject.FiscalTaxID.SetCurrentLine(_businessObject.FiscalTaxID.Count + 1);
+                _businessObject.FiscalTaxID.SetCurrentLine(_businessObject.FiscalTaxID.Count - 1);
+
+                if (address != string.Empty)
+                {
+                    _businessObject.FiscalTaxID.Address = address;
+                }
             }
 
             _businessObject.FiscalTaxID.TaxId1 = value == null ? "" : value;
