@@ -77,6 +77,12 @@ namespace B1Base.DAO
             _businessObject.TrackingNumber = value == null ? "" : value;
         }
 
+
+        public void SetOwnerCode(int value)
+        {
+            _businessObject.DocumentsOwner = value;
+        }
+
         public void SetGroupNum(int value)
         {
             _businessObject.GroupNumber = value;
@@ -203,8 +209,8 @@ namespace B1Base.DAO
                 //guarda em tabela de banco. Criar uma tabela no banco para cada addon para guardar erro select (sql) e objetos DI (xml)
             }
 
-            //if (_newObject)
-            //    _businessObject.GetByKey(Controller.ConnectionController.Instance.LastObjectCode);
+            if (_newObject)
+                _businessObject.GetByKey(Controller.ConnectionController.Instance.LastObjectCode);
         }
 
         private Documents GetDIObject(Model.EnumObjType objType)

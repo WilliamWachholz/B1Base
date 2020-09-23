@@ -31,6 +31,8 @@ namespace B1Base.Controller
 
         public SAPbouiCOM.Application Application { get; private set; }
 
+        public string ConfigTableName { get; set; }
+
         public string AddOnID { get; private set; }
 
         public string DBServerType { get; private set; }
@@ -123,7 +125,7 @@ namespace B1Base.Controller
             {
                 string result = string.Empty;
 
-                Company.GetNewObjectCode(out result);
+                Company.GetNewObjectCode(out result);                
 
                 int intResult = 0;
 

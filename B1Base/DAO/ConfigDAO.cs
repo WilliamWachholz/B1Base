@@ -12,7 +12,9 @@ namespace B1Base.DAO
         {
             get
             {
-                return (Controller.ConnectionController.Instance.AddOnID + "Cnf").ToUpper();
+                return Controller.ConnectionController.Instance.ConfigTableName == "" ?
+                    (Controller.ConnectionController.Instance.AddOnID + "Cnf").ToUpper():
+                    Controller.ConnectionController.Instance.ConfigTableName;
             }
         }
     }
