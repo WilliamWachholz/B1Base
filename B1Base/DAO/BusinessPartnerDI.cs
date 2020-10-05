@@ -99,7 +99,7 @@ namespace B1Base.DAO
             _businessObject.Cellular = value == null ? "" : value; ;
         }
 
-        public int SetPaymentMethod(string value, int line = -1)
+        public int SetPaymentMethod(string value, int line = -1, bool defaultPayment = false)
         {
             bool found = false;
 
@@ -132,7 +132,23 @@ namespace B1Base.DAO
                 _businessObject.BPPaymentMethods.PaymentMethodCode = value == null ? "" : value;
             }
 
+            if (defaultPayment)
+                _businessObject.PeymentMethodCode = value;
+
             return line;
+        }
+
+        public void DeletePaymentMethod(string value, int line = -1)
+        {
+            for (int i = 0; i < _businessObject.BPPaymentMethods.Count; i++)
+            {
+                _businessObject.BPPaymentMethods.SetCurrentLine(i);
+
+                if (value == _businessObject.BPPaymentMethods.PaymentMethodCode)
+                {
+                    _businessObject.BPPaymentMethods.Delete();
+                }
+            }
         }
 
         public int SetAddressName(string value, int line = -1)

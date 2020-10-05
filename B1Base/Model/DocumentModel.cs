@@ -23,6 +23,8 @@ namespace B1Base.Model
 
         public int Serial { get; set; }
 
+        public int Model { get; set; }
+
         public List<Model.DocumentItemModel> DocumentItemList { get; set; }
         
         public Dictionary<string, dynamic> UserFields { get; set; }
@@ -41,6 +43,7 @@ namespace B1Base.Model
             ObjType = EnumObjType.None;
             Comments = string.Empty;
             Serial = 0;
+            Model = 0;
 
             DocumentItemList = new List<DocumentItemModel>();           
 

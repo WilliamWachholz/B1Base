@@ -31,7 +31,7 @@ namespace B1Base.Controller
 
         public SAPbouiCOM.Application Application { get; private set; }
 
-        public string ConfigTableName { get; set; }
+        public string ConfigTableName { get; set; } = "";
 
         public string AddOnID { get; private set; }
 

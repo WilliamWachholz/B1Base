@@ -387,26 +387,26 @@ namespace B1Base.Controller
                     }
                     else
                     {
-                        string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
+                        //string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
 
 
-                        foreach (string dll in dlls)
-                        {
-                            Assembly assembly = Assembly.LoadFile(dll);
+                        //foreach (string dll in dlls)
+                        //{
+                        //    Assembly assembly = Assembly.LoadFile(dll);
 
-                            Type type = assembly.GetType(assembly.GetName().Name + ".View.Form" + pVal.FormTypeEx + "View");
+                        //    Type type = assembly.GetType(assembly.GetName().Name + ".View.Form" + pVal.FormTypeEx + "View");
 
-                            if (type != null)
-                            {
-                                if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
-                                {
-                                    ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
-                                    object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+                        //    if (type != null)
+                        //    {
+                        //        if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
+                        //        {
+                        //            ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
+                        //            object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
 
-                                    m_Views.Add((View.BaseView)formView);
-                                }
-                            }
-                        }
+                        //            m_Views.Add((View.BaseView)formView);
+                        //        }
+                        //    }
+                        //}
                     }
                 }
                 catch (Exception e)

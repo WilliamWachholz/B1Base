@@ -68,6 +68,11 @@ namespace B1Base.DAO
                         document.SequenceSerial = documentModel.Serial;
                     }
 
+                    if (documentModel.Model > 0)
+                    {
+                        document.SequenceModel = documentModel.Model.ToString();
+                    }
+
                     document.CardCode = documentModel.CardCode;
                     document.DocDate = documentModel.DocDate;                    
 

@@ -2920,6 +2920,14 @@ namespace B1Base.View
                         docEntry = GetValue("INV1.BaseEntry", true);
                         objType = (Model.EnumObjType)GetValue("INV1.BaseType", true);
 
+                        if (docEntry == 0)
+                        {
+                            Matrix matrixItem = (Matrix)SAPForm.Items.Item("38").Specific;
+
+                            objType = Model.EnumObjType.SalesOrder;
+                            docEntry = Convert.ToInt32(((EditText)matrixItem.Columns.Item("45").Cells.Item(1).Specific).String);
+                        }
+
                         if (docEntry > 0)
                         {
                             if (DocCopyEvents.ContainsKey(objType))
