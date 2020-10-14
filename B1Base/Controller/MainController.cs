@@ -15,11 +15,13 @@ namespace B1Base.Controller
         List<View.BaseView> m_Views = new List<View.BaseView>();
 
         public abstract string AddOnID { get; }
+
         public abstract string AddOnName { get; }
         
         protected abstract void ExitApp();
         
         public virtual void CreateMetadata() { }        
+
         protected virtual void CreateMenus() { }
 
         private Dictionary<string, string> FormTypeViews { get; set; }
@@ -29,9 +31,14 @@ namespace B1Base.Controller
         private List<string> Menus { get; set; }
 
         private bool LogIsActive { get; set; }        
+
         private string LastStatusBarMsg { get; set; }
+
         private bool SuppressChoose { get; set; }
+
         private bool SupressPicker { get; set; }
+
+        private bool SupressDetails { get; set; }
 
         private bool ConfigOpened { get; set; }
 
@@ -322,7 +329,18 @@ namespace B1Base.Controller
 
             string formType = pVal.FormTypeEx;
 
-            if (pVal.EventType == BoEventTypes.et_FORM_LOAD && pVal.BeforeAction == false)
+            if (pVal.EventType == BoEventTypes.et_FORM_ACTIVATE)
+            {
+                bubbleEvent = true;
+
+                if (SupressDetails && pVal.FormType == 1)
+                {
+                    ConnectionController.Instance.Application.Forms.Item(pVal.FormUID).Close();
+                    SupressDetails = false;
+                }
+            }
+
+            if (pVal.EventType == BoEventTypes.et_FORM_LOAD && !pVal.BeforeAction)
             {
                 bubbleEvent = true;
 
@@ -343,7 +361,7 @@ namespace B1Base.Controller
                         if (FormTypeViews.ContainsKey(pVal.FormTypeEx + AddOnID))
                         {
                             if (pVal.FormTypeEx == "ConfigView" && !ConfigOpened)
-                                return;                                                    
+                                return;
 
                             Assembly assembly = Assembly.LoadFile(AddOn.Instance.CurrentDirectory + "\\" + FormTypeViews[pVal.FormTypeEx + AddOnID].Split('.')[0] + ".dll");
 
@@ -387,26 +405,26 @@ namespace B1Base.Controller
                     }
                     else
                     {
-                        //string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
+                        string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
 
 
-                        //foreach (string dll in dlls)
-                        //{
-                        //    Assembly assembly = Assembly.LoadFile(dll);
+                        foreach (string dll in dlls)
+                        {
+                            Assembly assembly = Assembly.LoadFile(dll);
 
-                        //    Type type = assembly.GetType(assembly.GetName().Name + ".View.Form" + pVal.FormTypeEx + "View");
+                            Type type = assembly.GetType(assembly.GetName().Name + ".View.Form" + pVal.FormTypeEx + "View");
 
-                        //    if (type != null)
-                        //    {
-                        //        if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
-                        //        {
-                        //            ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
-                        //            object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+                            if (type != null)
+                            {
+                                if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
+                                {
+                                    ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
+                                    object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
 
-                        //            m_Views.Add((View.BaseView)formView);
-                        //        }
-                        //    }
-                        //}
+                                    m_Views.Add((View.BaseView)formView);
+                                }
+                            }
+                        }
                     }
                 }
                 catch (Exception e)
@@ -429,7 +447,7 @@ namespace B1Base.Controller
                     }
                 }
             }
-            catch { }           
+            catch { }
         }
 
         private void HandleGotFocus(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
@@ -815,7 +833,7 @@ namespace B1Base.Controller
         private void HandleChooseFrom(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
-
+            
             if (pVal.EventType == BoEventTypes.et_CHOOSE_FROM_LIST && pVal.BeforeAction == true)
             {
                 if (!SuppressChoose)
@@ -1016,25 +1034,40 @@ namespace B1Base.Controller
         {
             bubbleEvent = true;
             
-            if (pVal.EventType == BoEventTypes.et_DOUBLE_CLICK && pVal.BeforeAction == false)
+            if (pVal.EventType == BoEventTypes.et_DOUBLE_CLICK)
             {
-                try
+                if (pVal.BeforeAction)
                 {
-                    if (pVal.Row > 0)
+                    if (!SupressDetails)
                     {
                         string formType = pVal.FormTypeEx;
 
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowDoubleClick(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                            SupressDetails = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).SupressMatrixDetails(pVal.ItemUID);
                         }
                     }
                 }
-                catch (Exception e)
+                else
                 {
-                    if (LogIsActive)
+                    try
                     {
-                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 323 - " + e.Message);
+                        if (pVal.Row > 0)
+                        {
+                            string formType = pVal.FormTypeEx;
+
+                            if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                            {
+                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowDoubleClick(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        if (LogIsActive)
+                        {
+                            ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 323 - " + e.Message);
+                        }
                     }
                 }
             }

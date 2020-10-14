@@ -119,7 +119,8 @@ namespace B1Base.View
         public delegate void DocCopyEventHandler(int docEntry);
         public delegate void ColSuppressActionEventHandler(BoEventTypes action, int row, out bool supressed);
         public delegate void SuppressActionEventHandler(BoEventTypes action, out bool supressed);
-
+        public delegate bool SupressMatrixDetailsEventHandler();
+        
         public string LastEditValue { get; private set; }
         public string LastComboValue { get; private set; }
         public string LastColumnValue { get; private set; }
@@ -375,6 +376,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, SuppressActionEventHandler> SupressActionEvents { get { return new Dictionary<string, SuppressActionEventHandler>(); } }
 
         protected virtual Dictionary<string, ColSuppressActionEventHandler> ColSupressActionEvents { get { return new Dictionary<string, ColSuppressActionEventHandler>(); } }
+
+        protected virtual Dictionary<string, SupressMatrixDetailsEventHandler> SupressMatrixDetailsEvents { get { return new Dictionary<string, SupressMatrixDetailsEventHandler>(); } }
 
         protected virtual void CreateControls() { }
 
@@ -1556,7 +1559,7 @@ namespace B1Base.View
             }
         }
 
-        public void SetValuePro<T>(DataTable dataTable, Matrix matrix, List<T> list) where T : Model.BaseModel
+        public void SetValuePro<T>(DataTable dataTable, Matrix matrix, List<T> list)
         {
             Type type = typeof(T);
 
@@ -1611,11 +1614,11 @@ namespace B1Base.View
                         if (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) != null)
                             values.Add("cast('" + prop.GetValue(model) + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))");
                         else
-                            values.Add(prop.GetValue(model).ToString());
+                            values.Add("cast('" + prop.GetValue(model).ToString() + "' as nvarchar)");
                     }
                 }
 
-                selects.Add(" select " + type.GetProperty("Code").GetValue(model) + "," + string.Join(",", values.ToArray()) + (Controller.ConnectionController.Instance.DBServerType == "HANA" ? " from dummy " : " "));   
+                selects.Add(" select " + (type.BaseType == typeof(Model.BaseModel) ? type.GetProperty("Code").GetValue(model) + "," : "") + string.Join(",", values.ToArray()) + (Controller.ConnectionController.Instance.DBServerType == "HANA" ? " from dummy " : " "));   
             }
 
             if (list.Count == 0)
@@ -1669,7 +1672,7 @@ namespace B1Base.View
 
 
 
-        public void SetValuePro<T>(DataTable dataTable, T model, string sqlScript, params string[] variables) where T : Model.BaseModel
+        public void SetValuePro<T>(DataTable dataTable, T model, string sqlScript, params string[] variables) 
         {
             string select = Controller.ConnectionController.Instance.GetSQL(sqlScript, variables);
 
@@ -1751,7 +1754,7 @@ namespace B1Base.View
         }
 
 
-        public void SetValuePro<T>(DataTable dataTable, T model) where T : Model.BaseModel
+        public void SetValuePro<T>(DataTable dataTable, T model)
         {
             dataTable.Rows.Clear();
             dataTable.Rows.Add();
@@ -2175,6 +2178,16 @@ namespace B1Base.View
             }
 
             return false;
+        }
+
+        public bool SupressMatrixDetails(string matrix)
+        {
+            if (SupressMatrixDetailsEvents.ContainsKey(matrix))
+            {
+                return SupressMatrixDetailsEvents[matrix]() && !Frozen;
+            }
+            else
+                return false;
         }
 
         public void KeyDown(string edit)

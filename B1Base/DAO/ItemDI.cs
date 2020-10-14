@@ -16,8 +16,6 @@ namespace B1Base.DAO
 
         bool _newObject = false;
 
-
-
         public void InitializeObject(string itemCode)
         {
             _businessObject = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
@@ -481,7 +479,6 @@ namespace B1Base.DAO
             _businessObject.UserFields.Fields.Item(userField).Value = value;
         }
 
-
         public void Save()
         {
             if (_newObject)
@@ -604,7 +601,6 @@ namespace B1Base.DAO
             }
 
             _bean.Xml = _businessObject.GetAsXML();
-
         }
 
         public Items BusinessObject
@@ -683,9 +679,25 @@ namespace B1Base.DAO
 
             public string SWW { get; set; }
 
+            public string CardCode { get; set; }
+
+            public string OSvcCode { get; set; }
+
+            public ItemClassEnum ItemClass { get; set; }
+
+            public BoMaterialTypes MatType { get; set; }
+
+            public string ProductSrc { get; set; }
+
+            public int IssuePriBy { get; set; }
+
+            public BoManageMethod MngMethod { get; set; }
+
             public Dictionary<string, dynamic> UserFields { get; set; }
 
             public string Xml { get; set; }
+
+            public Items_PreferredVendors PreferredVendors { get; set; }
 
             public ItemsBean()
             {
