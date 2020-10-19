@@ -2523,7 +2523,9 @@ namespace B1Base.View
 
                 while (row > 0 && row <= matrix.RowCount)
                 {
-                    SetValue(matrix.Item.UniqueID, text, LastRightClickCol, row);
+                    //SetValue(matrix.Item.UniqueID, text, LastRightClickCol, row);
+
+                    ((EditText)matrix.Columns.Item(LastRightClickCol).Cells.Item(row).Specific).String = text;
 
                     row = matrix.GetNextSelectedRow(row);
                 }

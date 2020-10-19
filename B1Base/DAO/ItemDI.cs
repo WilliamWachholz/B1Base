@@ -29,6 +29,36 @@ namespace B1Base.DAO
             }
         }
 
+        public void InitializeObject(string itemCode, string baseItemCode)
+        {
+            string xml = string.Empty;
+
+            B1Base.DAO.ItemDI itemBaseDI = new B1Base.DAO.ItemDI();
+            itemBaseDI.InitializeObject(baseItemCode);
+            try
+            {
+                xml = itemBaseDI.GetXmlForDI();
+            }
+            finally
+            {
+                itemBaseDI.FinalizeObject();
+            }
+
+            xml = xml.Replace(baseItemCode, itemCode);
+
+            _businessObject = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
+
+            _bean = new ItemsBean();
+
+            if (!_businessObject.GetByKey(itemCode))
+            {
+                _newObject = true;
+                _businessObject.ItemCode = itemCode;
+            }
+
+            _businessObject.UpdateFromXML(xml);
+        }
+
         public void FinalizeObject()
         {
             Marshal.ReleaseComObject(_businessObject);
@@ -439,6 +469,12 @@ namespace B1Base.DAO
                 _businessObject.OutgoingServiceCode = code;
         }
 
+        public void SetOSvcCode(int value)
+        {
+            if (value > 0)
+                _businessObject.OutgoingServiceCode = value;
+        }
+
         public void SetItemClass(ItemClassEnum value)
         {
             _businessObject.ItemClass = value;
@@ -591,9 +627,15 @@ namespace B1Base.DAO
             _bean.CodeBars = _businessObject.BarCode;
             _bean.ValidFor = _businessObject.Valid == BoYesNoEnum.tYES;
             _bean.FrozenFor = _businessObject.Frozen == BoYesNoEnum.tYES;
-
             _bean.SWW = _businessObject.SWW;
-
+            _bean.CardCode = _businessObject.Mainsupplier;
+            _bean.OSvcCode = _businessObject.OutgoingServiceCode;
+            _bean.ItemClass = _businessObject.ItemClass;
+            _bean.MatType = _businessObject.MaterialType;
+            _bean.ProductSrc = _businessObject.ProductSource;
+            _bean.IssuePriBy = (int) _businessObject.IssuePrimarilyBy;
+            _bean.MngMethod = _businessObject.SRIAndBatchManageMethod;
+            _bean.PreferredVendors = _businessObject.PreferredVendors;
 
             for (int userField = 0; userField < _businessObject.UserFields.Fields.Count; userField++)
             {
@@ -601,6 +643,13 @@ namespace B1Base.DAO
             }
 
             _bean.Xml = _businessObject.GetAsXML();
+        }
+
+        public string GetXmlForDI()
+        {
+            B1Base.Controller.ConnectionController.Instance.Company.XmlExportType = SAPbobsCOM.BoXmlExportTypes.xet_ExportImportMode;
+
+            return _businessObject.GetAsXML();
         }
 
         public Items BusinessObject
@@ -681,13 +730,13 @@ namespace B1Base.DAO
 
             public string CardCode { get; set; }
 
-            public string OSvcCode { get; set; }
+            public int OSvcCode { get; set; }
 
             public ItemClassEnum ItemClass { get; set; }
 
             public BoMaterialTypes MatType { get; set; }
 
-            public string ProductSrc { get; set; }
+            public int ProductSrc { get; set; }
 
             public int IssuePriBy { get; set; }
 

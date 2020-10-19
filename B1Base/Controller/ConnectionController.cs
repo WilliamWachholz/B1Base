@@ -141,13 +141,13 @@ namespace B1Base.Controller
             int result = 0;
 
             if (objType == 13)
-                result = ExecuteSqlForDirectObject<int>("select max(\"DocEntry\") from OINV");
+                result = ExecuteSqlForDirectObject<int>("select max(\"DocEntry\") from OINV and \"UserSign\" = " + User.ToString());
             else if (objType == 14)
-                result = ExecuteSqlForDirectObject<int>("select max(\"DocEntry\") from ORIN");
-            if (objType == 17)
-                result = ExecuteSqlForDirectObject<int>("select max(\"DocEntry\") from ORDR");
-            if (objType == 234000031)
-                result = ExecuteSqlForDirectObject<int>("select max(\"DocEntry\") from ORRR");
+                result = ExecuteSqlForDirectObject<int>("select max(\"DocEntry\") from ORIN and \"UserSign\" = " + User.ToString());
+            else if (objType == 17)
+                result = ExecuteSqlForDirectObject<int>("select max(\"DocEntry\") from ORDR and \"UserSign\" = " + User.ToString());
+            else if (objType == 234000031)
+                result = ExecuteSqlForDirectObject<int>("select max(\"DocEntry\") from ORRR and \"UserSign\" = " + User.ToString());
 
             return result;
         }
