@@ -2573,47 +2573,27 @@ namespace B1Base.View
 
         public void RightClick(string item, int row, string col)
         {
-            if (MatrixRowRemoveEvents.ContainsKey(item))
-            {
-                string menuID = string.Format("MNUREM{0}", SAPForm.TypeEx);
-
-                if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
-                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
-
-                SAPbouiCOM.Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
-
-                string colTitle = matrix.Columns.Item(col).Title;
-                string firstCol = matrix.Columns.Item(0).UniqueID;
-
-                if (row > 0 && row <= matrix.RowCount && (col != firstCol || colTitle != "#" || colTitle != ""))
-                {
-                    LastRightClickMatrix = item;
-                    LastRightClickRow = row;
-                    LastRightClickCol = col;
-
-                    MenuItem menuItem = null;
-                    Menus menu = null;
-                    MenuCreationParams creationPackage = null;
-
-                    creationPackage = ((MenuCreationParams)(Controller.ConnectionController.Instance.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
-
-                    creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
-                    creationPackage.UniqueID = menuID;
-                    creationPackage.String = "Eliminar linha";
-                    creationPackage.Enabled = true;
-
-                    menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
-                    menu = menuItem.SubMenus;
-                    menu.AddEx(creationPackage);
-                }
-            }
-
-            if (MatrixColPasteForAllEvents.ContainsKey(item))
+            foreach (KeyValuePair<string, MatrixColPasteForAllEventHandler> menuEvent in MatrixColPasteForAllEvents)
             {
                 string menuID = string.Format("MNUPFA{0}", SAPForm.TypeEx);
 
                 if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
                     Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
+            }
+
+            foreach (KeyValuePair<string, MatrixRowRemoveEventHandler> menuEvent in MatrixRowRemoveEvents)
+            {
+                string menuID = string.Format("MNUREM{0}", SAPForm.TypeEx);
+
+                if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
+                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
+            }
+
+            int pos = 1;
+
+            if (MatrixColPasteForAllEvents.ContainsKey(item))
+            {
+                string menuID = string.Format("MNUPFA{0}", SAPForm.TypeEx);
 
                 SAPbouiCOM.Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
 
@@ -2636,6 +2616,9 @@ namespace B1Base.View
                     creationPackage.UniqueID = menuID;
                     creationPackage.String = "Colar (linhas selecionadas)";
                     creationPackage.Enabled = true;
+                    creationPackage.Position = pos;
+
+                    pos++;
 
                     menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
                     menu = menuItem.SubMenus;
@@ -2643,38 +2626,50 @@ namespace B1Base.View
                 }
             }
 
-            foreach (KeyValuePair<string, Tuple<string, CustomMenuEventHandler>> customEvent in CustomMenuEvents)
+            if (MatrixRowRemoveEvents.ContainsKey(item))
             {
-                string menuID = string.Format("{0}{1}", customEvent.Key, SAPForm.TypeEx);
+                string menuID = string.Format("MNUREM{0}", SAPForm.TypeEx);
 
-                if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
-                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
+                SAPbouiCOM.Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
 
-                MenuItem menuItem = null;
-                Menus menu = null;
-                MenuCreationParams creationPackage = null;
+                string colTitle = matrix.Columns.Item(col).Title;
+                string firstCol = matrix.Columns.Item(0).UniqueID;
 
-                creationPackage = ((MenuCreationParams)(Controller.ConnectionController.Instance.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
+                if (row > 0 && row <= matrix.RowCount && (col != firstCol || colTitle != "#" || colTitle != ""))
+                {
+                    LastRightClickMatrix = item;
+                    LastRightClickRow = row;
+                    LastRightClickCol = col;
 
-                creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
-                creationPackage.UniqueID = menuID;
-                creationPackage.String = customEvent.Value.Item1;
-                creationPackage.Enabled = true;
+                    MenuItem menuItem = null;
+                    Menus menu = null;
+                    MenuCreationParams creationPackage = null;
 
-                menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
-                menu = menuItem.SubMenus;
-                menu.AddEx(creationPackage);
+                    creationPackage = ((MenuCreationParams)(Controller.ConnectionController.Instance.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
+
+                    creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
+                    creationPackage.UniqueID = menuID;
+                    creationPackage.String = "Eliminar linha";
+                    creationPackage.Enabled = true;
+                    creationPackage.Position = pos;
+
+                    pos++;
+
+                    menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
+                    menu = menuItem.SubMenus;
+                    menu.AddEx(creationPackage);
+                }
             }
 
             foreach (KeyValuePair<string, Tuple<string, MatrixCustomMenuEventHandler>> matrixCustomEvent in MatrixCustomMenuEvents)
             {
-                if (matrixCustomEvent.Key.StartsWith(item))
-                {
-                    string menuID = string.Format("{0}{1}", matrixCustomEvent.Key, SAPForm.TypeEx);
+                string menuID = string.Format("{0}{1}", matrixCustomEvent.Key, SAPForm.TypeEx);
 
-                    if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
-                        Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
+                if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
+                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
 
+                if (item != "" && matrixCustomEvent.Key.StartsWith(item))
+                {                   
                     SAPbouiCOM.Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
 
                     string colTitle = matrix.Columns.Item(col).Title;
@@ -2696,6 +2691,9 @@ namespace B1Base.View
                         creationPackage.UniqueID = menuID;
                         creationPackage.String = matrixCustomEvent.Value.Item1;
                         creationPackage.Enabled = true;
+                        creationPackage.Position = pos;
+
+                        pos++;
 
                         menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
                         menu = menuItem.SubMenus;
@@ -2703,6 +2701,59 @@ namespace B1Base.View
                     }
                 }
             }
+
+
+            if (Controller.ConnectionController.Instance.Application.Menus.Exists("HZLINEMTX"))
+                Controller.ConnectionController.Instance.Application.Menus.RemoveEx("HZLINEMTX");
+
+
+            if (pos > 1)
+            {
+                MenuItem menuItem = null;
+                Menus menu = null;
+                MenuCreationParams creationPackage = null;
+
+                creationPackage = ((MenuCreationParams)(Controller.ConnectionController.Instance.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
+
+                creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
+                creationPackage.UniqueID = "HZLINEMTX";
+                creationPackage.String = "_________________";
+                creationPackage.Enabled = true;
+                creationPackage.Position = pos;
+
+                pos++;
+
+                menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
+                menu = menuItem.SubMenus;
+                menu.AddEx(creationPackage);
+            }
+
+            foreach (KeyValuePair<string, Tuple<string, CustomMenuEventHandler>> customEvent in CustomMenuEvents)
+            {
+                string menuID = string.Format("{0}{1}", customEvent.Key, SAPForm.TypeEx);
+
+                if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
+                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
+
+                MenuItem menuItem = null;
+                Menus menu = null;
+                MenuCreationParams creationPackage = null;
+
+                creationPackage = ((MenuCreationParams)(Controller.ConnectionController.Instance.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
+
+                creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
+                creationPackage.UniqueID = menuID;
+                creationPackage.String = customEvent.Value.Item1;
+                creationPackage.Enabled = true;
+                creationPackage.Position = pos;
+
+                pos++;
+
+                menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
+                menu = menuItem.SubMenus;
+                menu.AddEx(creationPackage);
+            }
+
         }
 
         public void Checked(string check)

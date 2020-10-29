@@ -68,6 +68,27 @@ namespace B1Base.DAO
             GC.Collect();
         }
 
+        public void CopyFrom(string baseItemCode)
+        {
+            string xml = string.Empty;
+
+            B1Base.DAO.ItemDI itemBaseDI = new B1Base.DAO.ItemDI();
+            itemBaseDI.InitializeObject(baseItemCode);
+            try
+            {
+                xml = itemBaseDI.GetXmlForDI();
+            }
+            finally
+            {
+                itemBaseDI.FinalizeObject();
+            }
+
+            xml = xml.Replace(baseItemCode, _businessObject.ItemCode);
+
+            _businessObject.UpdateFromXML(xml);
+
+        }
+
         public void SetItemName(string value)
         {
             _businessObject.ItemName = value;
@@ -300,6 +321,26 @@ namespace B1Base.DAO
             _updateSLength1 = true;
         }
 
+        public void SetBVolume(double value)
+        {
+            _businessObject.PurchaseUnitVolume = value;
+        }
+
+        public void SetBVolUnit(int value)
+        {
+            _businessObject.PurchaseVolumeUnit = value == 0 ? 1 : value;
+        }
+
+        public void SetSVolume(double value)
+        {
+            _businessObject.SalesUnitVolume = value;
+        }
+
+        public void SetSVolUnit(int value)
+        {
+            _businessObject.SalesVolumeUnit = value == 0 ? 1 : value;
+        }
+
         public void SetUgpEntry(int value)
         {
             if (value > 0)
@@ -359,6 +400,26 @@ namespace B1Base.DAO
         public void SetSalPackMsr(string value)
         {
             _businessObject.SalesPackagingUnit = value;
+        }
+
+        public void SetNumInBuy(double value)
+        {
+            _businessObject.PurchaseItemsPerUnit = value == 0 ? 1 : value;
+        }
+
+        public void SetPurPackUn(double value)
+        {
+            _businessObject.PurchaseQtyPerPackUnit = value == 0 ? 1 : value;
+        }
+
+        public void SetNumInSale(double value)
+        {
+            _businessObject.SalesItemsPerUnit = value == 0 ? 1 : value;
+        }
+
+        public void SetSalPackUn(double value)
+        {
+            _businessObject.SalesQtyPerPackUnit = value == 0 ? 1 : value;
         }
 
         public void SetToleranDay(int value)
@@ -598,6 +659,8 @@ namespace B1Base.DAO
             if (!_newObject)
             {
                 _businessObject.Remove();
+
+                Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
             }
         }
 
