@@ -137,6 +137,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuInsert;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSearch;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuDuplicate;
+            Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuCancel;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuAny;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuRightClick;
             Controller.ConnectionController.Instance.Application.StatusBarEvent += HandleStatusBarMessage;
@@ -1336,6 +1337,41 @@ namespace B1Base.Controller
                         if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                         {
                             m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuDuplicate();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 444 - " + e.Message);
+                    }
+                }
+            }
+        }
+
+        private void HandleMenuCancel(ref MenuEvent pVal, out bool bubbleEvent)
+        {
+            bubbleEvent = true;
+
+            if (pVal.MenuUID == "1284" && pVal.BeforeAction == false)
+            {
+                try
+                {
+                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
+                    string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
+
+                    if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                    {
+                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuCancel();
+                    }
+                    else if (formId.Contains("F_"))
+                    {
+                        formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
+
+                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuCancel();
                         }
                     }
                 }

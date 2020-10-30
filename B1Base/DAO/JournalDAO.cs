@@ -88,10 +88,7 @@ namespace B1Base.DAO
             {
                 if (journal.GetByKey(transId))
                 {
-                    journal.UseAutoStorno = BoYesNoEnum.tYES;
-                    journal.StornoDate = stornoDate;
-
-                    journal.Update();
+                    journal.Cancel();
                 }
             }
             finally

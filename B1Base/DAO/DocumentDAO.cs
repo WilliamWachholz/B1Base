@@ -444,9 +444,21 @@ namespace B1Base.DAO
             {
                 if (document.GetByKey(docEntry))
                 {
-                    document.Cancel();
+                    Documents documentC = document.CreateCancellationDocument();
+                    if (documentC != null)
+                    {
+                        try
+                        {
+                            documentC.Add();
 
-                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                            Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                        }
+                        finally
+                        {
+                            Marshal.ReleaseComObject(documentC);
+                            GC.Collect();
+                        }
+                    }
                 }
             }
             finally

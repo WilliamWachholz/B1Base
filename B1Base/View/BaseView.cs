@@ -1979,7 +1979,9 @@ namespace B1Base.View
             }
         }
 
-        public virtual void MenuDuplicate() { }        
+        public virtual void MenuDuplicate() { }
+
+        public virtual void MenuCancel() { }
 
         public virtual void Resize() { }
 
