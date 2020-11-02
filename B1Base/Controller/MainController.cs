@@ -381,33 +381,32 @@ namespace B1Base.Controller
 
                             ConfigOpened = false;
                         }
-                        //else if (pVal.FormTypeEx != "ConfigView")
-                        //{
-                        //    string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
+                        else if (pVal.FormTypeEx != "ConfigView")
+                        {
+                            string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
 
-                        //    foreach (string dll in dlls)
-                        //    {
-                        //        Assembly assembly = Assembly.LoadFile(dll);
+                            foreach (string dll in dlls)
+                            {
+                                Assembly assembly = Assembly.LoadFile(dll);
 
-                        //        Type type = assembly.GetType(assembly.GetName().Name + ".View." + pVal.FormTypeEx.Split('.')[pVal.FormTypeEx.Split('.').Count() - 1]);
+                                Type type = assembly.GetType(assembly.GetName().Name + ".View." + pVal.FormTypeEx.Split('.')[pVal.FormTypeEx.Split('.').Count() - 1]);
 
-                        //        if (type != null)
-                        //        {
-                        //            if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
-                        //            {
-                        //                ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
-                        //                object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+                                if (type != null)
+                                {
+                                    if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
+                                    {
+                                        ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
+                                        object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
 
-                        //                m_Views.Add((View.BaseView)formView);
-                        //            }
-                        //        }
-                        //    }
-                        //}
+                                        m_Views.Add((View.BaseView)formView);
+                                    }
+                                }
+                            }
+                        }
                     }
                     else
                     {
                         string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
-
 
                         foreach (string dll in dlls)
                         {

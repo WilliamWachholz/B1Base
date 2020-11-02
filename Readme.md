@@ -28,3 +28,11 @@ days at the most.  Small pull requests are best as they are easier to review.
 
 * [Wachholz](https://github.com/WilliamWachholz)
 
+## TO-DO:
+* Create checkbox on configView named "Log SQL" (if checked keep executed queries in a subdirectory of addon installation folder)
+* Verify CheckAll, don't use SetValue for performance reasons
+* Create a method on BaseView to create new controls in System Forms using xml and BatchActions, to avoid flickering
+* See if can be used direct bound on BaseView, for performance reasons
+* Implement DAO object for B1ServiceLayer or DI Server communication
+
+
