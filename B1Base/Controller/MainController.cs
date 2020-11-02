@@ -389,16 +389,19 @@ namespace B1Base.Controller
                             {
                                 Assembly assembly = Assembly.LoadFile(dll);
 
-                                Type type = assembly.GetType(assembly.GetName().Name + ".View." + pVal.FormTypeEx.Split('.')[pVal.FormTypeEx.Split('.').Count() - 1]);
-
-                                if (type != null)
+                                if (assembly.GetName().Name.StartsWith(Assembly.GetEntryAssembly().GetName().Name))
                                 {
-                                    if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
-                                    {
-                                        ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
-                                        object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+                                    Type type = assembly.GetType(assembly.GetName().Name + ".View." + pVal.FormTypeEx.Split('.')[pVal.FormTypeEx.Split('.').Count() - 1]);
 
-                                        m_Views.Add((View.BaseView)formView);
+                                    if (type != null)
+                                    {
+                                        if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
+                                        {
+                                            ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
+                                            object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+
+                                            m_Views.Add((View.BaseView)formView);
+                                        }
                                     }
                                 }
                             }
@@ -409,19 +412,22 @@ namespace B1Base.Controller
                         string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
 
                         foreach (string dll in dlls)
-                        {
+                        {                            
                             Assembly assembly = Assembly.LoadFile(dll);
 
-                            Type type = assembly.GetType(assembly.GetName().Name + ".View.Form" + pVal.FormTypeEx + "View");
-
-                            if (type != null)
+                            if (assembly.GetName().Name.StartsWith(Assembly.GetEntryAssembly().GetName().Name))
                             {
-                                if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
-                                {
-                                    ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
-                                    object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+                                Type type = assembly.GetType(assembly.GetName().Name + ".View.Form" + pVal.FormTypeEx + "View");
 
-                                    m_Views.Add((View.BaseView)formView);
+                                if (type != null)
+                                {
+                                    if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
+                                    {
+                                        ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
+                                        object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+
+                                        m_Views.Add((View.BaseView)formView);
+                                    }
                                 }
                             }
                         }
