@@ -57,6 +57,8 @@ namespace B1Base.DAO
             }
 
             _businessObject.UpdateFromXML(xml);
+
+            _businessObject.Series = 3;
         }
 
         public void FinalizeObject()
@@ -83,9 +85,11 @@ namespace B1Base.DAO
                 itemBaseDI.FinalizeObject();
             }
 
-            xml = xml.Replace(baseItemCode, _businessObject.ItemCode);
+            xml = xml.Replace(baseItemCode, _businessObject.ItemCode);            
 
             _businessObject.UpdateFromXML(xml);
+
+            _businessObject.Series = 3;
 
         }
 
