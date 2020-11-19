@@ -113,6 +113,7 @@
     <Compile Include="DAO\ItemDI.cs" />
     <Compile Include="DAO\ItemGroupDI.cs" />
     <Compile Include="DAO\JournalDAO.cs" />
+    <Compile Include="DAO\PaymentDI.cs" />
     <Compile Include="DAO\PaymentTermDAO.cs" />
     <Compile Include="Model\AttachmentModel.cs" />
     <Compile Include="Model\BaseModel.cs" />
@@ -202,6 +203,9 @@
     <Content Include="SQL\HANA\GetBusinessPartnerAgentCode.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="SQL\HANA\GetCreditCard.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SQL\HANA\GetCustomizedTemplate.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -284,6 +288,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\SQLSERVER\GetComboValues.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SQL\SQLSERVER\GetCreditCard.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\SQLSERVER\GetCustomizedTemplate.sql">

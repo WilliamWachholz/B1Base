@@ -23,6 +23,56 @@ namespace B1Base.DAO
                 _newObject = true;
             }
         }
+
+        public void InitializeObject(int docEntry, Model.EnumObjType objType, int baseDocEntry, Model.EnumObjType baseObjType)
+        {
+            string xml = string.Empty;
+
+            DocumentDI documentBaseDI = new DocumentDI();
+            documentBaseDI.InitializeObject(baseDocEntry, baseObjType);
+            try
+            {
+                xml = documentBaseDI.GetXmlForDI();
+            }
+            finally
+            {
+                documentBaseDI.FinalizeObject();
+            }
+
+            for (int lineNum = 0; lineNum < 100; lineNum++)
+            {
+                string replaceString = string.Format(@"<LineNum>{0}</LineNum>", lineNum);
+
+                if (xml.IndexOf(replaceString) == -1)
+                    break;
+                else
+                {
+                    string newString = string.Format(@"<LineNum>{0}</LineNum>				    
+				    <BaseType>{1}</BaseType>
+				    <BaseEntry>{2}</BaseEntry>
+				    <BaseLine>{3}</BaseLine>", lineNum, (int)objType, baseDocEntry, lineNum);
+
+                    xml = xml.Replace(replaceString, newString);
+                }
+            }
+
+            xml = xml.Replace("<Object>" + ((int) baseObjType).ToString() + "</Object>", "<Object>" + ((int)objType).ToString() + "</Object>");
+
+            xml = xml.Replace("<DocEntry>" + baseDocEntry.ToString() + "</DocEntry>", "");
+            
+            _businessObject = GetDIObject(objType);
+
+            if (!_businessObject.GetByKey(docEntry))
+            {
+                _newObject = true;
+            }
+
+            _businessObject.UpdateFromXML(xml);
+
+            if (_newObject)
+                _businessObject.DocNum = 0;
+        }
+
         public void FinalizeObject()
         {
             Marshal.ReleaseComObject(_businessObject);
@@ -30,6 +80,43 @@ namespace B1Base.DAO
             _businessObject = null;
 
             GC.Collect();
+        }
+
+        public void CopyFrom(int baseDocEntry, Model.EnumObjType objType)
+        {
+            string xml = string.Empty;
+
+            DocumentDI documentBaseDI = new DocumentDI();
+            documentBaseDI.InitializeObject(baseDocEntry, objType);
+            try
+            {
+                xml = documentBaseDI.GetXmlForDI();
+            }
+            finally
+            {
+                documentBaseDI.FinalizeObject();
+            }
+
+            for (int lineNum = 0; lineNum < 100; lineNum++)
+            {
+                string replaceString = string.Format(@"<LineNum>{0}</LineNum>", lineNum);
+
+                if (xml.IndexOf(replaceString) == -1)
+                    break;
+                else
+                {
+                    string newString = string.Format(@"<LineNum>{0}</LineNum>				    
+				    <BaseType>{1}</BaseType>
+				    <BaseEntry>{2}</BaseEntry>
+				    <BaseLine>{3}</BaseLine>", lineNum, (int)objType, baseDocEntry, lineNum);
+
+                    xml = xml.Replace(replaceString, newString);
+                }
+            }
+
+
+            _businessObject.UpdateFromXML(xml);
+
         }
 
         public void SetBplId(int value)
@@ -77,7 +164,6 @@ namespace B1Base.DAO
             _businessObject.TrackingNumber = value == null ? "" : value;
         }
 
-
         public void SetOwnerCode(int value)
         {
             _businessObject.DocumentsOwner = value;
@@ -87,6 +173,7 @@ namespace B1Base.DAO
         {
             _businessObject.GroupNumber = value;
         }
+
         public void SetPeyMethod(string value)
         {
             _businessObject.PaymentMethod = value == null ? "" : value;
@@ -178,12 +265,34 @@ namespace B1Base.DAO
             _businessObject.Expenses.LineTotal = value;
         }
 
-
         public void SetExpenseDistribuitionMethod(BoAdEpnsDistribMethods value, int line)
         {
             _businessObject.Expenses.SetCurrentLine(line);
 
             _businessObject.Expenses.DistributionMethod = value;
+        }
+
+        public int SetInstallmentDate(DateTime value, int line = -1)
+        {
+            if (line == -1)
+            {
+               _businessObject.Installments.Add();
+
+                line = _businessObject.Installments.Count - 1;
+            }
+
+            _businessObject.Installments.SetCurrentLine(line);
+
+            _businessObject.Installments.DueDate = value;
+
+            return line;
+        }
+
+        public void SetInstallmentTotal(double value, int line)
+        {
+            _businessObject.Installments.SetCurrentLine(line);
+
+            _businessObject.Installments.Total = value;
         }
 
         public void Save()
@@ -211,6 +320,13 @@ namespace B1Base.DAO
 
             if (_newObject)
                 _businessObject.GetByKey(Controller.ConnectionController.Instance.LastObjectCode);
+        }
+
+        public string GetXmlForDI()
+        {
+            B1Base.Controller.ConnectionController.Instance.Company.XmlExportType = SAPbobsCOM.BoXmlExportTypes.xet_ExportImportMode;
+
+            return _businessObject.GetAsXML();
         }
 
         private Documents GetDIObject(Model.EnumObjType objType)

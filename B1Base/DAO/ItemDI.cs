@@ -98,6 +98,11 @@ namespace B1Base.DAO
             _businessObject.ItemName = value;
         }
 
+        public void SetFrgnName(string value)
+        {
+            _businessObject.ForeignName = value;
+        }
+
         public void SetCardCode(string value)
         {
             _businessObject.Mainsupplier = value;
