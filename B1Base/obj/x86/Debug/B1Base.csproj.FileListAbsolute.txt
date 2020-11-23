@@ -61,6 +61,9 @@ C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csproj.GenerateResource.cache
 C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.dll
 C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.pdb
 C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csproj.CoreCompileInputs.cache
-C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csprojAssemblyReference.cache
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetCreditCard.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetCreditCard.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetItemManageBatchNumber.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetItemManageSerialNumber.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetListAvailableBatch.sql
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csprojAssemblyReference.cache

@@ -8,7 +8,7 @@ using SAPbobsCOM;
 
 namespace B1Base.DAO
 {
-    class PaymentDI
+    public class PaymentDI
     {
         Payments _businessObject = null;
 
@@ -102,6 +102,13 @@ namespace B1Base.DAO
             _businessObject.CreditCards.SetCurrentLine(line);
 
             _businessObject.CreditCards.CreditSum = value;
+        }
+
+        public void SetCreditCardFirstDue(DateTime value, int line)
+        {
+            _businessObject.CreditCards.SetCurrentLine(line);
+
+            _businessObject.CreditCards.FirstPaymentDue = value;
         }
 
         public void SetCreditCardNumOfPmnts(int value, int line)

@@ -241,6 +241,17 @@ namespace B1Base.DAO
             _businessObject.Lines.TaxCode = value == null ? "" : value;
         }
 
+        public void SetItemBatchNumber(int line, string batchNumber, double quantity)
+        {
+            _businessObject.Lines.SetCurrentLine(line);
+
+            if (_businessObject.Lines.BatchNumbers.Count > 1 || _businessObject.Lines.BatchNumbers.BatchNumber != string.Empty)
+                _businessObject.Lines.BatchNumbers.Add();
+
+            _businessObject.Lines.BatchNumbers.BatchNumber = batchNumber;
+            _businessObject.Lines.BatchNumbers.Quantity = quantity;
+        }
+
         public int SetExpenseCode(int value, int line = -1)
         {
             if (line == -1)
@@ -262,7 +273,7 @@ namespace B1Base.DAO
         {            
             _businessObject.Expenses.SetCurrentLine(line);
 
-            _businessObject.Expenses.LineTotal = value;
+            _businessObject.Expenses.LineTotal = value;            
         }
 
         public void SetExpenseDistribuitionMethod(BoAdEpnsDistribMethods value, int line)
@@ -276,8 +287,9 @@ namespace B1Base.DAO
         {
             if (line == -1)
             {
-               _businessObject.Installments.Add();
-
+                if (_businessObject.Installments.Count > 1)
+                    _businessObject.Installments.Add();
+                
                 line = _businessObject.Installments.Count - 1;
             }
 
@@ -293,6 +305,38 @@ namespace B1Base.DAO
             _businessObject.Installments.SetCurrentLine(line);
 
             _businessObject.Installments.Total = value;
+        }
+
+        public void SetInstallmentPercentage(double value, int line)
+        {
+            _businessObject.Installments.SetCurrentLine(line);
+
+            _businessObject.Installments.Percentage = value;
+        }
+
+        public void AutoSelectItemBatchSerial(int line)
+        {
+            _businessObject.Lines.SetCurrentLine(line);
+
+            bool manageSerialNumber = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<bool>("GetItemManageSerialNumber", _businessObject.Lines.ItemCode);
+            bool manageBatchNumber = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<bool>("GetItemManageBatchNumber", _businessObject.Lines.ItemCode);
+
+            if (manageSerialNumber)
+            {
+
+            }
+            else if (manageBatchNumber)
+            {
+                List<Model.BatchModel> batchList = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForList<Model.BatchModel>("GetListAvailableBatch", _businessObject.Lines.ItemCode, _businessObject.Lines.WarehouseCode);
+
+                foreach (Model.BatchModel batchModel in batchList)
+                {
+                    if (batchModel.Quantity > _businessObject.Lines.InventoryQuantity)
+                    {
+
+                    }
+                }
+            }
         }
 
         public void Save()
@@ -347,7 +391,6 @@ namespace B1Base.DAO
                     return (Documents)Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oInvoices);
             }
         }
-
 
         public Documents BusinessObject
         {

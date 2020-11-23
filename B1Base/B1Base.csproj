@@ -117,6 +117,7 @@
     <Compile Include="DAO\PaymentTermDAO.cs" />
     <Compile Include="Model\AttachmentModel.cs" />
     <Compile Include="Model\BaseModel.cs" />
+    <Compile Include="Model\BatchModel.cs" />
     <Compile Include="Model\BusinessPartnerModel.cs" />
     <Compile Include="Model\ConfigModel.cs" />
     <Compile Include="Model\ConfigSeqModel.cs" />
@@ -218,7 +219,16 @@
     <Content Include="SQL\HANA\GetItemGroupCode.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="SQL\HANA\GetItemManageBatchNumber.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SQL\HANA\GetItemManageSerialNumber.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SQL\HANA\GetLastLogInstance.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SQL\HANA\GetListAvailableBatch.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="SQL\HANA\GetListField.sql">
