@@ -314,6 +314,11 @@ namespace B1Base.DAO
             _businessObject.Installments.Percentage = value;
         }
 
+        public void SetIncoterms(string value)
+        {
+            _businessObject.TaxExtension.Incoterms = value;
+        }
+
         public void AutoSelectItemBatchSerial(int line)
         {
             _businessObject.Lines.SetCurrentLine(line);

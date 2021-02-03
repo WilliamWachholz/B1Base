@@ -1,3 +1,3 @@
-﻿select "CreditCode"
-from OCRD
-where "CreditName" = '{0}'
+﻿select "CreditCard"
+from OCRC
+where "CardName" = '{0}'

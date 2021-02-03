@@ -15,6 +15,8 @@ namespace B1Base.DAO
         public void InitializeObject(string cardCode)
         {
             _businessObject = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oIncomingPayments);
+
+            _businessObject.CardCode = cardCode;
         }
 
         public void FinalizeObject()
@@ -30,16 +32,20 @@ namespace B1Base.DAO
         {
             _businessObject.Add();
 
-
             Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
         }
 
+        public void SetBPLId(int value)
+        {
+            _businessObject.BPLID = value;
+        }
 
         public int SetInvoice(int docEntry, int instId, int line = -1)
         {
             if (line == -1)
             {
-                _businessObject.Invoices.Add();
+                if (_businessObject.Invoices.Count > 1 || _businessObject.Invoices.DocEntry > 0)
+                    _businessObject.Invoices.Add();
 
                 line = _businessObject.Invoices.Count - 1;
             }
@@ -48,6 +54,25 @@ namespace B1Base.DAO
 
             _businessObject.Invoices.DocEntry = docEntry;
             _businessObject.Invoices.InvoiceType = BoRcptInvTypes.it_Invoice;
+            _businessObject.Invoices.InstallmentId = instId;
+
+            return line;
+        }
+
+        public int SetDownPayment(int docEntry, int instId, int line = -1)
+        {
+            if (line == -1)
+            {
+                if (_businessObject.Invoices.Count > 1 || _businessObject.Invoices.DocEntry > 0)
+                    _businessObject.Invoices.Add();
+
+                line = _businessObject.Invoices.Count - 1;
+            }
+
+            _businessObject.Invoices.SetCurrentLine(line);
+            
+            _businessObject.Invoices.DocEntry = docEntry;
+            _businessObject.Invoices.InvoiceType = BoRcptInvTypes.it_DownPayment;
             _businessObject.Invoices.InstallmentId = instId;
 
             return line;
@@ -64,14 +89,17 @@ namespace B1Base.DAO
         {
             if (line == -1)
             {
-                _businessObject.CreditCards.Add();
+                if (_businessObject.CreditCards.Count > 1 || _businessObject.CreditCards.CreditCard > 0)
+                    _businessObject.CreditCards.Add();
 
                 line = _businessObject.CreditCards.Count - 1;
-            }
+            }            
 
             _businessObject.CreditCards.SetCurrentLine(line);
 
             _businessObject.CreditCards.CreditCard = B1Base.Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetCreditCard", value);
+
+            _businessObject.CreditCards.CardValidUntil = new DateTime(DateTime.Now.Year + 1, 1, 1).AddDays(-1);
 
             return line;
         }
@@ -116,6 +144,15 @@ namespace B1Base.DAO
             _businessObject.CreditCards.SetCurrentLine(line);
 
             _businessObject.CreditCards.NumOfPayments = value;
+        }
+
+
+        public Payments BusinessObject
+        {
+            get
+            {
+                return _businessObject;
+            }
         }
     }
 }

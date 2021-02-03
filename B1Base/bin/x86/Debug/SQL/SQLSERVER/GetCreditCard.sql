@@ -1,3 +1,3 @@
 ﻿select "CreditCode"
-from OCRD
+from OCRC
 where "CreditName" = '{0}'

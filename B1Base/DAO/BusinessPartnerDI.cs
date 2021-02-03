@@ -151,6 +151,42 @@ namespace B1Base.DAO
             }
         }
 
+        public int SetContactName(string value, int line = -1)
+        {
+            bool found = false;
+
+            for (int i = 0; i < _businessObject.ContactEmployees.Count; i++)
+            {
+                _businessObject.ContactEmployees.SetCurrentLine(i);
+
+                if (value == _businessObject.ContactEmployees.Name)
+                {
+                    found = true;
+
+                    line = i;
+
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                if (line == -1)
+                {
+                    if (_businessObject.ContactEmployees.Name != string.Empty)
+                        _businessObject.ContactEmployees.Add();
+
+                    line = _businessObject.ContactEmployees.Count - 1;
+                }
+
+                _businessObject.ContactEmployees.SetCurrentLine(line);
+
+                _businessObject.ContactEmployees.Name = value == null ? "" : value;
+            }
+
+            return line;
+        }
+
         public int SetAddressName(string value, int line = -1)
         {
             bool found = false;

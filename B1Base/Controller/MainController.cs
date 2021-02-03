@@ -120,6 +120,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.AppEvent += HandleAppEvent;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormLoad;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleGotFocus;
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleLostFocus;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormClose;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormDeactivate;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandlePickerClick;
@@ -330,7 +331,7 @@ namespace B1Base.Controller
 
             string formType = pVal.FormTypeEx;
 
-            if (pVal.EventType == BoEventTypes.et_FORM_ACTIVATE)
+            if (pVal.EventType == BoEventTypes.et_FORM_RESIZE)
             {
                 bubbleEvent = true;
 
@@ -356,7 +357,7 @@ namespace B1Base.Controller
                     {
                         ConnectionController.Instance.Application.Forms.Item(pVal.FormUID).Close();
                         SupressPicker = false;
-                    }
+                    }					
                     else if (pVal.FormUID.StartsWith("RW"))
                     {
                         if (FormTypeViews.ContainsKey(pVal.FormTypeEx + AddOnID))
@@ -405,7 +406,29 @@ namespace B1Base.Controller
                                     }
                                 }
                             }
+                        }                       
+                    }
+                    else if (pVal.FormType == 0)
+                    {
+                        try
+                        {
+                            Form form = ConnectionController.Instance.Application.Forms.Item(pVal.FormUID);
+
+                            string text1 =
+                               ((StaticText)form.Items.Item("7").Specific).Caption;
+
+                            string text2 =
+                                ((StaticText)form.Items.Item("1000001").Specific).Caption;
+
+                            foreach (View.BaseView view in m_Views)
+                            {
+                                if (view.ConfirmationBoxLoad(text1 + " " + text2))
+                                {
+                                    form.Items.Item("1").Click(BoCellClickType.ct_Regular);
+                                }
+                            }
                         }
+                        catch { }
                     }
                     else
                     {
@@ -454,6 +477,31 @@ namespace B1Base.Controller
                 }
             }
             catch { }
+        }
+
+        private void HandleLostFocus(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
+        {
+            bubbleEvent = true;
+
+            if (pVal.EventType == BoEventTypes.et_LOST_FOCUS && pVal.BeforeAction == false)
+            {
+                try
+                {
+                    string formType = pVal.FormTypeEx;
+
+                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    {
+                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).FormLostFocus();
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 259 - " + e.Message);
+                    }
+                }
+            }
         }
 
         private void HandleGotFocus(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
@@ -530,7 +578,7 @@ namespace B1Base.Controller
         private void HandleFormDeactivate(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
-
+            
             if (pVal.EventType == BoEventTypes.et_FORM_DEACTIVATE && pVal.BeforeAction == false)
             {
                 try
@@ -1185,10 +1233,10 @@ namespace B1Base.Controller
                                 AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
 
                                 bubbleEvent = false;
-                            }
+                            }                            
                         }                        
                     }
-                }                 
+                }
                 catch (Exception e)
                 {
                     if (LogIsActive)
@@ -1211,7 +1259,7 @@ namespace B1Base.Controller
                             m_Views.First(r => r.FormUID == formId && r.FormType == formType).GotFormData();
                         }
                         if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_ADD)
-                        {                            
+                        {
                             m_Views.First(r => r.FormUID == formId && r.FormType == formType).AddFormData();
                         }
                         if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_UPDATE)

@@ -120,6 +120,7 @@ namespace B1Base.View
         public delegate void ColSuppressActionEventHandler(BoEventTypes action, int row, out bool supressed);
         public delegate void SuppressActionEventHandler(BoEventTypes action, out bool supressed);
         public delegate bool SupressMatrixDetailsEventHandler();
+        public delegate bool ConfirmMessageBoxEventHandler();
         
         public string LastEditValue { get; private set; }
         public string LastComboValue { get; private set; }
@@ -378,6 +379,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, ColSuppressActionEventHandler> ColSupressActionEvents { get { return new Dictionary<string, ColSuppressActionEventHandler>(); } }
 
         protected virtual Dictionary<string, SupressMatrixDetailsEventHandler> SupressMatrixDetailsEvents { get { return new Dictionary<string, SupressMatrixDetailsEventHandler>(); } }
+
+        protected virtual Dictionary<string, ConfirmMessageBoxEventHandler> ConfirmMessageBoxEvents { get { return new Dictionary<string, ConfirmMessageBoxEventHandler>(); } }
 
         protected virtual void CreateControls() { }
 
@@ -1669,9 +1672,7 @@ namespace B1Base.View
                 catch { }
             }
         }
-
-
-
+        
         public void SetValuePro<T>(DataTable dataTable, T model, string sqlScript, params string[] variables) 
         {
             string select = Controller.ConnectionController.Instance.GetSQL(sqlScript, variables);
@@ -1752,7 +1753,6 @@ namespace B1Base.View
                 System.IO.File.WriteAllText("C:\\RNV Soluções\\SQL.txt", select);
             }
         }
-
 
         public void SetValuePro<T>(DataTable dataTable, T model)
         {
@@ -1991,6 +1991,45 @@ namespace B1Base.View
 
         public virtual void Close() { }
 
+        public void FormLostFocus()
+        {
+            foreach (KeyValuePair<string, MatrixColPasteForAllEventHandler> menuEvent in MatrixColPasteForAllEvents)
+            {
+                string menuID = string.Format("MNUPFA{0}", SAPForm.TypeEx);
+
+                if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
+                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
+            }
+
+            foreach (KeyValuePair<string, MatrixRowRemoveEventHandler> menuEvent in MatrixRowRemoveEvents)
+            {
+                string menuID = string.Format("MNUREM{0}", SAPForm.TypeEx);
+
+                if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
+                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
+            }
+
+            foreach (KeyValuePair<string, Tuple<string, MatrixCustomMenuEventHandler>> matrixCustomEvent in MatrixCustomMenuEvents)
+            {
+                string menuID = string.Format("{0}{1}", matrixCustomEvent.Key, SAPForm.TypeEx);
+
+                if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
+                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);               
+            }
+
+
+            if (Controller.ConnectionController.Instance.Application.Menus.Exists("HZLINEMTX"))
+                Controller.ConnectionController.Instance.Application.Menus.RemoveEx("HZLINEMTX");
+
+            foreach (KeyValuePair<string, Tuple<string, CustomMenuEventHandler>> customEvent in CustomMenuEvents)
+            {
+                string menuID = string.Format("{0}{1}", customEvent.Key, SAPForm.TypeEx);
+
+                if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
+                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);              
+            }
+        }
+
         public virtual void ButtonOkClick()
         {
             LastFormMode = SAPForm.Mode;
@@ -2024,18 +2063,31 @@ namespace B1Base.View
                 else if (SAPForm.Mode == BoFormMode.fm_UPDATE_MODE)
                 {
                     BeforeUpdateFormData();
-                    
+
+                    m_updateFailed = false;
+
                     string msg;
 
                     if (ValidateFormData(out msg, false))
                     {
-                        UpdateFormData();
+                        try
+                        {
+                            UpdateFormData();
+                        }
+                        catch(Exception ex)
+                        {
+                            AddOn.Instance.ConnectionController.Application.StatusBar.SetText(ex.Message, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+
+                            m_updateFailed = true;
+
+                            return;
+                        }
                     }
                     else
                     {
                         AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
 
-                        m_updateFailed = true;
+                        m_updateFailed = true;                        
 
                         return;
                     }
@@ -2083,14 +2135,18 @@ namespace B1Base.View
                     }
                     else
                     {
-                        AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+                        AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);                        
 
                         return;
                     }
                 }
 
                 if (m_updateFailed)
+                {
                     SAPForm.Mode = BoFormMode.fm_UPDATE_MODE;
+
+                    AddOn.Instance.ConnectionController.Application.StatusBar.SetText("Operação completada com erro. Verifique o log de mensagens e tente novamente.", BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+                }
             }
 
             if (m_addFlag)
@@ -2106,7 +2162,6 @@ namespace B1Base.View
                 AfterUpdateFormData();
             }
         }
-
         public void ButtonClick(string button)
         {
             if (button == BUTTON_DOC_COPY)
@@ -2463,7 +2518,7 @@ namespace B1Base.View
 
         public void MenuRightClick(string menu)
         {
-            if (menu == "1283")
+            if (menu == "1283" && !SAPForm.UniqueID.Contains("F_"))
             {
                 string msg;
 
@@ -2483,7 +2538,7 @@ namespace B1Base.View
 
                         AddOn.Instance.MainController.OpenMenuInsert();
 
-                        B1Base.AddOn.Instance.ConnectionController.Application.StatusBar.SetText("Operação completadao com êxito.", BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Success);
+                        B1Base.AddOn.Instance.ConnectionController.Application.StatusBar.SetText("Operação completada com êxito.", BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Success);
                     }
                 }
                 else
@@ -3049,6 +3104,16 @@ namespace B1Base.View
 
                 ButtonOpenViewEvents[button](view);
             }
+        }
+
+        public bool ConfirmationBoxLoad(string message)
+        {
+            bool result = false;
+
+            if (ConfirmMessageBoxEvents.ContainsKey(message))
+                result = ConfirmMessageBoxEvents[message]();
+
+            return result;
         }
     }    
 }

@@ -460,11 +460,13 @@ namespace B1Base.DAO
         public void SetValidFor(bool value)
         {
             _businessObject.Valid = value ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            _businessObject.Frozen = value ? BoYesNoEnum.tNO : BoYesNoEnum.tYES;
         }
 
         public void SetFrozenFor(bool value)
         {
             _businessObject.Frozen = value ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;
+            _businessObject.Valid = value ? BoYesNoEnum.tNO : BoYesNoEnum.tYES;
         }
 
         public void SetPlaningSys(BoPlanningSystem value)
@@ -492,6 +494,18 @@ namespace B1Base.DAO
         {
             if (value > 0)
                 _businessObject.NCMCode = value;
+            else
+                _businessObject.NCMCode = -1;
+        }
+
+        public void SetNCMCode(string value)
+        {
+            if (value != string.Empty)
+            {
+                int code = B1Base.Controller.ConnectionController.Instance.ExecuteSqlForBasicObject<int>("AbsEntry", "ONCM", "NcmCode", "'" + value + "'", "-1");
+
+                _businessObject.NCMCode = code;
+            }
             else
                 _businessObject.NCMCode = -1;
         }
@@ -572,12 +586,9 @@ namespace B1Base.DAO
             return line;
         }
 
-        public void SetProductSrc(string value)
+        public void SetProductSrc(int value)
         {
-            if (value != string.Empty)
-            {
-                _businessObject.ProductSource = Convert.ToInt32(value);
-            }
+            _businessObject.ProductSource = value;
         }
 
         public void SetUserField(string userField, dynamic value)
