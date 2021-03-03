@@ -596,6 +596,44 @@ namespace B1Base.DAO
             _businessObject.UserFields.Fields.Item(userField).Value = value;
         }
 
+        public int SetWarehouseCode(string value, int line = -1)
+        {
+            if (line == -1)
+            {
+                for (int row = 0; row <= _businessObject.WhsInfo.Count; row++)
+                {
+                    _businessObject.WhsInfo.SetCurrentLine(row);
+
+                    if (_businessObject.WhsInfo.WarehouseCode == value)
+                    {
+                        line = row;
+                        break;
+                    }    
+                }
+
+                if (line == -1)
+                {
+                    if (_businessObject.WhsInfo.Count > 1)
+                        _businessObject.WhsInfo.Add();
+
+                    line = _businessObject.WhsInfo.Count - 1;
+                }
+            }
+
+            _businessObject.WhsInfo.SetCurrentLine(line);
+
+            _businessObject.WhsInfo.WarehouseCode = value;
+
+            return line;
+        }
+
+        public void SetWarehouseUserField(string userField, dynamic value, int line)
+        {
+            _businessObject.WhsInfo.SetCurrentLine(line);
+
+            _businessObject.WhsInfo.UserFields.Fields.Item(userField).Value = value;
+        }
+
         public void Save()
         {
             if (_newObject)

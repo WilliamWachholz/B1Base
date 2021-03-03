@@ -28,6 +28,17 @@ namespace B1Base.Controller
 
         public View.BaseView LastParent { get; set; }
 
+        public View.BaseView LastView
+        {
+            get
+            {
+                if (m_Views.Count > 1)
+                    return m_Views[m_Views.Count - 2];
+                else
+                    return null;
+            }
+        }
+
         private List<string> Menus { get; set; }
 
         private bool LogIsActive { get; set; }        
