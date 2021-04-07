@@ -85,6 +85,74 @@ namespace B1Base.DAO
             _businessObject.Invoices.SumApplied = value;
         }
 
+        public int SetCheck(int value, int line = -1)
+        {
+            if (line == -1)
+            {
+                if (_businessObject.Checks.Count > 1 || _businessObject.Checks.CheckNumber > 0)
+                    _businessObject.Checks.Add();
+
+                line = _businessObject.Checks.Count - 1;
+            }
+
+            _businessObject.Checks.SetCurrentLine(line);
+
+            _businessObject.Checks.CheckNumber = value;
+
+            return line;
+        }
+
+        
+
+        public void SetCheckDueDate(DateTime value, int line)
+        {
+            _businessObject.Checks.SetCurrentLine(line);
+
+            _businessObject.Checks.DueDate = value;
+        }
+
+        public void SetCheckSum(double value, int line)
+        {
+            _businessObject.Checks.SetCurrentLine(line);
+
+            _businessObject.Checks.CheckSum = value;
+        }
+
+        public void SetCheckCountryCod(string value, int line)
+        {
+            _businessObject.Checks.SetCurrentLine(line);
+
+            _businessObject.Checks.CountryCode = value;
+        }
+
+        public void SetCheckBankCode(string value, int line)
+        {
+            _businessObject.Checks.SetCurrentLine(line);
+
+            _businessObject.Checks.BankCode = value;
+        }
+
+        public void SetCheckBranch(string value, int line)
+        {
+            _businessObject.Checks.SetCurrentLine(line);
+
+            _businessObject.Checks.Branch = value;
+        }
+
+        public void SetCheckAcct(string value, int line)
+        {
+            _businessObject.Checks.SetCurrentLine(line);
+
+            _businessObject.Checks.AccounttNum = value;
+        }
+
+        public void SetCheckNum(int value, int line)
+        {
+            _businessObject.Checks.SetCurrentLine(line);
+
+            _businessObject.Checks.CheckNumber = value;
+        }
+
         public int SetCreditCard(string value, int line = -1)
         {
             if (line == -1)
@@ -146,7 +214,10 @@ namespace B1Base.DAO
             _businessObject.CreditCards.NumOfPayments = value;
         }
 
-
+        public void SetUserField(string key, dynamic value)
+        {
+            _businessObject.UserFields.Fields.Item(key).Value = value;
+        }
         public Payments BusinessObject
         {
             get

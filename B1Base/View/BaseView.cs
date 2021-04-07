@@ -1641,6 +1641,85 @@ namespace B1Base.View
             matrix.LoadFromDataSource();
         }
 
+        public void SetValuePro<T>(Grid grid, List<T> list)
+        {
+            DataTable dataTable = grid.DataTable;
+
+            Type type = typeof(T);
+
+            var props = type.GetProperties().Where(r => r.Name != "Changed" && r.Name != "Code");
+
+            List<string> selects = new List<string>();
+
+            foreach (T model in list)
+            {
+                List<string> values = new List<string>();
+
+                foreach (var prop in props)
+                {
+                    if (prop.PropertyType == typeof(Boolean))
+                    {
+                        values.Add((bool)prop.GetValue(model) ? "'Y'" : "'N'" + " as " + prop.Name);
+                    }
+                    else if (prop.PropertyType.IsEnum)
+                    {
+                        values.Add(((int)prop.GetValue(model)).ToString() + " as " + prop.Name);
+                    }
+                    else if (prop.PropertyType == typeof(DateTime))
+                    {
+                        values.Add("cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)" + " as " + prop.Name);
+                    }
+                    else if (prop.PropertyType == typeof(Int32))
+                    {
+                        values.Add(prop.GetValue(model).ToString() + " as " + prop.Name);
+                    }
+                    else if (prop.PropertyType == typeof(double))
+                    {
+                        if (Convert.ToDouble(prop.GetValue(model)) == 0)
+                        {
+                            values.Add("0.0" + " as " + prop.Name);
+                        }
+                        else
+                        {
+                            Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+
+                            int decimalDigits = 2;
+
+                            if (specificType != null)
+                            {
+                                decimalDigits = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetDisplayDecimalDigits", ((int)specificType.Value).ToString());
+                            }
+
+                            values.Add(string.Format("cast({0} as decimal(15,{1}))" + " as " + prop.Name, Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat), decimalDigits.ToString()));
+                        }
+                    }
+                    else if (prop.PropertyType == typeof(string))
+                    {
+                        if (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) != null)
+                            values.Add("cast('" + prop.GetValue(model) + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))" + " as " + prop.Name);
+                        else
+                            values.Add("cast('" + prop.GetValue(model).ToString() + "' as nvarchar)" + " as " + prop.Name);
+                    }
+                }
+
+                selects.Add(" select " + (type.BaseType == typeof(Model.BaseModel) ? type.GetProperty("Code").GetValue(model) + " as Code," : "") + string.Join(",", values.ToArray()) + (Controller.ConnectionController.Instance.DBServerType == "HANA" ? " from dummy " : " "));
+            }
+
+            if (list.Count == 0)
+                dataTable.Rows.Clear();
+            else
+            {
+                try
+                {
+                    dataTable.ExecuteQuery(string.Join("union all", selects.ToArray()));
+                }
+                catch (Exception ex)
+                {
+                    System.IO.File.WriteAllText("C:\\RNV Soluções\\SQL.txt", string.Join("union all", selects.ToArray()));
+                }
+            }            
+        }
+
         public void SetValue<T>(DataTable dataTable, T model) where T : Model.BaseModel
         {
             dataTable.Rows.Clear();
@@ -2434,9 +2513,18 @@ namespace B1Base.View
 
             if (ColumnValidateEvents.ContainsKey(key) && !Frozen)
             {
-                EditText editText = (EditText)matrixItem.Columns.Item(column).Cells.Item(row).Specific;
+                if (SAPForm.Items.Item(matrix).Type == BoFormItemTypes.it_MATRIX)
+                {
+                    EditText editText = (EditText)matrixItem.Columns.Item(column).Cells.Item(row).Specific;
 
-                LastColumnValue = editText.String;
+                    LastColumnValue = editText.String;
+                }
+                else if (SAPForm.Items.Item(matrix).Type == BoFormItemTypes.it_GRID)
+                {
+                    Grid gridItem = (Grid)SAPForm.Items.Item(matrix).Specific;
+
+                    LastColumnValue = gridItem.DataTable.GetValue(column, row).ToString();
+                }
             }
 
         }
@@ -2891,50 +2979,63 @@ namespace B1Base.View
 
             if (ColumnValidateEvents.ContainsKey(key) && !Frozen)
             {
-                Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
-
-                EditText editText = (EditText)matrixItem.Columns.Item(column).Cells.Item(row).Specific;
-
-                try
+                if (SAPForm.Items.Item(matrix).Type == BoFormItemTypes.it_MATRIX)
                 {
-                    if (editText.ChooseFromListUID != string.Empty && editText.String == string.Empty)
+                    Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                    EditText editText = (EditText)matrixItem.Columns.Item(column).Cells.Item(row).Specific;
+
+                    try
                     {
-                        try
+                        if (editText.ChooseFromListUID != string.Empty && editText.String == string.Empty)
                         {
-                            UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
-                            codeDataSource.Value = "";
+                            try
+                            {
+                                UserDataSource codeDataSource = SAPForm.DataSources.UserDataSources.Item("_" + editText.DataBind.Alias);
+                                codeDataSource.Value = "";
 
-                            UserDataSource valueDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
-                            valueDataSource.Value = "";
+                                UserDataSource valueDataSource = SAPForm.DataSources.UserDataSources.Item(editText.DataBind.Alias);
+                                valueDataSource.Value = "";
+                            }
+                            catch { }
+
+                            if (ChooseFromEvents.ContainsKey(key))
+                                ChooseFromEvents[key]("");
                         }
-                        catch { }
+                    }
+                    catch { }
 
-                        if (ChooseFromEvents.ContainsKey(key))
-                            ChooseFromEvents[key]("");
+                    bool changed = LastColumnValue != editText.String;
+
+                    ColumnValidateEvents[key](row, changed);
+
+                    if (MatrixCanAddEvents.ContainsKey(key) && row == matrixItem.RowCount)
+                    {
+                        if (MatrixCanAddEvents[key](row))
+                        {
+                            matrixItem.AddRow();
+                            matrixItem.ClearRowData(matrixItem.RowCount);
+
+                            try
+                            {
+                                if (matrixItem.Columns.Item(0).Description == "Pos" || matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
+                                    ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
+                            }
+                            catch { }
+                        }
                     }
                 }
-                catch { }
-
-                bool changed = LastColumnValue != editText.String;
-
-                ColumnValidateEvents[key](row, changed);                
-
-                if (MatrixCanAddEvents.ContainsKey(key) && row == matrixItem.RowCount)
+                else if (SAPForm.Items.Item(matrix).Type == BoFormItemTypes.it_GRID)
                 {
-                    if (MatrixCanAddEvents[key](row))
-                    {
-                        matrixItem.AddRow();
-                        matrixItem.ClearRowData(matrixItem.RowCount);
+                    Grid gridItem = (Grid)SAPForm.Items.Item(matrix).Specific;
 
-                        try
-                        {
-                            if (matrixItem.Columns.Item(0).Description == "Pos" || matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
-                                ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
-                        }
-                        catch { }
-                    }
+                    string value = gridItem.DataTable.GetValue(column, row).ToString();
+
+                    bool changed = LastColumnValue != value;
+
+                    ColumnValidateEvents[key](row, changed);
                 }
-            }
+            }            
         }
 
         public void EditFocus(string edit)

@@ -342,6 +342,8 @@ namespace B1Base.Controller
 
             string formType = pVal.FormTypeEx;
 
+            
+
             if (pVal.EventType == BoEventTypes.et_FORM_RESIZE)
             {
                 bubbleEvent = true;
@@ -351,6 +353,8 @@ namespace B1Base.Controller
                     ConnectionController.Instance.Application.Forms.Item(pVal.FormUID).Close();
                     SupressDetails = false;
                 }
+
+               
             }
 
             if (pVal.EventType == BoEventTypes.et_FORM_LOAD && !pVal.BeforeAction)
@@ -368,7 +372,7 @@ namespace B1Base.Controller
                     {
                         ConnectionController.Instance.Application.Forms.Item(pVal.FormUID).Close();
                         SupressPicker = false;
-                    }					
+                    }
                     else if (pVal.FormUID.StartsWith("RW"))
                     {
                         if (FormTypeViews.ContainsKey(pVal.FormTypeEx + AddOnID))
@@ -417,7 +421,7 @@ namespace B1Base.Controller
                                     }
                                 }
                             }
-                        }                       
+                        }
                     }
                     else if (pVal.FormType == 0)
                     {
@@ -440,13 +444,27 @@ namespace B1Base.Controller
                             }
                         }
                         catch { }
+
+                        if (m_GridOnFilter)
+                        {
+                            Form form = ConnectionController.Instance.Application.Forms.Item(pVal.FormUID);
+                            form.Items.Item("2").Click(BoCellClickType.ct_Regular);
+                        }
+                    }
+                    else if (pVal.FormType == 60268)
+                    {
+                        if (m_GridOnFilter)
+                        {
+                            m_GridOnFilter = false;
+                            m_FilteredView.SAPForm.Items.Item(m_FilteredView.SAPForm.Settings.MatrixUID).Enabled = true;
+                        }
                     }
                     else
                     {
                         string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
 
                         foreach (string dll in dlls)
-                        {                            
+                        {
                             Assembly assembly = Assembly.LoadFile(dll);
 
                             if (assembly.GetName().Name.StartsWith(Assembly.GetEntryAssembly().GetName().Name))
@@ -1331,7 +1349,7 @@ namespace B1Base.Controller
         private void HandleMenuSearch(ref MenuEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
-            
+
             if (pVal.MenuUID == "1281")
             {
                 string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
@@ -1377,7 +1395,43 @@ namespace B1Base.Controller
                     }
                 }
             }
+            else if (pVal.MenuUID == "4870")
+            {
+                string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
+                string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
+
+                if (pVal.BeforeAction)
+                {
+                    if (!formId.Contains("F_"))
+                    {
+                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                        {
+                            m_GridOnFilter = true;
+
+                            m_FilteredView = m_Views.First(r => r.FormUID == formId && r.FormType == formType);
+
+                            if (m_FilteredView.SAPForm.ActiveItem == m_FilteredView.SAPForm.Settings.MatrixUID)
+                            {
+                                for (int i = 0; i <= m_FilteredView.SAPForm.Items.Count; i++)
+                                {
+                                    if (m_FilteredView.SAPForm.Items.Item(i).Type == BoFormItemTypes.it_EDIT && m_FilteredView.SAPForm.Items.Item(i).Enabled)
+                                    {
+                                        m_FilteredView.SAPForm.Items.Item(i).Click();
+
+                                        break;
+                                    }
+                                }
+                            }
+
+                            m_FilteredView.SAPForm.Items.Item(m_FilteredView.SAPForm.Settings.MatrixUID).Enabled = false;
+                        }
+                    }
+                }
+            }
         }
+
+        bool m_GridOnFilter = false;
+        View.BaseView m_FilteredView = null;
 
         private void HandleMenuDuplicate(ref MenuEvent pVal, out bool bubbleEvent)
         {
