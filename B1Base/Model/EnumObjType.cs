@@ -37,6 +37,7 @@ namespace B1Base.Model
         BusinessPartner = 2,
         [Description("RI")]
         InternalReconciliation = 321,
-        InvoiceReturnRequest = 234000031
+        InvoiceReturnRequest = 234000031,
+        Draft = 112,
     }
 }

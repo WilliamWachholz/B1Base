@@ -39,6 +39,21 @@ namespace B1Base.Controller
             }
         }
 
+        public List<View.BaseView> GetViews(string formType)
+        {
+            List<View.BaseView> result = new List<View.BaseView>();
+
+            foreach (View.BaseView view in m_Views)
+            {
+                if (view.FormType == formType)
+                {
+                    result.Add(view);
+                }
+            }
+
+            return result;
+        }
+
         private List<string> Menus { get; set; }
 
         private bool LogIsActive { get; set; }        
@@ -54,6 +69,8 @@ namespace B1Base.Controller
         private bool ConfigOpened { get; set; }
 
         Timer m_timerFinalize = new Timer(60000);
+
+        string m_NextMessage = string.Empty;
 
         protected const string MENU_SAP = "43520";
         protected const string MENU_CONFIG_SAP = "43525";
@@ -222,10 +239,15 @@ namespace B1Base.Controller
 
         public View.BaseView OpenView(string formType, View.BaseView parentView, bool wait = false)
         {
-            return OpenView(false, formType, parentView, wait);
+            return OpenView(false, formType, parentView, 0, 0, wait);
         }
 
-        public View.BaseView OpenView(bool unique, string formType, View.BaseView parentView, bool wait = false)
+        public View.BaseView OpenView(string formType, View.BaseView parentView, int top, int left, bool wait = false)
+        {
+            return OpenView(false, formType, parentView, top, left, wait);
+        }
+
+        public View.BaseView OpenView(bool unique, string formType, View.BaseView parentView, int top = 0, int left = 0, bool wait = false)
         {
             try
             {
@@ -285,6 +307,12 @@ namespace B1Base.Controller
                     xml = xml.Replace(string.Format("appformnumber=\"{0}\"", formType), string.Format("appformnumber=\"{0}\"", newFormType));
                     xml = xml.Replace(string.Format("FormType=\"{0}\"", formType), string.Format("FormType=\"{0}\"", newFormType));
 
+                    if (top > 0)
+                        xml = xml.Replace("top=\"99\"", string.Format("top=\"{0}\"", top));
+
+                    if (left > 0)
+                        xml = xml.Replace("left=\"999\"", string.Format("left=\"{0}\"", left));
+
                     if (Controller.ConnectionController.Instance.DBServerType == "SQLSERVER")
                         xml = xml.Replace("from dummy", "");
 
@@ -335,6 +363,11 @@ namespace B1Base.Controller
 		{
 			Controller.ConnectionController.Instance.Application.Menus.Item("1291").Activate();
 		}
+
+        public void ConfirmNextMessage(string message)
+        {
+            m_NextMessage = message;
+        }
 
         private void HandleFormLoad(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
@@ -432,8 +465,13 @@ namespace B1Base.Controller
                             string text1 =
                                ((StaticText)form.Items.Item("7").Specific).Caption;
 
-                            string text2 =
-                                ((StaticText)form.Items.Item("1000001").Specific).Caption;
+                            string text2 = string.Empty;
+
+                            try
+                            {
+                                text2 = ((StaticText)form.Items.Item("1000001").Specific).Caption;
+                            }
+                            catch { }
 
                             foreach (View.BaseView view in m_Views)
                             {
@@ -442,6 +480,13 @@ namespace B1Base.Controller
                                     form.Items.Item("1").Click(BoCellClickType.ct_Regular);
                                 }
                             }
+
+                            if (m_NextMessage.Trim() == (text1 + " " + text2).Trim())
+                            {
+                                form.Items.Item("1").Click(BoCellClickType.ct_Regular);
+                            }
+
+                            m_NextMessage = string.Empty;
                         }
                         catch { }
 

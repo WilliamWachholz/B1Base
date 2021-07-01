@@ -92,6 +92,7 @@ namespace B1Base.View
         public delegate void ButtonClickEventHandler();
         public delegate void ButtonPressEventHandler();
         public delegate void ButtonOpenViewEventHandler(BaseView view);
+        public delegate void ButtonComboClickEventHandler(bool changed);
         public delegate void FolderSelectEventHandler();
         public delegate void CustomMenuEventHandler();
         public delegate void KeyDownEventHandler();
@@ -108,6 +109,7 @@ namespace B1Base.View
         public delegate bool MatrixCheckAllEventHandler();
         public delegate bool MatrixCanAddEventHandler(int row);
         public delegate void EditValidateEventHandler(bool changed);
+        public delegate void EditFocusEventHandler();
         public delegate void ColumnValidateEventHandler(int row, bool changed);
         public delegate void ComboSelectEventHandler(bool changed);
         public delegate void ColumnSelectEventHandler(int row, bool changed);
@@ -125,6 +127,9 @@ namespace B1Base.View
         public string LastEditValue { get; private set; }
         public string LastComboValue { get; private set; }
         public string LastColumnValue { get; private set; }
+
+        public string LastButtonComboValue { get; protected set; }
+
         public int LastSortedColPos { get; private set; }
         public string LastButtonClicked { get; private set; }
         public Dictionary<string, string> LastCols { get; private set; }
@@ -138,6 +143,8 @@ namespace B1Base.View
         public int LastCopiedDocEntry { get; private set; }
         public int LastDocEntry { get; private set; }
         public int LastAbsEntry { get; protected set; }
+
+        
         public Model.EnumObjType LastCopiedObjType { get; private set; }
         public bool Frozen { get; private set; }
         public BoModifiersEnum LastModifier { get; private set; }
@@ -208,7 +215,7 @@ namespace B1Base.View
                 if (!formReady)
                     System.Threading.Thread.Sleep(1000);                
 
-                if (!FormUID.Contains("F_") && !SecondaryView)
+                if (!FormUID.Contains("F_") && !SecondaryView && SAPForm.BorderStyle != BoFormBorderStyle.fbs_Floating)
                 {
                     SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
                     SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
@@ -317,6 +324,8 @@ namespace B1Base.View
         /// </summary>
         protected virtual Dictionary<string, ButtonClickEventHandler> ButtonClickEvents { get { return new Dictionary<string, ButtonClickEventHandler>(); } }
 
+        protected virtual Dictionary<string, ButtonComboClickEventHandler> ButtonComboClickEvents { get { return new Dictionary<string, ButtonComboClickEventHandler>(); } }
+
         /// <summary>
         /// Não atribuir a esse evento o botão OK (uid=1). Para esses casos, usar as sobrecargas correspondentes (FindFormData, GotFormData, AddFormData, UpdateFormData e DeleteFormData)
         /// </summary>
@@ -355,6 +364,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, FolderSelectEventHandler> FolderSelectEvents { get { return new Dictionary<string, FolderSelectEventHandler>(); } }
 
         protected virtual Dictionary<string, EditValidateEventHandler> EditValidateEvents { get { return new Dictionary<string, EditValidateEventHandler>(); } }
+
+        protected virtual Dictionary<string, EditFocusEventHandler> EditFocusEvents { get { return new Dictionary<string, EditFocusEventHandler>(); } }
 
         protected virtual Dictionary<string, ColumnValidateEventHandler> ColumnValidateEvents { get { return new Dictionary<string, ColumnValidateEventHandler>(); } }
 
@@ -634,6 +645,18 @@ namespace B1Base.View
                     combo.Select(tempValue, BoSearchKey.psk_ByValue);
                 }
                 catch { }
+            }
+        }
+
+        protected void LoadButtonCombo<T>(ButtonCombo buttonCombo)
+        {
+            var type = typeof(T);
+
+            var enumValues = Enum.GetValues(type);
+
+            foreach (var enumValue in enumValues)
+            {
+                buttonCombo.ValidValues.Add(((int)enumValue).ToString(), Model.EnumOperation.GetEnumDescription(enumValue));
             }
         }
 
@@ -2241,6 +2264,7 @@ namespace B1Base.View
                 AfterUpdateFormData();
             }
         }
+
         public void ButtonClick(string button)
         {
             if (button == BUTTON_DOC_COPY)
@@ -2261,6 +2285,13 @@ namespace B1Base.View
             if (ButtonOpenViewEvents.ContainsKey(button))
             {
                 LastButtonClicked = button;
+            }
+
+            if (ButtonComboClickEvents.ContainsKey(button) && !Frozen)
+            {
+                ButtonComboClickEvents[button](LastButtonComboValue !=
+                    (((ButtonCombo)SAPForm.Items.Item(button).Specific).Selected == null ? string.Empty :
+                    ((ButtonCombo)SAPForm.Items.Item(button).Specific).Selected.Value));
             }
         }
 
@@ -2401,50 +2432,59 @@ namespace B1Base.View
 
             if (ColChooseFromEvents.ContainsKey(key))
             {
-                Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
-
-                for (int col = 0; col < matrixItem.Columns.Count; col++)
+                if (SAPForm.Items.Item(matrix).Type == BoFormItemTypes.it_GRID)
                 {
-                    if (matrixItem.Columns.Item(col).Type == BoFormItemTypes.it_EDIT || matrixItem.Columns.Item(col).Type == BoFormItemTypes.it_LINKED_BUTTON)
+                    EditTextColumn col = ((EditTextColumn)((Grid)SAPForm.Items.Item(matrix).Specific).Columns.Item(column));
+
+                    col.SetText(row, values[col.ChooseFromListAlias]);
+                }
+                else
+                {
+                    Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                    for (int col = 0; col < matrixItem.Columns.Count; col++)
                     {
-                        EditText editText = (EditText)matrixItem.Columns.Item(col).Cells.Item(row).Specific;
-
-                        string alias = string.Empty;
-
-                        try
+                        if (matrixItem.Columns.Item(col).Type == BoFormItemTypes.it_EDIT || matrixItem.Columns.Item(col).Type == BoFormItemTypes.it_LINKED_BUTTON)
                         {
-                            alias = matrixItem.Columns.Item(col).ChooseFromListAlias;
-                        }
-                        catch { }
-                        
-                        if (values.ContainsKey(alias))
-                        {
+                            EditText editText = (EditText)matrixItem.Columns.Item(col).Cells.Item(row).Specific;
+
+                            string alias = string.Empty;
+
                             try
                             {
-                                editText.String = values[alias];
+                                alias = matrixItem.Columns.Item(col).ChooseFromListAlias;
                             }
                             catch { }
+
+                            if (values.ContainsKey(alias))
+                            {
+                                try
+                                {
+                                    editText.String = values[alias];
+                                }
+                                catch { }
+                            }
                         }
                     }
-                }
 
-                ColChooseFromEvents[key](row, values);
+                    ColChooseFromEvents[key](row, values);
 
-                if (MatrixCanAddEvents.ContainsKey(key) && !Frozen)
-                {
-                    if (row == matrixItem.RowCount)
+                    if (MatrixCanAddEvents.ContainsKey(key) && !Frozen)
                     {
-                        if (MatrixCanAddEvents[key](row))
+                        if (row == matrixItem.RowCount)
                         {
-                            matrixItem.AddRow();
-                            matrixItem.ClearRowData(matrixItem.RowCount);
-
-                            try
+                            if (MatrixCanAddEvents[key](row))
                             {
-                                if (matrixItem.Columns.Item(0).Description == "Pos" || matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
-                                    ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
+                                matrixItem.AddRow();
+                                matrixItem.ClearRowData(matrixItem.RowCount);
+
+                                try
+                                {
+                                    if (matrixItem.Columns.Item(0).Description == "Pos" || matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
+                                        ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
+                                }
+                                catch { }
                             }
-                            catch { }
                         }
                     }
                 }
@@ -2913,7 +2953,7 @@ namespace B1Base.View
         {
             string key = string.Format("{0}.{1}", matrix, column);
 
-            if (row == 0)
+            if (row == 0 && SAPForm.Items.Item(matrix).Type == BoFormItemTypes.it_MATRIX)
             {
                 if (MatrixCheckAllEvents.ContainsKey(key))
                 {
@@ -2938,6 +2978,14 @@ namespace B1Base.View
             }
             else if (ColumnCheckEvents.ContainsKey(key) && !Frozen)
             {
+                if (SAPForm.Items.Item(matrix).Type == BoFormItemTypes.it_GRID)
+                {
+                    if (LastCols.ContainsKey(matrix))
+                        LastCols[matrix] = column;
+                    else
+                        LastCols.Add(matrix, column);
+                }
+
                 ColumnCheckEvents[key](row);
             }
 
@@ -3033,6 +3081,11 @@ namespace B1Base.View
 
                     bool changed = LastColumnValue != value;
 
+                    if (LastCols.ContainsKey(matrix))
+                        LastCols[matrix] = column;
+                    else
+                        LastCols.Add(matrix, column);
+
                     ColumnValidateEvents[key](row, changed);
                 }
             }            
@@ -3043,6 +3096,11 @@ namespace B1Base.View
             if (EditValidateEvents.ContainsKey(edit) && !Frozen)
             {
                 LastEditValue = ((EditText)SAPForm.Items.Item(edit).Specific).String;
+            }
+
+            if (EditFocusEvents.ContainsKey(edit) && !Frozen)
+            {
+                EditFocusEvents[edit]();
             }
         }
 
