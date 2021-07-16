@@ -375,8 +375,6 @@ namespace B1Base.Controller
 
             string formType = pVal.FormTypeEx;
 
-            
-
             if (pVal.EventType == BoEventTypes.et_FORM_RESIZE)
             {
                 bubbleEvent = true;
@@ -503,7 +501,7 @@ namespace B1Base.Controller
                             m_GridOnFilter = false;
                             m_FilteredView.SAPForm.Items.Item(m_FilteredView.SAPForm.Settings.MatrixUID).Enabled = true;
                         }
-                    }
+                    }                    
                     else
                     {
                         string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");

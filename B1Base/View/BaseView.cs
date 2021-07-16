@@ -698,6 +698,26 @@ namespace B1Base.View
             }
         }
 
+        protected void FilterChoose(Grid grid, string column, string field, BoConditionOperation operation, string value)
+        {
+            EditTextColumn edit = (EditTextColumn) grid.Columns.Item(column);
+
+            if (edit.ChooseFromListUID != string.Empty)
+            {
+                ChooseFromList choose = (ChooseFromList)SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
+
+                Conditions conditions = new Conditions();
+
+                Condition condition = conditions.Add();
+
+                condition.Alias = field;
+                condition.Operation = operation;
+                condition.CondVal = value;
+
+                choose.SetConditions(conditions);
+            }
+        }
+
         protected void ClearFilterChoose(EditText edit)
         {
             ChooseFromList choose = (ChooseFromList)SAPForm.ChooseFromLists.Item(edit.ChooseFromListUID);
