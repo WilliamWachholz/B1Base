@@ -1,6 +1,5 @@
 ﻿select	"{1}",
-		case when length("{2}") > 140 then substring("{2}", 0, 140) else "{2}" end
-from {0}
+		case when length("{2}") > 140 then substring("{2}", 0, 140) else "{2}" end AS "Descr" 
 union
 select  0,
 		''

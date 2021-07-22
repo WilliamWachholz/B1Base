@@ -1629,7 +1629,14 @@ namespace B1Base.View
                     }
                     else if (prop.PropertyType == typeof(DateTime))
                     {
-                        values.Add("cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)");
+                        if (Convert.ToDateTime(prop.GetValue(model)) == DateTime.MinValue || Convert.ToDateTime(prop.GetValue(model)) == new DateTime(1899, 12, 30))
+                        {
+                            values.Add("to_date(null)");
+                        }
+                        else
+                        {
+                            values.Add("cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)");
+                        }
                     }
                     else if (prop.PropertyType == typeof(Int32))
                     {
@@ -1786,6 +1793,13 @@ namespace B1Base.View
                     {
                         dataTable.SetValue(col, dataTable.Rows.Count - 1, (int)prop.GetValue(model)); ;
                     }
+                    else if (prop.PropertyType == typeof(DateTime))
+                    {
+                        if (Convert.ToDateTime(prop.GetValue(model)) != DateTime.MinValue && Convert.ToDateTime(prop.GetValue(model)) != new DateTime(1899, 12, 30))
+                        {
+                            dataTable.SetValue(col, dataTable.Rows.Count - 1, prop.GetValue(model));
+                        }
+                    }
                     else
                     {
                         dataTable.SetValue(col, dataTable.Rows.Count - 1, prop.GetValue(model));
@@ -1901,7 +1915,14 @@ namespace B1Base.View
                 }
                 else if (prop.PropertyType == typeof(DateTime))
                 {
-                    values.Add("cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)");
+                    if (Convert.ToDateTime(prop.GetValue(model)) == DateTime.MinValue || Convert.ToDateTime(prop.GetValue(model)) == new DateTime(1899, 12, 30))
+                    {
+                        values.Add("to_date(null)");
+                    }
+                    else
+                    {
+                        values.Add("cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)");
+                    }
                 }
                 else if (prop.PropertyType == typeof(Int32))
                 {

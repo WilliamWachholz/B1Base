@@ -1363,8 +1363,8 @@ namespace B1Base.Controller
                 try
                 {
                     string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
-                    string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
-                    
+                    string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx.Replace("-", "");
+
                     if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                     {
                         m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuInsert();
