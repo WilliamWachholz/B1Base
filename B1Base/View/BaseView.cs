@@ -127,9 +127,7 @@ namespace B1Base.View
         public string LastEditValue { get; private set; }
         public string LastComboValue { get; private set; }
         public string LastColumnValue { get; private set; }
-
         public string LastButtonComboValue { get; protected set; }
-
         public int LastSortedColPos { get; private set; }
         public string LastButtonClicked { get; private set; }
         public Dictionary<string, string> LastCols { get; private set; }
@@ -143,6 +141,11 @@ namespace B1Base.View
         public int LastCopiedDocEntry { get; private set; }
         public int LastDocEntry { get; private set; }
         public int LastAbsEntry { get; protected set; }
+        public int LastDocNum { get; protected set; }
+        public int LastDraftEntry { get; protected set; }
+        public bool SavedAsDraft { get; protected set; }
+
+        public bool IsDraft { get; protected set; }
 
         
         public Model.EnumObjType LastCopiedObjType { get; private set; }
@@ -1631,7 +1634,10 @@ namespace B1Base.View
                     {
                         if (Convert.ToDateTime(prop.GetValue(model)) == DateTime.MinValue || Convert.ToDateTime(prop.GetValue(model)) == new DateTime(1899, 12, 30))
                         {
-                            values.Add("to_date(null)");
+                            if (ConnectionController.Instance.DBServerType == "HANA")
+                                values.Add("to_date(null)");
+                            else
+                                values.Add("cast(null as date)");
                         }
                         else
                         {
@@ -1892,8 +1898,7 @@ namespace B1Base.View
 
         public void SetValuePro<T>(DataTable dataTable, T model)
         {
-            dataTable.Rows.Clear();
-            dataTable.Rows.Add();
+            dataTable.Rows.Clear();            
 
             Type type = typeof(T);
 
@@ -1917,7 +1922,10 @@ namespace B1Base.View
                 {
                     if (Convert.ToDateTime(prop.GetValue(model)) == DateTime.MinValue || Convert.ToDateTime(prop.GetValue(model)) == new DateTime(1899, 12, 30))
                     {
-                        values.Add("to_date(null)");
+                        if (ConnectionController.Instance.DBServerType == "HANA")
+                            values.Add("to_date(null)");
+                        else
+                            values.Add("cast(null as date)");
                     }
                     else
                     {
@@ -1996,8 +2004,10 @@ namespace B1Base.View
         /// <summary>
         /// Chamar método base para realizar as operações necessárias
         /// </summary>
-        public virtual void GotFormData() 
+        public virtual void GotFormData()
         {
+            IsDraft = false;
+
             if (!FormUID.Contains("F_") && !SecondaryView)
             {
                 if (m_BrowseItem != string.Empty)
@@ -2013,6 +2023,25 @@ namespace B1Base.View
                     SAPForm.EnableMenu("1282", true);
                     SAPForm.EnableMenu("1281", true);
                 }
+            }
+            else
+            {
+                try
+                {
+                    int docNum = LastDocNum;
+
+                    string table = ((EditText)SAPForm.Items.Item("8").Specific).DataBind.TableName;
+
+                    int objType = Convert.ToInt32(SAPForm.DataSources.DBDataSources.Item(table).GetValue("ObjType", 0));
+
+                    System.Threading.Thread.Sleep(2000);
+
+                    if (new DAO.DocumentDAO().GetDocEntry(docNum, (Model.EnumObjType)objType) == 0)
+                    {
+                        IsDraft = true;
+                    }
+                }
+                catch { }
             }
         }
 
@@ -2067,6 +2096,35 @@ namespace B1Base.View
 
         public virtual void BeforeDeleteFormData() { }
 
+        private void AfterAddFormDataInternal()
+        {
+            try
+            {
+                int docNum = LastDocNum;
+
+                string table = ((EditText)SAPForm.Items.Item("8").Specific).DataBind.TableName;
+
+                int objType = Convert.ToInt32(SAPForm.DataSources.DBDataSources.Item(table).GetValue("ObjType", 0));
+
+                System.Threading.Thread.Sleep(2000);
+
+                if (new DAO.DocumentDAO().GetDocEntry(docNum, (Model.EnumObjType)objType) == 0)
+                {
+                    SavedAsDraft = true;
+
+                    LastDraftEntry = ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastDraftEntry", docNum.ToString(), objType.ToString());
+                }
+            }
+            catch
+            {
+                LastDraftEntry = 0;
+            }
+
+            AfterAddFormData();
+
+            SavedAsDraft = false;
+        }
+
         public virtual void AfterAddFormData() { }
 
         public virtual void AfterUpdateFormData() { }
@@ -2077,7 +2135,7 @@ namespace B1Base.View
 
         /// <summary>
         /// Chamar método base para realizar as operações necessárias
-        /// </summary>
+        /// </summary>               
         public virtual void MenuInsert() 
         {
             if (!FormUID.Contains("F_") && !SecondaryView)
@@ -2123,6 +2181,12 @@ namespace B1Base.View
         }
 
         public virtual void MenuDuplicate() { }
+
+        public virtual void MenuSaveAsDraft() { }
+
+        public void AfterSaveAsDraft()
+        {
+        }
 
         public virtual void MenuCancel() { }
 
@@ -2238,6 +2302,17 @@ namespace B1Base.View
             }
             else
             {
+                try
+                {
+                    string value = ((EditText)SAPForm.Items.Item("8").Specific).String;
+
+                    LastDocNum = Convert.ToInt32(value);
+                }
+                catch
+                {
+                    LastDocNum = 0;
+                }
+
                 if (SAPForm.Mode == BoFormMode.fm_ADD_MODE)
                 {
                     BeforeAddFormData();
@@ -2296,7 +2371,7 @@ namespace B1Base.View
             {
                 m_addFlag = false;
 
-                AfterAddFormData();
+                AfterAddFormDataInternal();
             }
             else if (m_updateFlag)
             {

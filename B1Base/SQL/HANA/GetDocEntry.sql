@@ -9,3 +9,4 @@ then (select  "DocEntry" from OPCH where "DocNum" = {1})
 when 22
 then (select "DocEntry" from OPOR where "DocNum" = {1})
 end
+from dummy

@@ -39,6 +39,8 @@ namespace B1Base.Controller
             }
         }
 
+        public View.BaseView LastActiveView { get; protected set; }
+
         public List<View.BaseView> GetViews(string formType)
         {
             List<View.BaseView> result = new List<View.BaseView>();
@@ -164,6 +166,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleKeyDown;
             Controller.ConnectionController.Instance.Application.FormDataEvent += HandleFormData;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuInsert;
+            Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSaveAsDraft;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSearch;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuDuplicate;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuCancel;
@@ -659,6 +662,8 @@ namespace B1Base.Controller
 
                     if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
+                        LastActiveView = m_Views.First(r => r.FormUID == formUID && r.FormType == formType);
+
                         m_Views.First(r => r.FormUID == formUID && r.FormType == formType).LostFocus();
                     }
                 }
@@ -710,6 +715,13 @@ namespace B1Base.Controller
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
                             m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonOkClick();
+                        }
+
+
+
+                        if (formType == "50106")
+                        {
+                            LastActiveView.AfterSaveAsDraft();
                         }
                     }
                     else
@@ -1384,6 +1396,71 @@ namespace B1Base.Controller
                     if (LogIsActive)
                     {
                         ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 384 - " + e.Message);                        
+                    }
+                }
+            }
+        }
+
+        private void HandleMenuSaveAsDraft(ref MenuEvent pVal, out bool bubbleEvent)
+        {
+            bubbleEvent = true;
+
+            if (pVal.MenuUID == "5907" && pVal.BeforeAction == true)
+            {
+                try
+                {
+                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
+                    string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx.Replace("-", "");
+
+                    if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                    {
+                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuSaveAsDraft();
+                    }
+                    else if (formId.Contains("F_"))
+                    {
+                        formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
+
+                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuSaveAsDraft();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 384 - " + e.Message);
+                    }
+                }
+            }
+
+            if (pVal.MenuUID == "5907" && pVal.BeforeAction == false)
+            {
+                try
+                {
+                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
+                    string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx.Replace("-", "");
+
+                    if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                    {
+                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).AfterSaveAsDraft();
+                    }
+                    else if (formId.Contains("F_"))
+                    {
+                        formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
+
+                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).AfterSaveAsDraft();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 384 - " + e.Message);
                     }
                 }
             }
