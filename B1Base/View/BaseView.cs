@@ -2106,13 +2106,19 @@ namespace B1Base.View
 
                 int objType = Convert.ToInt32(SAPForm.DataSources.DBDataSources.Item(table).GetValue("ObjType", 0));
 
-                System.Threading.Thread.Sleep(2000);
-
                 if (new DAO.DocumentDAO().GetDocEntry(docNum, (Model.EnumObjType)objType) == 0)
                 {
                     SavedAsDraft = true;
 
-                    LastDraftEntry = ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastDraftEntry", docNum.ToString(), objType.ToString());
+                    for (int i = 0; i <= 3; i++)
+                    {
+                        System.Threading.Thread.Sleep(1000);
+
+                        LastDraftEntry = ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastDraftEntry", docNum.ToString(), objType.ToString());
+
+                        if (LastDraftEntry > 0)
+                            break;
+                    }                    
                 }
             }
             catch
