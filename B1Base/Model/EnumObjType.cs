@@ -16,6 +16,7 @@ namespace B1Base.Model
         Invoice = 13,        
         PurchaseRequest = 1470000113,
         PurchaseQuotation = 540000006,
+        GoodsReceipt = 20,
         PurchaseOrder = 22,       
         BlanketAgreement=1250000025,
         SalesQuotation = 23,

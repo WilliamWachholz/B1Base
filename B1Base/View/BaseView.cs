@@ -2026,22 +2026,21 @@ namespace B1Base.View
             }
             else
             {
-                try
-                {
-                    int docNum = LastDocNum;
+                //try
+                //{
+                //    int docNum = ((EditText)SAPForm.Items.Item("8").Specific).String;
 
-                    string table = ((EditText)SAPForm.Items.Item("8").Specific).DataBind.TableName;
+                //    string table = ((EditText)SAPForm.Items.Item("8").Specific).DataBind.TableName;
 
-                    int objType = Convert.ToInt32(SAPForm.DataSources.DBDataSources.Item(table).GetValue("ObjType", 0));
+                //    int objType = Convert.ToInt32(SAPForm.DataSources.DBDataSources.Item(table).GetValue("ObjType", 0));
 
-                    System.Threading.Thread.Sleep(2000);
-
-                    if (new DAO.DocumentDAO().GetDocEntry(docNum, (Model.EnumObjType)objType) == 0)
-                    {
-                        IsDraft = true;
-                    }
-                }
-                catch { }
+                //    if (new DAO.DocumentDAO().GetDocEntry(docNum, (Model.EnumObjType)objType) == 0)
+                //    {
+                //        IsDraft = true;
+                //    }
+                //}
+                //catch { }
+                IsDraft = SAPForm.Title.Contains("Esboço");
             }
         }
 
@@ -2098,33 +2097,34 @@ namespace B1Base.View
 
         private void AfterAddFormDataInternal()
         {
-            try
-            {
-                int docNum = LastDocNum;
+            //try
+            //{
+            //    int docNum = LastDocNum;
 
-                string table = ((EditText)SAPForm.Items.Item("8").Specific).DataBind.TableName;
+            //    string table = ((EditText)SAPForm.Items.Item("8").Specific).DataBind.TableName;
 
-                int objType = Convert.ToInt32(SAPForm.DataSources.DBDataSources.Item(table).GetValue("ObjType", 0));
+            //    int objType = Convert.ToInt32(SAPForm.DataSources.DBDataSources.Item(table).GetValue("ObjType", 0));
 
-                if (new DAO.DocumentDAO().GetDocEntry(docNum, (Model.EnumObjType)objType) == 0)
-                {
-                    SavedAsDraft = true;
+            //    if (new DAO.DocumentDAO().GetDocEntry(docNum, (Model.EnumObjType)objType) == 0)
+            //    {
+            //        SavedAsDraft = true;
 
-                    for (int i = 0; i <= 3; i++)
-                    {
-                        System.Threading.Thread.Sleep(1000);
+            //        for (int i = 0; i <= 3; i++)
+            //        {
+            //            System.Threading.Thread.Sleep(1000);
 
-                        LastDraftEntry = ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastDraftEntry", docNum.ToString(), objType.ToString());
+            //            LastDraftEntry = ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastDraftEntry", docNum.ToString(), objType.ToString());
 
-                        if (LastDraftEntry > 0)
-                            break;
-                    }                    
-                }
-            }
-            catch
-            {
-                LastDraftEntry = 0;
-            }
+            //            if (LastDraftEntry > 0)
+            //                break;
+            //        }                    
+            //    }
+            //}
+            //catch
+            //{
+            //    SavedAsDraft = false;
+            //    LastDraftEntry = 0;
+            //}
 
             AfterAddFormData();
 
@@ -3361,6 +3361,29 @@ namespace B1Base.View
                     case "141":
                         docEntry = GetValue("PCH1.BaseEntry", true);
                         objType = (Model.EnumObjType)GetValue("PCH1.BaseType", true);
+
+                        if (docEntry > 0)
+                        {
+                            if (DocCopyEvents.ContainsKey(objType))
+                            {
+                                LastCopiedDocEntry = docEntry;
+                                LastCopiedObjType = objType;
+
+                                DocCopyEvents[objType](docEntry);
+                            }
+                        }
+                        break;
+                    case "143":
+                        docEntry = GetValue("PDN1.BaseEntry", true);
+                        objType = (Model.EnumObjType)GetValue("PDN1.BaseType", true);
+
+                        if (docEntry == 0)
+                        {
+                            Matrix matrixItem = (Matrix)SAPForm.Items.Item("38").Specific;
+
+                            objType = Model.EnumObjType.PurchaseOrder;
+                            docEntry = Convert.ToInt32(((EditText)matrixItem.Columns.Item("45").Cells.Item(1).Specific).String);
+                        }
 
                         if (docEntry > 0)
                         {
