@@ -117,6 +117,7 @@ namespace B1Base.View
         public delegate void OptionEventHandler();
         public delegate void RightClickMenuEventHandler();
         public delegate void ColumnCheckEventHandler(int row);
+        public delegate void ColumnCheckProEventHandler(int[] rows, bool check);
         public delegate void LinkEventHandler(View.BaseView linkedView);
         public delegate void DocCopyEventHandler(int docEntry);
         public delegate void ColSuppressActionEventHandler(BoEventTypes action, int row, out bool supressed);
@@ -379,6 +380,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, CheckEventHandler> CheckEvents { get { return new Dictionary<string, CheckEventHandler>(); } }
 
         protected virtual Dictionary<string, ColumnCheckEventHandler> ColumnCheckEvents { get { return new Dictionary<string, ColumnCheckEventHandler>(); } }
+
+        protected virtual Dictionary<string, ColumnCheckProEventHandler> ColumnCheckProEvents { get { return new Dictionary<string, ColumnCheckProEventHandler>(); } }
 
         protected virtual Dictionary<string, OptionEventHandler> OptionEvents { get { return new Dictionary<string, OptionEventHandler>(); } }
 
@@ -2633,6 +2636,19 @@ namespace B1Base.View
         {
             if (GridRowClickEvents.ContainsKey(grid) && !Frozen)
             {
+                if (LastRows.ContainsKey(grid))
+                {
+                    LastBeforeRows[grid] = LastRows[grid];
+                    LastRows[grid] = row;
+                    LastCols[grid] = column;
+                }
+                else
+                {
+                    LastBeforeRows.Add(grid, 1);
+                    LastRows.Add(grid, row);
+                    LastCols.Add(grid, column);
+                }
+
                 GridRowClickEvents[grid](row, column);
             }
         }
@@ -3071,8 +3087,8 @@ namespace B1Base.View
             }
         }
 
-        public void ColumnChecked(string matrix, int row, string column)
-        {
+        public void ColumnChecked(string matrix, int row, string column, BoModifiersEnum modifiers = BoModifiersEnum.mt_None)
+        {            
             string key = string.Format("{0}.{1}", matrix, column);
 
             if (row == 0 && SAPForm.Items.Item(matrix).Type == BoFormItemTypes.it_MATRIX)
@@ -3110,7 +3126,47 @@ namespace B1Base.View
 
                 ColumnCheckEvents[key](row);
             }
+            else if (ColumnCheckProEvents.ContainsKey(key) && !Frozen)
+            {
+                List<int> rows = new List<int>();
 
+                bool check = false;
+
+                if (SAPForm.Items.Item(matrix).Type == BoFormItemTypes.it_GRID)
+                {
+                    check = ((CheckBoxColumn)((Grid)SAPForm.Items.Item(matrix).Specific).Columns.Item(column)).IsChecked(row);
+                }
+                else
+                {
+                    check = ((CheckBox)((Matrix)SAPForm.Items.Item(matrix).Specific).Columns.Item(column).Cells.Item(row).Specific).Checked;
+                }
+
+                if (modifiers == BoModifiersEnum.mt_SHIFT)
+                {
+                    int lastRow = LastBeforeRows[matrix];
+
+                    if (lastRow > row)
+                    {
+                        for (int curr = row; curr <= lastRow; curr++)
+                        {
+                            rows.Add(curr);
+                        }
+                    }
+                    else
+                    {
+                        for (int curr = lastRow; curr <= row; curr++)
+                        {
+                            rows.Add(curr);
+                        }
+                    }
+                }
+                else
+                {
+                    rows.Add(row);
+                }
+
+                ColumnCheckProEvents[key](rows.ToArray(), check);
+            }
         }
 
         public void EditValidate(string edit)

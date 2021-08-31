@@ -174,7 +174,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuRightClick;
             Controller.ConnectionController.Instance.Application.StatusBarEvent += HandleStatusBarMessage;
             Controller.ConnectionController.Instance.Application.RightClickEvent += HandleRightClick;
-            
+
             try
             {
                 CreateMenu(MENU_CONFIG_SAP, MENU_ADDON_CONFIG, AddOnName, "", true);
@@ -382,13 +382,22 @@ namespace B1Base.Controller
             {
                 bubbleEvent = true;
 
-                if (SupressDetails && pVal.FormType == 1)
+                try
                 {
-                    ConnectionController.Instance.Application.Forms.Item(pVal.FormUID).Close();
-                    SupressDetails = false;
-                }
 
-               
+                    if (SupressDetails && pVal.FormType == 1)
+                    {
+                        ConnectionController.Instance.Application.Forms.Item(pVal.FormUID).Close();
+                        SupressDetails = false;
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 114 - " + e.Message);
+                    }
+                }
             }
 
             if (pVal.EventType == BoEventTypes.et_FORM_LOAD && !pVal.BeforeAction)
@@ -683,20 +692,30 @@ namespace B1Base.Controller
 
             if (pVal.EventType == BoEventTypes.et_PICKER_CLICKED && pVal.BeforeAction == true)
             {
-                string formType = pVal.FormTypeEx;
-
-                if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                try
                 {
-                    if (pVal.ColUID != string.Empty)
+                    string formType = pVal.FormTypeEx;
+
+                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
-                        
-                    }
-                    else
-                    {
-                        SupressPicker = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).SupressPickerClick(pVal.ItemUID);
+                        if (pVal.ColUID != string.Empty)
+                        {
+
+                        }
+                        else
+                        {
+                            SupressPicker = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).SupressPickerClick(pVal.ItemUID);
+                        }
                     }
                 }
-            }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 259 - " + e.Message);
+                    }
+                }
+        }
         }
 
         private void HandleButtonClick(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
@@ -749,12 +768,22 @@ namespace B1Base.Controller
 
             if (pVal.EventType == BoEventTypes.et_MATRIX_LINK_PRESSED && pVal.BeforeAction == true)
             {
-                string formType = pVal.FormTypeEx;
-                string formId = pVal.FormUID;
-
-                if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                try
                 {
-                    m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
+                    string formType = pVal.FormTypeEx;
+                    string formId = pVal.FormUID;
+
+                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    {
+                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 211 - " + e.Message);
+                    }
                 }
             }
 
@@ -824,7 +853,7 @@ namespace B1Base.Controller
                     {
                         if (pVal.ColUID != string.Empty)
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnChecked(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnChecked(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
                         }
                         else
                         {
@@ -1171,24 +1200,24 @@ namespace B1Base.Controller
         private void HandleMatrixRowClick(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
-            
+
             if (pVal.EventType == BoEventTypes.et_DOUBLE_CLICK)
             {
-                if (pVal.BeforeAction)
+                try
                 {
-                    if (!SupressDetails)
+                    if (pVal.BeforeAction)
                     {
-                        string formType = pVal.FormTypeEx;
-
-                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                        if (!SupressDetails)
                         {
-                            SupressDetails = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).SupressMatrixDetails(pVal.ItemUID);
+                            string formType = pVal.FormTypeEx;
+
+                            if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                            {
+                                SupressDetails = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).SupressMatrixDetails(pVal.ItemUID);
+                            }
                         }
                     }
-                }
-                else
-                {
-                    try
+                    else
                     {
                         if (pVal.Row > 0)
                         {
@@ -1200,12 +1229,12 @@ namespace B1Base.Controller
                             }
                         }
                     }
-                    catch (Exception e)
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
                     {
-                        if (LogIsActive)
-                        {
-                            ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 323 - " + e.Message);
-                        }
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 323 - " + e.Message);
                     }
                 }
             }
@@ -1472,26 +1501,27 @@ namespace B1Base.Controller
 
             if (pVal.MenuUID == "1281")
             {
-                string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
-                string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
-
-                if (pVal.BeforeAction)
+                try
                 {
-                    if (!formId.Contains("F_"))
+                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
+                    string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
+
+                    if (pVal.BeforeAction)
                     {
-                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                        if (!formId.Contains("F_"))
                         {
-                            if (Controller.ConnectionController.Instance.Application.MessageBox("Dados não gravados serão perdidos. Continuar?", 1, "Sim", "Não") != 1)
+                            if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                             {
-                                bubbleEvent = false;
+                                if (Controller.ConnectionController.Instance.Application.MessageBox("Dados não gravados serão perdidos. Continuar?", 1, "Sim", "Não") != 1)
+                                {
+                                    bubbleEvent = false;
+                                }
                             }
                         }
                     }
-                }
-                else
-                {
-                    try
+                    else
                     {
+
                         if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                         {
                             m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuSearch();
@@ -1505,46 +1535,58 @@ namespace B1Base.Controller
                                 m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuSearch();
                             }
                         }
+
                     }
-                    catch (Exception e)
+
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
                     {
-                        if (LogIsActive)
-                        {
-                            ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 414 - " + e.Message);
-                        }
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 414 - " + e.Message);
                     }
                 }
             }
             else if (pVal.MenuUID == "4870")
             {
-                string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
-                string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
-
-                if (pVal.BeforeAction)
+                try
                 {
-                    if (!formId.Contains("F_"))
+                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
+                    string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
+
+                    if (pVal.BeforeAction)
                     {
-                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                        if (!formId.Contains("F_"))
                         {
-                            m_GridOnFilter = true;
-
-                            m_FilteredView = m_Views.First(r => r.FormUID == formId && r.FormType == formType);
-
-                            if (m_FilteredView.SAPForm.ActiveItem == m_FilteredView.SAPForm.Settings.MatrixUID)
+                            if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                             {
-                                for (int i = 0; i <= m_FilteredView.SAPForm.Items.Count; i++)
-                                {
-                                    if (m_FilteredView.SAPForm.Items.Item(i).Type == BoFormItemTypes.it_EDIT && m_FilteredView.SAPForm.Items.Item(i).Enabled)
-                                    {
-                                        m_FilteredView.SAPForm.Items.Item(i).Click();
+                                m_GridOnFilter = true;
 
-                                        break;
+                                m_FilteredView = m_Views.First(r => r.FormUID == formId && r.FormType == formType);
+
+                                if (m_FilteredView.SAPForm.ActiveItem == m_FilteredView.SAPForm.Settings.MatrixUID)
+                                {
+                                    for (int i = 0; i <= m_FilteredView.SAPForm.Items.Count; i++)
+                                    {
+                                        if (m_FilteredView.SAPForm.Items.Item(i).Type == BoFormItemTypes.it_EDIT && m_FilteredView.SAPForm.Items.Item(i).Enabled)
+                                        {
+                                            m_FilteredView.SAPForm.Items.Item(i).Click();
+
+                                            break;
+                                        }
                                     }
                                 }
-                            }
 
-                            m_FilteredView.SAPForm.Items.Item(m_FilteredView.SAPForm.Settings.MatrixUID).Enabled = false;
+                                m_FilteredView.SAPForm.Items.Item(m_FilteredView.SAPForm.Settings.MatrixUID).Enabled = false;
+                            }
                         }
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 414 - " + e.Message);
                     }
                 }
             }
@@ -1693,9 +1735,19 @@ namespace B1Base.Controller
 
             if (pVal.BeforeAction == false)
             {
-                if (OpenMenuEvents().ContainsKey(pVal.MenuUID))
+                try
                 {
-                    OpenMenuEvents()[pVal.MenuUID]();
+                    if (OpenMenuEvents().ContainsKey(pVal.MenuUID))
+                    {
+                        OpenMenuEvents()[pVal.MenuUID]();
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 323 - " + e.Message);
+                    }
                 }
             }
         }        
@@ -1718,7 +1770,7 @@ namespace B1Base.Controller
                         }                        
                         ExitApp();                                                
                     }
-                    break;
+                    break;                    
             }
         }
 

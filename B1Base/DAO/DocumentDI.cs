@@ -20,6 +20,7 @@ namespace B1Base.DAO
             _businessObject = GetDIObject(objType);
             _businessObjectDraft = GetDIObject(Model.EnumObjType.Draft);
             _businessObjectDraft.DocObjectCode = GetObjType(objType);
+            _businessObjectDraft.GetByKey(docEntry);
 
             if (!_businessObject.GetByKey(docEntry))
             {
@@ -479,7 +480,14 @@ namespace B1Base.DAO
         {
             try
             {
-                _businessObjectDraft.Add();
+                if (_businessObjectDraft.DocEntry > 0)
+                {
+                    _businessObjectDraft.Update();
+                }
+                else
+                {
+                    _businessObjectDraft.Add();
+                }
 
                 Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
             }

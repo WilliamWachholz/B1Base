@@ -1369,7 +1369,7 @@ namespace B1Base.Controller
 
                         B1Base.Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(B1Base.Model.BaseModel.SpecificType)) as B1Base.Model.BaseModel.SpecificType;
 
-                        if (prop.PropertyType != value.GetType() && !prop.PropertyType.IsEnum && prop.PropertyType != typeof(Boolean) && (specificType != null && specificType.Value != B1Base.Model.BaseModel.SpecificType.SpecificTypeEnum.Time))
+                        if (prop.PropertyType != value.GetType() && !prop.PropertyType.IsEnum && prop.PropertyType != typeof(Boolean) && (specificType != null && specificType.Value != B1Base.Model.BaseModel.SpecificType.SpecificTypeEnum.Time) && !(prop.PropertyType == typeof(double) && value.GetType() == typeof(decimal)))
                         {
                             String errMsg = String.Format("Object {0} has property {1} of type {2}. Statement object type is {3}.", type, name, prop.PropertyType, value.GetType());
                             throw new Exception(errMsg);
