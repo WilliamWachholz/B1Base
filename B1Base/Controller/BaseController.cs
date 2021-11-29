@@ -51,25 +51,37 @@ namespace B1Base.Controller
             {
                 if (log)
                     B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText("Salvando linha " + i.ToString(), SAPbouiCOM.BoMessageTime.bmt_Medium, SAPbouiCOM.BoStatusBarMessageType.smt_Warning);
-                if (listSource.Where(r => r.Code == listCurrent[i].Code).Count() > 0)
-                {
-                    if (listCurrent[i].Code == 0)
-                    {
-                        Save<T>(listCurrent[i]);
-                    }
-                    else
-                    {
-                        Compare(listSource.First(r => r.Code == listCurrent[i].Code), listCurrent[i]);
 
-                        if (listCurrent[i].Changed)
+                if (log)
+                    B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText(listCurrent[i].Code.ToString());
+
+                try
+                {
+                    if (listSource.Where(r => r.Code == listCurrent[i].Code).Count() > 0)
+                    {
+
+                        if (listCurrent[i].Code == 0)
                         {
                             Save<T>(listCurrent[i]);
                         }
+                        else
+                        {
+                            Compare(listSource.First(r => r.Code == listCurrent[i].Code), listCurrent[i]);
+
+                            if (listCurrent[i].Changed)
+                            {
+                                Save<T>(listCurrent[i]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Save<T>(listCurrent[i]);
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    Save<T>(listCurrent[i]);
+                    B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText(ex.Message);
                 }
             }
 

@@ -400,7 +400,7 @@ namespace B1Base.Controller
                 }
             }
 
-            if (pVal.EventType == BoEventTypes.et_FORM_LOAD && !pVal.BeforeAction)
+            if ((pVal.EventType == BoEventTypes.et_FORM_LOAD || (pVal.EventType == BoEventTypes.et_FORM_ACTIVATE && pVal.FormType == 198) ) && !pVal.BeforeAction)
             {
                 bubbleEvent = true;
 
@@ -547,7 +547,7 @@ namespace B1Base.Controller
                         ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 114 - " + e.Message);
                     }
                 }
-            }
+            }            
 
             try
             {
@@ -1160,7 +1160,7 @@ namespace B1Base.Controller
 
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).GridRowDoubleClick(pVal.ItemUID, pVal.Row);
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).GridRowDoubleClick(pVal.ItemUID, pVal.Row, pVal.ColUID);
                         }
                     }
                 }

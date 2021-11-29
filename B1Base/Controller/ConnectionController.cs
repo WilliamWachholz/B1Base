@@ -33,6 +33,8 @@ namespace B1Base.Controller
 
         public string ConfigTableName { get; set; } = "";
 
+        public string ConfigSeqTableName { get; set; } = "";
+
         public string AddOnID { get; private set; }
 
         public string DBServerType { get; private set; }
@@ -722,6 +724,59 @@ namespace B1Base.Controller
                     }
                 }
                 return default(T);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(sql + " - " + e.Message);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(recordSet);
+                GC.Collect();
+            }
+        }
+
+        public List<T> ExecuteSqlForDirectList<T>(string sql, params string[] variables)
+        {
+            sql = string.Format(sql, variables);
+
+            LoggedSql = sql;
+
+            var lst = new List<T>();
+            Type type = typeof(T);
+
+            var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+
+            Recordset recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+
+            try
+            {
+                recordSet.DoQuery(sql);
+                while (!recordSet.EoF)
+                {
+                    T obj;
+                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                    {
+                        obj = (T)Activator.CreateInstance(type, new[] { recordSet.Fields.Item(0).Value, recordSet.Fields.Item(1).Value.ToString() });
+                    }
+                    else if (isNotCoreType(type))
+                    {
+                        obj = PrepareObject<T>(recordSet);
+                    }
+                    else
+                    {
+                        if (recordSet.Fields.Item(0).Value.GetType() != type)
+                        {
+                            String errMsg = String.Format("Object of type {0}. SQL object type is {1}", recordSet.Fields.Item(0).Value.GetType(), type);
+                            throw new Exception(errMsg);
+                        }
+                        obj = (T)recordSet.Fields.Item(0).Value;
+                    }
+                    lst.Add(obj);
+                    recordSet.MoveNext();
+                }
+                return lst;
             }
             catch (Exception e)
             {

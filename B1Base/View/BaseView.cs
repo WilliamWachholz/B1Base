@@ -64,7 +64,10 @@ namespace B1Base.View
 
         protected double ConvertDouble(string doubleValue)
         {
-            return double.Parse((doubleValue.Contains(",") ? doubleValue.Replace(".", "").Replace(",", ".") : doubleValue).Replace("R$", "").Replace("%", ""), System.Globalization.CultureInfo.InvariantCulture);
+            if (doubleValue.Trim().Equals(""))
+                return 0;
+            else
+               return double.Parse((doubleValue.Contains(",") ? doubleValue.Replace(".", "").Replace(",", ".") : doubleValue).Replace("R$", "").Replace("AU", "").Replace("%", ""), System.Globalization.CultureInfo.InvariantCulture);
         }
 
         public DateTime ConverteDate(string dateValue)
@@ -101,7 +104,7 @@ namespace B1Base.View
         public delegate void MatixRowEnterEventHandler(int row, string column, bool rowChanged, bool rowSelected);
         public delegate void MatixRowDoubleClickEventHandler(int row, string column, bool rowChanged);
         public delegate void GridRowClickEventHandler(int row, string column);
-        public delegate void GridRowDoubleClickEventHandler(int row);    
+        public delegate void GridRowDoubleClickEventHandler(int row, string column);    
         public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void MatrixCustomMenuEventHandler(int row, string column);
         public delegate void MatrixColPasteForAllEventHandler(string column);
@@ -142,6 +145,8 @@ namespace B1Base.View
         public int LastCopiedDocEntry { get; private set; }
         public int LastDocEntry { get; private set; }
         public int LastAbsEntry { get; protected set; }
+
+        public int LastCode { get; protected set; }
         public int LastDocNum { get; protected set; }
         public int LastDraftEntry { get; protected set; }
         public bool SavedAsDraft { get; protected set; }
@@ -2079,6 +2084,18 @@ namespace B1Base.View
                 {
                     LastAbsEntry = 0;
                 }
+
+                try
+                {
+                    string xml = SAPForm.BusinessObject.Key;
+
+                    LastCode = Convert.ToInt32(xml.Substring(xml.IndexOf("<Code>") + 6, xml.IndexOf("</Code>") - (xml.IndexOf("<Code>") + 6)));
+
+                }
+                catch
+                {
+                    LastCode = 0;
+                }
             }
         }
 
@@ -2624,11 +2641,24 @@ namespace B1Base.View
             }
         }
 
-        public void GridRowDoubleClick(string grid, int row)
+        public void GridRowDoubleClick(string grid, int row, string column)
         {
             if (GridRowDoubleClickEvents.ContainsKey(grid) && !Frozen)
             {
-                GridRowDoubleClickEvents[grid](row);
+                if (LastRows.ContainsKey(grid))
+                {
+                    LastBeforeRows[grid] = LastRows[grid];
+                    LastRows[grid] = row;
+                    LastCols[grid] = column;
+                }
+                else
+                {
+                    LastBeforeRows.Add(grid, 1);
+                    LastRows.Add(grid, row);
+                    LastCols.Add(grid, column);
+                }
+
+                GridRowDoubleClickEvents[grid](row, column);
             }
         }
 

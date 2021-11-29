@@ -20,7 +20,10 @@ namespace B1Base.DAO
         {
             get
             {
-                return (Controller.ConnectionController.Instance.AddOnID + "Seq").ToUpper();
+                //return (Controller.ConnectionController.Instance.AddOnID + "Seq").ToUpper();
+                return Controller.ConnectionController.Instance.ConfigSeqTableName == "" ?
+                    (Controller.ConnectionController.Instance.AddOnID + "Seq").ToUpper() :
+                    Controller.ConnectionController.Instance.ConfigSeqTableName;
             }
         }
 
