@@ -2224,6 +2224,8 @@ namespace B1Base.View
 
         public virtual void Close() { }
 
+        public virtual void ContextMenuShow() { }
+
         public void FormLostFocus()
         {
             foreach (KeyValuePair<string, MatrixColPasteForAllEventHandler> menuEvent in MatrixColPasteForAllEvents)
@@ -3107,6 +3109,7 @@ namespace B1Base.View
                 menu.AddEx(creationPackage);
             }
 
+            ContextMenuShow();
         }
 
         public void Checked(string check)
