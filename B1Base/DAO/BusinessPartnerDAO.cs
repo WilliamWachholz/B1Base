@@ -12,7 +12,7 @@ namespace B1Base.DAO
     {
         public void Save(Model.BusinessPartnerModel businessPartnerModel)
         {
-            BusinessPartners businessPartner = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
+            BusinessPartners businessPartner = (BusinessPartners) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
             try
             {
                 if (businessPartner.GetByKey(businessPartnerModel.CardCode))
@@ -48,7 +48,7 @@ namespace B1Base.DAO
         {
             Model.BusinessPartnerModel businessPartnerModel = new Model.BusinessPartnerModel();
 
-            BusinessPartners businessPartner = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
+            BusinessPartners businessPartner = (BusinessPartners) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
             try
             {
                 if (businessPartner.GetByKey(cardCode))

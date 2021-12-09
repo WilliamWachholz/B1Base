@@ -108,7 +108,7 @@ namespace B1Base.Controller
 
                 if (!oMenus.Exists(menuID))
                 {
-                    oCreationPackage = ConnectionController.Instance.Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_MenuCreationParams);
+                    oCreationPackage = (MenuCreationParams) ConnectionController.Instance.Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_MenuCreationParams);
 
                     oCreationPackage.Type = popup ? SAPbouiCOM.BoMenuType.mt_POPUP : SAPbouiCOM.BoMenuType.mt_STRING;
                     oCreationPackage.UniqueID = menuID;

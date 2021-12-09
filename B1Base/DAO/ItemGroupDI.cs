@@ -33,7 +33,7 @@ namespace B1Base.DAO
 
         public void InitializeObject(int groupCode)
         {
-            _businessObject = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItemGroups);
+            _businessObject = (ItemGroups) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItemGroups);
 
             if (!_businessObject.GetByKey(groupCode))
             {

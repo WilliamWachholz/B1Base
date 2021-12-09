@@ -1210,7 +1210,7 @@ namespace B1Base.View
 
                     if (dataTable.GetValue(pictureBox.Item.Description, 0) == string.Empty)
                         return string.Empty;
-                    else return System.IO.Path.Combine(new Controller.AttachmentController().ImageFolder, dataTable.GetValue(pictureBox.Item.Description, 0));
+                    else return System.IO.Path.Combine(new Controller.AttachmentController().ImageFolder, dataTable.GetValue(pictureBox.Item.Description, 0).ToString());
                 }
             }
             else if (SAPForm.Items.Item(item).Type == BoFormItemTypes.it_EXTEDIT)
@@ -3120,7 +3120,7 @@ namespace B1Base.View
             }
         }
 
-        public void ColumnChecked(string matrix, int row, string column, BoModifiersEnum modifiers = BoModifiersEnum.mt_None)
+        public void ColumnChecked(string matrix, int row, string column, SAPbouiCOM.BoModifiersEnum modifiers = SAPbouiCOM.BoModifiersEnum.mt_None)
         {            
             string key = string.Format("{0}.{1}", matrix, column);
 

@@ -1,3 +1,7 @@
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csprojAssemblyReference.cache
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.Properties.Resources.resources
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csproj.GenerateResource.cache
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csproj.CoreCompileInputs.cache
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\ExecuteBasicSelect.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetAutoSeries.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetBranchIsMulti.sql
@@ -9,6 +13,7 @@ C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetDocEntry.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetItemGroupCode.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetItemManageBatchNumber.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetItemManageSerialNumber.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetLastDraftEntry.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetLastLogInstance.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetListAvailableBatch.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetListField.sql
@@ -43,6 +48,7 @@ C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetImageFolder.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetItemGroupCode.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetLastCode.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetListConfigSeq.sql
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetLastDraftEntry.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetLastLogInstance.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetListConfigSeq.sql
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetListField.sql
@@ -58,14 +64,7 @@ C:\AddOn\B1Base\B1Base\bin\x86\Debug\SRF\ConfigView.srf
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\B1Base.dll.config
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\B1Base.dll
 C:\AddOn\B1Base\B1Base\bin\x86\Debug\B1Base.pdb
-C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csprojAssemblyReference.cache
-C:\AddOn\B1Base\B1Base\obj\x86\Debug\Interop.SAPbobsCOM.dll
-C:\AddOn\B1Base\B1Base\obj\x86\Debug\Interop.SAPbouiCOM.dll
-C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csproj.ResolveComReference.cache
-C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.Properties.Resources.resources
-C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csproj.GenerateResource.cache
-C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csproj.CoreCompileInputs.cache
+C:\AddOn\B1Base\B1Base\bin\x86\Debug\SAPBusinessOneSDK.dll
+C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.csproj.CopyComplete
 C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.dll
 C:\AddOn\B1Base\B1Base\obj\x86\Debug\B1Base.pdb
-C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetLastDraftEntry.sql
-C:\AddOn\B1Base\B1Base\bin\x86\Debug\SQL\SQLSERVER\GetLastDraftEntry.sql

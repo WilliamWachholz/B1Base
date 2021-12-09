@@ -14,7 +14,7 @@ namespace B1Base.DAO
         {
             Model.JournalModel journalModel = new Model.JournalModel();
 
-            JournalEntries journal = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
+            JournalEntries journal = (JournalEntries) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
             try
             {
                 if (journal.GetByKey(transId))
@@ -54,7 +54,7 @@ namespace B1Base.DAO
 
         public void Save(Model.JournalModel journalModel)
         {
-            JournalEntries journal = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
+            JournalEntries journal = (JournalEntries) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
             try
             {
                 if (journal.GetByKey(journalModel.TransId))
@@ -83,7 +83,7 @@ namespace B1Base.DAO
 
         public void Storno(int transId, DateTime stornoDate)
         {
-            JournalEntries journal = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
+            JournalEntries journal = (JournalEntries) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oJournalEntries);
             try
             {
                 if (journal.GetByKey(transId))

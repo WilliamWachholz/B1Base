@@ -13,9 +13,9 @@ namespace B1Base.DAO
         public void Save(int absEntry, List<Model.DiscountGroupModel> discountGroupList)
         {            
             CompanyService companyService = Controller.ConnectionController.Instance.Company.GetCompanyService();
-            EnhancedDiscountGroupsService enhancedDiscountGroupsService = companyService.GetBusinessService(ServiceTypes.EnhancedDiscountGroupsService);
+            EnhancedDiscountGroupsService enhancedDiscountGroupsService = (EnhancedDiscountGroupsService) companyService.GetBusinessService(ServiceTypes.EnhancedDiscountGroupsService);
 
-            EnhancedDiscountGroupParams enhancedDiscountGroupsParams = enhancedDiscountGroupsService.GetDataInterface(EnhancedDiscountGroupsServiceDataInterfaces.edgsEnhancedDiscountGroupParams);
+            EnhancedDiscountGroupParams enhancedDiscountGroupsParams = (EnhancedDiscountGroupParams) enhancedDiscountGroupsService.GetDataInterface(EnhancedDiscountGroupsServiceDataInterfaces.edgsEnhancedDiscountGroupParams);
             enhancedDiscountGroupsParams.AbsEntry = absEntry;
             
             EnhancedDiscountGroup enchancedDiscountGroup = enhancedDiscountGroupsService.Get(enhancedDiscountGroupsParams);

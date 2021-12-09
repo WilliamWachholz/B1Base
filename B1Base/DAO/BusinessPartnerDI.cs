@@ -16,7 +16,7 @@ namespace B1Base.DAO
 
         public void InitializeObject(string cardCode, BoCardTypes cardType = BoCardTypes.cCustomer,  bool autoSeries = false)
         {
-            _businessObject = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
+            _businessObject = (BusinessPartners) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oBusinessPartners);
 
             if (cardCode == null)
                 cardCode = string.Empty;

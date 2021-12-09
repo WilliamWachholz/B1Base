@@ -14,7 +14,7 @@ namespace B1Base.DAO
 
         public void InitializeObject(string cardCode)
         {
-            _businessObject = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oIncomingPayments);
+            _businessObject = (Payments) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oIncomingPayments);
 
             _businessObject.CardCode = cardCode;
         }

@@ -14,7 +14,7 @@ namespace B1Base.DAO
         {
             Model.ItemModel itemModel = new Model.ItemModel();
 
-            Items item = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
+            Items item = (Items) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
             try
             {
                 if (item.GetByKey(itemCode))
@@ -225,7 +225,7 @@ namespace B1Base.DAO
 
         public void Save(Model.ItemModel itemModel)
         {
-            Items item = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
+            Items item = (Items) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
             try
             {
                 if (item.GetByKey(itemModel.ItemCode))
@@ -258,7 +258,7 @@ namespace B1Base.DAO
             {
                 string itemCode = itemWarehouseList.First().ItemCode;
 
-                Items item = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
+                Items item = (Items) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
                 try
                 {
                     if (item.GetByKey(itemCode))
@@ -389,7 +389,7 @@ namespace B1Base.DAO
 
         public void Save(string itemCode, int priceList, double price)
         {
-            Items item = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
+            Items item = (Items) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
             try
             {
                 if (item.GetByKey(itemCode))
@@ -418,7 +418,7 @@ namespace B1Base.DAO
 
         public void Delete(Model.ItemModel itemModel)
         {
-            Items item = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
+            Items item = (Items) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
             try
             {
                 if (item.GetByKey(itemModel.ItemCode))

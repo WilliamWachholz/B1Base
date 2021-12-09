@@ -18,7 +18,7 @@ namespace B1Base.DAO
 
         public void InitializeObject(string itemCode)
         {
-            _businessObject = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
+            _businessObject = (Items) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
 
             _bean = new ItemsBean();
 
@@ -46,7 +46,7 @@ namespace B1Base.DAO
 
             xml = xml.Replace(baseItemCode, itemCode);
 
-            _businessObject = Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
+            _businessObject = (Items) Controller.ConnectionController.Instance.Company.GetBusinessObject(BoObjectTypes.oItems);
 
             _bean = new ItemsBean();
 

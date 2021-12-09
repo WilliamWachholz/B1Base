@@ -191,7 +191,7 @@ namespace B1Base.Controller
 
             try
             {
-                Company = this.Application.Company.GetDICompany();
+                Company = (SAPbobsCOM.Company)this.Application.Company.GetDICompany();
 
                 DBServerType = Company.DbServerType == SAPbobsCOM.BoDataServerTypes.dst_HANADB ? "HANA" : "SQLSERVER";
             }
@@ -230,7 +230,7 @@ namespace B1Base.Controller
 
             try
             {
-                Company = this.Application.Company.GetDICompany();
+                Company = (SAPbobsCOM.Company) this.Application.Company.GetDICompany();
 
                 DBServerType = Company.DbServerType == SAPbobsCOM.BoDataServerTypes.dst_HANADB ? "HANA" : "SQLSERVER";
             }
@@ -248,7 +248,7 @@ namespace B1Base.Controller
             this.Company = new SAPbobsCOM.Company();
 
             try
-            {
+            {                
                 this.Company.Server = server;
                 this.Company.CompanyDB = companyDB;
                 this.Company.UserName = userName;
@@ -344,7 +344,7 @@ namespace B1Base.Controller
             {
                 Application.StatusBar.SetText("Criando tabela " + table, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Warning);
 
-                UserTablesMD userTable = Company.GetBusinessObject(BoObjectTypes.oUserTables);
+                UserTablesMD userTable = (UserTablesMD) Company.GetBusinessObject(BoObjectTypes.oUserTables);
                 try
                 {
                     userTable.TableName = table;
@@ -381,7 +381,7 @@ namespace B1Base.Controller
                     App.Instance.AddTextLog("Criando campo " + table + "." + field);
                 }
 
-                UserFieldsMD userField = Company.GetBusinessObject(BoObjectTypes.oUserFields);
+                UserFieldsMD userField = (UserFieldsMD) Company.GetBusinessObject(BoObjectTypes.oUserFields);
                 try
                 {
                     userField.TableName = (sapTable ? "" : "@") + table;
@@ -506,7 +506,7 @@ namespace B1Base.Controller
         {
             int fieldID = ExecuteSqlForDirectObject<int>("select \"FieldID\" from CUFD where \"TableID\" = '{1}' and \"AliasID\" = '{1}'", table, field);
 
-            UserFieldsMD userField = Company.GetBusinessObject(BoObjectTypes.oUserFields);
+            UserFieldsMD userField = (UserFieldsMD) Company.GetBusinessObject(BoObjectTypes.oUserFields);
             try
             {
                 if (userField.GetByKey(table, fieldID))
