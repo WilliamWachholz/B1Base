@@ -172,6 +172,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuCancel;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuAny;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuRightClick;
+            Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuPaste;
             Controller.ConnectionController.Instance.Application.StatusBarEvent += HandleStatusBarMessage;
             Controller.ConnectionController.Instance.Application.RightClickEvent += HandleRightClick;
 
@@ -1725,6 +1726,73 @@ namespace B1Base.Controller
                     {
                         ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 444 - " + e.Message);
                     }
+                }
+            }
+        }
+
+        private void HandleMenuPaste(ref MenuEvent pVal, out bool bubbleEvent)
+        {
+            bubbleEvent = true;
+
+            if (pVal.MenuUID == "773")
+            {
+                if (pVal.BeforeAction)
+                {
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFormLoad;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleGotFocus;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleLostFocus;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFormClose;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFormDeactivate;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandlePickerClick;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleButtonClick;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFolderSelect;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleChooseFrom;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleButtonPress;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFormValidate;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFormResize;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleGridRowClick;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleMatrixRowClick;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleMatrixSort;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleKeyDown;
+                    Controller.ConnectionController.Instance.Application.FormDataEvent -= HandleFormData;
+                    Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuInsert;
+                    Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuSaveAsDraft;
+                    Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuSearch;
+                    Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuDuplicate;
+                    Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuCancel;
+                    Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuAny;
+                    Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuRightClick;
+                    Controller.ConnectionController.Instance.Application.StatusBarEvent -= HandleStatusBarMessage;
+                    Controller.ConnectionController.Instance.Application.RightClickEvent -= HandleRightClick;
+                }
+                else
+                {
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormLoad;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleGotFocus;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleLostFocus;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormClose;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormDeactivate;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandlePickerClick;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonClick;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleFolderSelect;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleChooseFrom;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonPress;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormValidate;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormResize;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleGridRowClick;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixRowClick;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixSort;
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandleKeyDown;
+                    Controller.ConnectionController.Instance.Application.FormDataEvent += HandleFormData;
+                    Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuInsert;
+                    Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSaveAsDraft;
+                    Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSearch;
+                    Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuDuplicate;
+                    Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuCancel;
+                    Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuAny;
+                    Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuRightClick;
+                    Controller.ConnectionController.Instance.Application.StatusBarEvent += HandleStatusBarMessage;
+                    Controller.ConnectionController.Instance.Application.RightClickEvent += HandleRightClick;
                 }
             }
         }
