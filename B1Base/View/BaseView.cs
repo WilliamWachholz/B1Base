@@ -9,6 +9,8 @@ using System.Globalization;
 using System.Reflection;
 using SAPbouiCOM;
 using B1Base.Controller;
+using System.Xml;
+using System.IO;
 
 namespace B1Base.View
 {
@@ -541,6 +543,82 @@ namespace B1Base.View
             _item.Visible = true;
 
             return _item;
+        }
+
+        protected void UpdateFormByXML(string xmlScript, params string[] variables)
+        {
+            try
+            {
+                string xml = "";
+
+                using (var stream = new MemoryStream(File.ReadAllBytes(AddOn.Instance.CurrentDirectory + "//XML//" + xmlScript + ".xml")))
+                {
+                    if (stream != null)
+                    {
+                        using (var streamReader = new StreamReader(stream))
+                        {
+                            xml = string.Format(streamReader.ReadToEnd(), variables);
+                        }
+                    }
+                }
+
+                string sFileName = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".xml");
+
+                File.WriteAllText(sFileName, xml);
+
+                string sXPath = "Application//forms//action//form//@uid";
+                
+                XmlDocument xDoc = new XmlDocument();
+
+                xDoc.Load(sFileName);
+
+                XmlNode xNode = xDoc.SelectSingleNode(sXPath);
+                xNode.InnerText = SAPForm.UniqueID;
+
+                string sXML = xDoc.InnerXml.ToString();
+
+                Controller.ConnectionController.Instance.Application.LoadBatchActions(ref sXML);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message != "XML - Unexpected tag  [66000-42]")
+                    Controller.ConnectionController.Instance.Application.SetStatusBarMessage(ex.Message, SAPbouiCOM.BoMessageTime.bmt_Short, true);
+            }
+        }
+
+        protected string LoadComboXml<T>()
+        {
+            string result = "";
+
+            var type = typeof(T);
+
+            var enumValues = Enum.GetValues(type);
+
+            foreach (var enumValue in enumValues)
+            {
+                result += string.Format(@"<ValidValue value=""{0}"" description=""{1}""/>", ((int)enumValue).ToString(), Model.EnumOperation.GetEnumDescription(enumValue));
+            }
+
+            return result;
+        }
+
+        protected string LoadComboXml(string sqlScript, params string[] variables)
+        {
+            string result = "";
+
+            List<KeyValuePair<dynamic, string>> validValues = Controller.ConnectionController.Instance.ExecuteSqlForList<KeyValuePair<dynamic, string>>(sqlScript, variables);
+
+            foreach (KeyValuePair<dynamic, string> validValue in validValues)
+            {
+                result += string.Format(@"<ValidValue value=""{0}"" description=""{1}""/>", validValue.Key, validValue.Value);
+            }
+
+            return result;
+        }
+
+        protected string LoadComboXml(string table, string codeField, string nameField)
+        {
+            return LoadComboXml("GetComboValues", table, codeField, nameField);
         }
 
         protected void LoadCombo(Matrix matrix, string column, string sqlScript, params string[] variables)
