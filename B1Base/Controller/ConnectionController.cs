@@ -1005,7 +1005,11 @@ namespace B1Base.Controller
 
             using (OdbcConnection myConnection = new OdbcConnection())
             {
-                
+                if (server.Contains("@"))
+                {
+                    server = server.Split('@')[1];
+                }
+
                 string myConnectionString;
                 myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);
                 myConnection.ConnectionString = myConnectionString;
@@ -1096,6 +1100,10 @@ namespace B1Base.Controller
 
             using (OdbcConnection myConnection = new OdbcConnection())
             {
+                if (server.Contains("@"))
+                {
+                    server = server.Split('@')[1];
+                }
 
                 string myConnectionString;
                 myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);
@@ -1166,6 +1174,10 @@ namespace B1Base.Controller
 
             using (OdbcConnection myConnection = new OdbcConnection())
             {
+                if (server.Contains("@"))
+                {
+                    server = server.Split('@')[1];
+                }
 
                 string myConnectionString;
                 myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);

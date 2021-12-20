@@ -562,6 +562,8 @@ namespace B1Base.View
                     }
                 }
 
+
+
                 string sFileName = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".xml");
 
                 File.WriteAllText(sFileName, xml);
@@ -574,6 +576,39 @@ namespace B1Base.View
 
                 XmlNode xNode = xDoc.SelectSingleNode(sXPath);
                 xNode.InnerText = SAPForm.UniqueID;
+
+                int templateId = 0;
+
+                try
+                {
+                    DBDataSource dbTemplate = AddOn.Instance.ConnectionController.Application.Forms.GetFormByTypeAndCount(234000021, 1).DataSources.DBDataSources.Item(0);
+
+                    templateId = Convert.ToInt32(dbTemplate.GetValue(0, dbTemplate.Offset));
+                }
+                catch { }
+
+                string sXPathItems = "Application//forms//action//form//items//action";
+
+                XmlNodeList xItemNodeList = xDoc.SelectSingleNode(sXPathItems).ChildNodes;
+
+                foreach (XmlNode xItemNode in xItemNodeList)
+                {
+                    string item = xItemNode.SelectSingleNode("@uid").InnerText;
+
+                    Model.CustomizedTemplateModel customizedTemplateModel = AddOn.Instance.ConnectionController.ExecuteSqlForObject<Model.CustomizedTemplateModel>("GetCustomizedTemplate",
+                        AddOn.Instance.ConnectionController.User.ToString(), FormType, item, templateId.ToString());
+
+                    if (customizedTemplateModel != null)
+                    {
+                        xItemNode.SelectSingleNode("@top").InnerText = customizedTemplateModel.Top.ToString();
+                        xItemNode.SelectSingleNode("@left").InnerText = customizedTemplateModel.Left.ToString();
+
+                        if (!customizedTemplateModel.Visible)
+                            xItemNode.SelectSingleNode("@visible").InnerText = "0";
+                        else
+                            xItemNode.SelectSingleNode("@enabled").InnerText = customizedTemplateModel.Editable ? "1" : "0";                        
+                    }
+                }
 
                 string sXML = xDoc.InnerXml.ToString();
 
