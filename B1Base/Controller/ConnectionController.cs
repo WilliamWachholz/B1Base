@@ -504,7 +504,7 @@ namespace B1Base.Controller
 
         public void RemoveMetadata(string table, string field)
         {
-            int fieldID = ExecuteSqlForDirectObject<int>("select \"FieldID\" from CUFD where \"TableID\" = '{1}' and \"AliasID\" = '{1}'", table, field);
+            int fieldID = ExecuteSqlForDirectObject<int>("select \"FieldID\" from CUFD where \"TableID\" = '{0}' and \"AliasID\" = '{1}'", table, field);
 
             UserFieldsMD userField = (UserFieldsMD) Company.GetBusinessObject(BoObjectTypes.oUserFields);
             try
