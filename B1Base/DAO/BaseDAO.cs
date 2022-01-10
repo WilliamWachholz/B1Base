@@ -11,8 +11,7 @@ using SAPbobsCOM;
 namespace B1Base.DAO
 {
     public class BaseDAO<T> where T : Model.BaseModel
-    {
-        
+    {        
         protected virtual string TableName
         {
             get
@@ -90,7 +89,7 @@ namespace B1Base.DAO
             
         }
 
-        public void Save(T model)
+        public void Save(T model, bool retry = false)
         {
             Type type = typeof(T);
 
@@ -123,6 +122,8 @@ namespace B1Base.DAO
                     }
 
                     userTable.Update();
+
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
                 }
                 else
                 {                    
@@ -167,9 +168,32 @@ namespace B1Base.DAO
                     userTable.Name = model.Code.ToString();
 
                     userTable.Add();
-                }
 
-                Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                    try
+                    {
+                        Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                    }
+                    catch
+                    {
+                        if (retry)
+                        {
+                            userTable.Add();
+
+                            Type seqDAOType = Type.GetType(type.AssemblyQualifiedName.Replace("Model", "DAO").Replace(type.Name.Replace("Model", "DAO"), "ConfigSeqDAO"));
+
+                            if (seqDAOType == null)
+                                model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, ConfigSeqDAO.AddOnSequenceTableName);
+                            else
+                            {
+                                var dao = (DAO.ConfigSeqDAO)Activator.CreateInstance(seqDAOType);
+
+                                model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, dao.TableName);
+                            }
+
+                            Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                        }
+                    }
+                }
             }
             finally
             {
