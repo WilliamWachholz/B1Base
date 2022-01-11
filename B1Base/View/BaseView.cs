@@ -273,7 +273,8 @@ namespace B1Base.View
 
                     AfterCreateControls();
 
-                    SAPForm.PaneLevel = DefaultPane;
+                    if (!SAPForm.IsSystem)
+                        SAPForm.PaneLevel = DefaultPane;
 
                     if (SAPForm.BusinessObject != null && SAPForm.BusinessObject.Key != string.Empty)
                         GotFormData();
