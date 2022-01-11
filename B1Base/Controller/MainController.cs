@@ -838,6 +838,30 @@ namespace B1Base.Controller
                     }
                 }
             }
+
+            if (pVal.EventType == BoEventTypes.et_COMBO_SELECT && pVal.BeforeAction == false)
+            {
+                try
+                {
+                    string formType = pVal.FormTypeEx;
+                    string formId = pVal.FormUID;
+
+                    if (pVal.ItemUID == "1")
+                    {
+                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonOkPress();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 211 - " + e.Message);
+                    }
+                }
+            }
         }
 
         private void HandleFormValidate(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
