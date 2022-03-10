@@ -101,9 +101,7 @@ namespace B1Base.DAO
 
             return line;
         }
-
         
-
         public void SetCheckDueDate(DateTime value, int line)
         {
             _businessObject.Checks.SetCurrentLine(line);

@@ -58,7 +58,7 @@ namespace B1Base.Controller
 
         private List<string> Menus { get; set; }
 
-        private bool LogIsActive { get; set; }        
+        public bool LogIsActive { get; set; }        
 
         private string LastStatusBarMsg { get; set; }
 
@@ -151,20 +151,20 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormLoad;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleGotFocus;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleLostFocus;
-            Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormClose;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormDeactivate;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandlePickerClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFolderSelect;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleChooseFrom;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonPress;
-            Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormValidate;            
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormValidate;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormResize;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleGridRowClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixRowClick;
-            Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixSort;            
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixSort;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleKeyDown;
             Controller.ConnectionController.Instance.Application.FormDataEvent += HandleFormData;
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormClose;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuInsert;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSaveAsDraft;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSearch;
@@ -632,6 +632,16 @@ namespace B1Base.Controller
         {
             bubbleEvent = true;
 
+            if (pVal.EventType == BoEventTypes.et_FORM_CLOSE && pVal.BeforeAction == true)
+            {
+                string formType = pVal.FormTypeEx;
+
+                if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                {
+                    bubbleEvent = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).CanClose();
+                }
+            }
+
             if (pVal.EventType == BoEventTypes.et_FORM_UNLOAD && pVal.BeforeAction == true)
             {
                 try
@@ -641,7 +651,6 @@ namespace B1Base.Controller
                     if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
                         m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Close();
-                        m_Views.Remove(m_Views.First(r => r.FormUID == formUID && r.FormType == formType));
                     }
                 }
                 catch (Exception e)
@@ -663,7 +672,7 @@ namespace B1Base.Controller
         private void HandleFormDeactivate(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
-            
+
             if (pVal.EventType == BoEventTypes.et_FORM_DEACTIVATE && pVal.BeforeAction == false)
             {
                 try
@@ -736,8 +745,6 @@ namespace B1Base.Controller
                         {
                             m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonOkClick();
                         }
-
-
 
                         if (formType == "50106")
                         {
@@ -897,6 +904,35 @@ namespace B1Base.Controller
                 }
             }
 
+            if (pVal.EventType == BoEventTypes.et_KEY_DOWN && pVal.CharPressed == 32 && pVal.BeforeAction == false)
+            {
+                try
+                {
+                    string formType = pVal.FormTypeEx;
+
+                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    {
+                        if (pVal.ColUID != string.Empty)
+                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnChecked(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
+                        }
+                        else
+                        {
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Checked(pVal.ItemUID);
+
+                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).OptionSelect(pVal.ItemUID);
+                        }
+
+                        bubbleEvent = false;
+                    }
+                }
+                catch (Exception e)
+                {
+                    //ConnectionController.Instance.Application.StatusBar.SetText("235 - " + e.Message);
+                    //throw e;
+                }
+            }
+
             if (bubbleEvent)
             {
                 if (pVal.EventType == BoEventTypes.et_VALIDATE && pVal.BeforeAction == false)
@@ -964,7 +1000,7 @@ namespace B1Base.Controller
                     if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
                         m_Views.First(r => r.FormUID == formUID && r.FormType == formType).FormValidate();
-                        
+
                         bubbleEvent = false;
                     }
                 }
@@ -1408,7 +1444,7 @@ namespace B1Base.Controller
                         {
                             m_Views.First(r => r.FormUID == formId && r.FormType == formType).DeleteFormData();
                         }
-                    }
+                    }                    
                 }
                 catch (Exception e)
                 {
@@ -1817,6 +1853,23 @@ namespace B1Base.Controller
                     Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuRightClick;
                     Controller.ConnectionController.Instance.Application.StatusBarEvent += HandleStatusBarMessage;
                     Controller.ConnectionController.Instance.Application.RightClickEvent += HandleRightClick;
+
+                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
+                    string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
+
+                    if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                    {
+                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuPaste();
+                    }
+                    else if (formId.Contains("F_"))
+                    {
+                        formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
+
+                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                        {
+                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuPaste();
+                        }
+                    }
                 }
             }
         }

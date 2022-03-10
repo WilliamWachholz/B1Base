@@ -106,7 +106,20 @@ namespace B1Base.Controller
             dao.Delete(model);
         }
 
-        //atributo threadedMethod?
+        public void Delete<T>(List<T> listSource) where T : Model.BaseModel
+        {
+            for (int i = 0; i < listSource.Count; i++)
+            {
+                try
+                {
+                    Delete<T>(listSource[i]);
+                }
+                catch (Exception ex)
+                {
+                    B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText(ex.Message);
+                }
+            }
+        }
 
         private void Compare<T>(T source, T current) where T : Model.BaseModel
         {

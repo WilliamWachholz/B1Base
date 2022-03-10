@@ -449,9 +449,7 @@ namespace B1Base.DAO
                     {
                         try
                         {
-                            documentC.Add();
-
-                            Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                            documentC.Add();                            
                         }
                         finally
                         {
@@ -459,6 +457,8 @@ namespace B1Base.DAO
                             GC.Collect();
                         }
                     }
+
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
                 }
             }
             finally

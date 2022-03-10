@@ -15,7 +15,8 @@ namespace B1Base.Controller
     public abstract class ServiceController : ServiceBase
     {
         static System.Timers.Timer timer;
-
+        static System.Timers.Timer timer2;
+        static bool m_ExecutingMain;
         public abstract string ServiceName { get; }
         public abstract string ServiceTitle { get; }
         public abstract string ServiceDescription { get; }
@@ -26,6 +27,11 @@ namespace B1Base.Controller
         }
 
         protected virtual void Execute()
+        {
+
+        }
+
+        protected virtual void ExtraExecute()
         {
 
         }
@@ -50,6 +56,14 @@ namespace B1Base.Controller
                     timer.Start();
                 }
 
+                if (Convert.ToInt32(ConfigurationSettings.AppSettings.Get("ExtraTimeInMiliseconds")) > 0)
+                {
+                    timer2 = new System.Timers.Timer(Convert.ToInt32(ConfigurationSettings.AppSettings.Get("ExtraTimeInMiliseconds")));
+                    timer2.Elapsed += new System.Timers.ElapsedEventHandler(timer2_Tick);
+                    timer2.Enabled = true;
+                    timer2.Start();
+                }
+
                 AddLog("Started");
             }
             catch (Exception exception)
@@ -72,6 +86,7 @@ namespace B1Base.Controller
         {
             try
             {
+                m_ExecutingMain = true;
                 try
                 {
                     if (!LaziInitialization)
@@ -97,6 +112,7 @@ namespace B1Base.Controller
                 }
                 finally
                 {
+                    m_ExecutingMain = false;
                     if (!LaziInitialization)
                     {
                         AddLog("Desconnecting");
@@ -113,6 +129,32 @@ namespace B1Base.Controller
             }
         }
 
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                if (m_ExecutingMain == false)
+                {
+                    try
+                    {
+                        AddLog("Extra Executing");
+
+                        ExtraExecute();
+
+                        AddLog("Extra Executed");
+                    }
+                    finally
+                    {
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AddLog("Error: " + ex.Message);
+
+                Environment.Exit(-1);
+            }
+        }
 
         public string AddOnID
         {

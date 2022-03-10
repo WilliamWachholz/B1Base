@@ -300,6 +300,13 @@ namespace B1Base.Controller
             }
         }
 
+        public void Initialize(SAPbobsCOM.Company company)
+        {
+            this.Company = company;
+
+            DBServerType = Company.DbServerType == SAPbobsCOM.BoDataServerTypes.dst_HANADB ? "HANA" : "SQLSERVER";
+        }
+
         public void Finalize()
         {
             this.Company.Disconnect();

@@ -89,6 +89,8 @@ namespace B1Base.DAO
                 if (journal.GetByKey(transId))
                 {
                     journal.Cancel();
+
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
                 }
             }
             finally

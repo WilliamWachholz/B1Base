@@ -63,7 +63,15 @@ namespace B1Base.View
                 return result;
             }
         }
-
+        
+        protected int ConvertInt(string intValue)
+        {
+            if (intValue.Trim().Equals(""))
+                return 0;
+            else
+                return Convert.ToInt32(intValue);
+        }
+       
         protected double ConvertDouble(string doubleValue)
         {
             if (doubleValue.Trim().Equals(""))
@@ -74,7 +82,10 @@ namespace B1Base.View
 
         public DateTime ConverteDate(string dateValue)
         {
-            return DateTime.ParseExact(dateValue, "dd/MM/yyyy", null);
+            if (dateValue == "")
+                return DateTime.MinValue;
+            else
+                return DateTime.ParseExact(dateValue, "dd/MM/yyyy", null);
         }
 
         public BaseView(string formUID, string formType)
@@ -129,6 +140,7 @@ namespace B1Base.View
         public delegate void SuppressActionEventHandler(BoEventTypes action, out bool supressed);
         public delegate bool SupressMatrixDetailsEventHandler();
         public delegate bool ConfirmMessageBoxEventHandler();
+        public delegate void MenuPasteEventHandler();
         
         public string LastEditValue { get; private set; }
         public string LastComboValue { get; private set; }
@@ -154,8 +166,7 @@ namespace B1Base.View
         public bool SavedAsDraft { get; protected set; }
 
         public bool IsDraft { get; protected set; }
-
-        
+                
         public Model.EnumObjType LastCopiedObjType { get; private set; }
         public bool Frozen { get; private set; }
         public BoModifiersEnum LastModifier { get; private set; }
@@ -167,6 +178,8 @@ namespace B1Base.View
         protected bool ControlsCreated { get { return !m_timerCreateControls.Enabled; } }
 
         private Timer m_timerCreateControls = new Timer(1000);
+
+        private Timer m_timerFormClose = new Timer(1000);
 
         private DateTime m_StartTime = DateTime.Now;
 
@@ -329,6 +342,20 @@ namespace B1Base.View
             }
         }
 
+        private void CloseForm(object sender, ElapsedEventArgs e)
+        {
+            m_timerFormClose.Enabled = false;
+
+            SAPForm.Close();                
+        }
+
+        protected void RequestClose()
+        {
+            m_timerFormClose.Interval = 200;
+            m_timerFormClose.Elapsed += CloseForm;
+            m_timerFormClose.Enabled = true;
+        }
+
         int freezeCount = 0;
 
         /// <summary>
@@ -406,6 +433,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, SupressMatrixDetailsEventHandler> SupressMatrixDetailsEvents { get { return new Dictionary<string, SupressMatrixDetailsEventHandler>(); } }
 
         protected virtual Dictionary<string, ConfirmMessageBoxEventHandler> ConfirmMessageBoxEvents { get { return new Dictionary<string, ConfirmMessageBoxEventHandler>(); } }
+
+        protected virtual Dictionary<string, MenuPasteEventHandler> MenuPasteEvents { get { return new Dictionary<string, MenuPasteEventHandler>(); } }
 
         protected virtual void CreateControls() { }
 
@@ -1730,7 +1759,7 @@ namespace B1Base.View
             }
         }
 
-        public void SetValuePro<T>(DataTable dataTable, Matrix matrix, List<T> list)
+        public void SetValuePro<T>(DataTable dataTable, Matrix matrix, List<T> list, bool addLastLine = false)
         {
             Type type = typeof(T);
 
@@ -1739,7 +1768,7 @@ namespace B1Base.View
             List<string> selects = new List<string>();
 
             foreach (T model in list)
-            {               
+            {
                 List<string> values = new List<string>();
 
                 foreach (var prop in props)
@@ -1799,7 +1828,7 @@ namespace B1Base.View
                     }
                 }
 
-                selects.Add(" select " + (type.BaseType == typeof(Model.BaseModel) ? type.GetProperty("Code").GetValue(model) + "," : "") + string.Join(",", values.ToArray()) + (Controller.ConnectionController.Instance.DBServerType == "HANA" ? " from dummy " : " "));   
+                selects.Add(" select " + (type.BaseType == typeof(Model.BaseModel) ? type.GetProperty("Code").GetValue(model) + "," : "") + string.Join(",", values.ToArray()) + (Controller.ConnectionController.Instance.DBServerType == "HANA" ? " from dummy " : " "));
             }
 
             if (list.Count == 0)
@@ -1817,8 +1846,15 @@ namespace B1Base.View
             }
 
             matrix.LoadFromDataSource();
-        }
 
+            if (addLastLine)
+            {
+                matrix.AddRow();
+                matrix.ClearRowData(matrix.RowCount);
+
+            }
+        }
+        
         public void SetValuePro<T>(Grid grid, List<T> list)
         {
             DataTable dataTable = grid.DataTable;
@@ -2335,6 +2371,11 @@ namespace B1Base.View
         public virtual void GotFocus() { }
 
         public virtual void LostFocus() { }
+
+        public virtual bool CanClose()
+        {
+            return true;
+        }
 
         public virtual void Close() { }
 
@@ -3288,6 +3329,19 @@ namespace B1Base.View
                     check = ((CheckBox)((Matrix)SAPForm.Items.Item(matrix).Specific).Columns.Item(column).Cells.Item(row).Specific).Checked;
                 }
 
+                if (LastRows.ContainsKey(matrix))
+                {
+                    LastBeforeRows[matrix] = LastRows[matrix];
+                    LastRows[matrix] = row;
+                    LastCols[matrix] = column;
+                }
+                else
+                {
+                    LastBeforeRows.Add(matrix, 1);
+                    LastRows.Add(matrix, row);
+                    LastCols.Add(matrix, column);
+                }
+
                 if (modifiers == BoModifiersEnum.mt_SHIFT)
                 {
                     int lastRow = LastBeforeRows[matrix];
@@ -3446,6 +3500,21 @@ namespace B1Base.View
             if (ColumnSelectEvents.ContainsKey(key) && !Frozen)
             {
                 Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                bool rowChanged = LastRows.ContainsKey(matrix) ? row != LastRows[matrix] : true;
+
+                if (LastRows.ContainsKey(matrix))
+                {
+                    LastBeforeRows[matrix] = LastRows[matrix];
+                    LastRows[matrix] = row;
+                    LastCols[matrix] = column;
+                }
+                else
+                {
+                    LastBeforeRows.Add(matrix, 1);
+                    LastRows.Add(matrix, row);
+                    LastCols.Add(matrix, column);
+                }
 
                 ColumnSelectEvents[key](row, LastComboValue !=
                     (((ComboBox)matrixItem.Columns.Item(column).Cells.Item(row).Specific).Selected == null ? string.Empty :
@@ -3621,6 +3690,16 @@ namespace B1Base.View
                 result = ConfirmMessageBoxEvents[message]();
 
             return result;
+        }
+
+        public void MenuPaste()
+        {
+            string item = SAPForm.ActiveItem;
+
+            if (MenuPasteEvents.ContainsKey(item))
+            {
+                MenuPasteEvents[item]();
+            }
         }
     }    
 }
