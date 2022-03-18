@@ -12,7 +12,7 @@ namespace B1Base.DAO
 {
     public class BaseDAO<T> where T : Model.BaseModel
     {        
-        protected virtual string TableName
+        public virtual string TableName
         {
             get
             {
@@ -153,7 +153,7 @@ namespace B1Base.DAO
                         Type seqDAOType = Type.GetType(type.AssemblyQualifiedName.Replace("Model", "DAO").Replace(type.Name.Replace("Model", "DAO"), "ConfigSeqDAO"));
 
                         if (seqDAOType == null)
-                            model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, ConfigSeqDAO.AddOnSequenceTableName);
+                            model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, new ConfigSeqDAO().TableName);
                         else
                         {
                             var dao = (DAO.ConfigSeqDAO)Activator.CreateInstance(seqDAOType);
@@ -182,7 +182,7 @@ namespace B1Base.DAO
                             Type seqDAOType = Type.GetType(type.AssemblyQualifiedName.Replace("Model", "DAO").Replace(type.Name.Replace("Model", "DAO"), "ConfigSeqDAO"));
 
                             if (seqDAOType == null)
-                                model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, ConfigSeqDAO.AddOnSequenceTableName);
+                                model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, new ConfigSeqDAO().TableName);
                             else
                             {
                                 var dao = (DAO.ConfigSeqDAO)Activator.CreateInstance(seqDAOType);

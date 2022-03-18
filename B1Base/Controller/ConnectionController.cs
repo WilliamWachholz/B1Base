@@ -31,10 +31,6 @@ namespace B1Base.Controller
 
         public SAPbouiCOM.Application Application { get; private set; }
 
-        public string ConfigTableName { get; set; } = "";
-
-        public string ConfigSeqTableName { get; set; } = "";
-
         public string AddOnID { get; private set; }
 
         public string DBServerType { get; private set; }
@@ -300,11 +296,13 @@ namespace B1Base.Controller
             }
         }
 
-        public void Initialize(SAPbobsCOM.Company company)
+        public void Initialize(SAPbobsCOM.Company company, string addOnID)
         {
             this.Company = company;
 
             DBServerType = Company.DbServerType == SAPbobsCOM.BoDataServerTypes.dst_HANADB ? "HANA" : "SQLSERVER";
+
+            AddOnID = addOnID;
         }
 
         public void Finalize()
@@ -336,11 +334,6 @@ namespace B1Base.Controller
         public void CreateMetadata(string table, string field, FieldTypeEnum fieldType, string fieldTitle)
         {
             CreateMetadata(table, field, fieldType, 10, null, "", fieldTitle);
-        }
-
-        public void CreateMetadata(bool configTable, string field, FieldTypeEnum fieldType, string fieldTitle)
-        {
-            CreateMetadata(configTable, field, fieldType, 10, null, "", fieldTitle);
         }
 
         public void CreateMetadata(string table, string field, FieldTypeEnum fieldType, int size = 10, Dictionary<string, string> validValues = null, string defaultValue = "", string fieldTitle = "")
@@ -502,11 +495,6 @@ namespace B1Base.Controller
                     GC.Collect();
                 }
             }
-        }
-
-        public void CreateMetadata(bool configTable, string field, FieldTypeEnum fieldType, int size = 10, Dictionary<string, string> validValues = null, string defaultValue = "", string fieldTitle = "")
-        {
-            CreateMetadata(AddOnID + "Cnf", field, fieldType, size, validValues, defaultValue, fieldTitle);
         }
 
         public void RemoveMetadata(string table, string field)

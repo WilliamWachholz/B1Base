@@ -207,7 +207,9 @@ namespace B1Base.View
                 return false;
             }
         }
-        
+
+        protected bool FormLoaded { get; private set; }
+
         public Form SAPForm
         {
             get
@@ -298,10 +300,12 @@ namespace B1Base.View
 
                         FormValidate();
                     }
+
+                    FormLoaded = true;
                 }
                 catch (Exception ex)
                 {
-                    if (new Controller.ConfigController<Model.ConfigModel>().GetConfig().ActivateLog)
+                    if (new Controller.ConfigController<Model.ConfigModel>("").GetConfig().ActivateLog)
                         B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOn.Instance.MainController.AddOnID + "]" + ex.Message + ". FormType: " + this.GetType().Name);
                 }
             }
@@ -2320,12 +2324,12 @@ namespace B1Base.View
                 {
                     SAPForm.ActiveItem = "DUMMY";
 
-                    int code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", m_BrowseTable, DAO.ConfigSeqDAO.AddOnSequenceTableName);
+                    int code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", m_BrowseTable, new DAO.ConfigSeqDAO().TableName);
 
                     SetValue(m_BrowseItem, code);
 
                     if (m_ReserveCode)
-                        Controller.ConnectionController.Instance.ExecuteStatement("UpdateLastCode", m_BrowseTable, DAO.ConfigSeqDAO.AddOnSequenceTableName, code.ToString());
+                        Controller.ConnectionController.Instance.ExecuteStatement("UpdateLastCode", m_BrowseTable, new DAO.ConfigSeqDAO().TableName, code.ToString());
 
                     SAPForm.Items.Item(m_BrowseItem).Enabled = false;
 

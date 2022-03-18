@@ -68,8 +68,6 @@ namespace B1Base.Controller
 
         private bool SupressDetails { get; set; }
 
-        private bool ConfigOpened { get; set; }
-
         Timer m_timerFinalize = new Timer(60000);
 
         string m_NextMessage = string.Empty;
@@ -196,16 +194,16 @@ namespace B1Base.Controller
 
                 ConnectionController.Instance.CreateMetadata("OINV", "DIUpdate", FieldTypeEnum.Alphanumeric, 1, yesNoValidValues);
 
-                ConnectionController.Instance.CreateMetadata(true, "Code", FieldTypeEnum.Integer);
-                ConnectionController.Instance.CreateMetadata(true, "AutoCreateMetadata", FieldTypeEnum.Alphanumeric, 1);
-                ConnectionController.Instance.CreateMetadata(true, "ActivateLog", FieldTypeEnum.Alphanumeric, 1);
+                new ConfigController<Model.ConfigModel>("").CreateMetadata("Code", FieldTypeEnum.Integer);
+                new ConfigController<Model.ConfigModel>("").CreateMetadata("AutoCreateMetadata", FieldTypeEnum.Alphanumeric, 1);
+                new ConfigController<Model.ConfigModel>("").CreateMetadata("ActivateLog", FieldTypeEnum.Alphanumeric, 1);
 
-                ConnectionController.Instance.CreateMetadata(AddOnID + "Seq", "Code", FieldTypeEnum.Integer);
-                ConnectionController.Instance.CreateMetadata(AddOnID + "Seq", "UserTable", FieldTypeEnum.Alphanumeric, 40);
-                ConnectionController.Instance.CreateMetadata(AddOnID + "Seq", "NextCode", FieldTypeEnum.Integer);
+                ConnectionController.Instance.CreateMetadata(new DAO.ConfigSeqDAO().TableName, "Code", FieldTypeEnum.Integer);
+                ConnectionController.Instance.CreateMetadata(new DAO.ConfigSeqDAO().TableName, "UserTable", FieldTypeEnum.Alphanumeric, 40);
+                ConnectionController.Instance.CreateMetadata(new DAO.ConfigSeqDAO().TableName, "NextCode", FieldTypeEnum.Integer);
 
                 Model.ConfigModel configModel = new Model.ConfigModel();
-                configModel = new ConfigController<Model.ConfigModel>().GetConfig();
+                configModel = new ConfigController<Model.ConfigModel>("").GetConfig();
 
                 LogIsActive = configModel.ActivateLog;
 
@@ -323,8 +321,6 @@ namespace B1Base.Controller
                     if (!FormTypeViews.ContainsKey(newFormType + AddOnID))
                         FormTypeViews.Add(newFormType + AddOnID, formType);
 
-                    ConfigOpened = true;
-
                     Controller.ConnectionController.Instance.Application.LoadBatchActions(ref xml);
                 }
 
@@ -421,9 +417,6 @@ namespace B1Base.Controller
                     {
                         if (FormTypeViews.ContainsKey(pVal.FormTypeEx + AddOnID))
                         {
-                            if (pVal.FormTypeEx == "ConfigView" && !ConfigOpened)
-                                return;
-
                             Assembly assembly = Assembly.LoadFile(AddOn.Instance.CurrentDirectory + "\\" + FormTypeViews[pVal.FormTypeEx + AddOnID].Split('.')[0] + ".dll");
 
                             Type type = assembly.GetType(FormTypeViews[pVal.FormTypeEx + AddOnID]);
@@ -437,33 +430,6 @@ namespace B1Base.Controller
                                 object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
 
                                 m_Views.Add((View.BaseView)formView);
-                            }
-
-                            ConfigOpened = false;
-                        }
-                        else if (pVal.FormTypeEx != "ConfigView")
-                        {
-                            string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
-
-                            foreach (string dll in dlls)
-                            {
-                                Assembly assembly = Assembly.LoadFile(dll);
-
-                                if (assembly.GetName().Name.StartsWith(Assembly.GetEntryAssembly().GetName().Name))
-                                {
-                                    Type type = assembly.GetType(assembly.GetName().Name + ".View." + pVal.FormTypeEx.Split('.')[pVal.FormTypeEx.Split('.').Count() - 1]);
-
-                                    if (type != null)
-                                    {
-                                        if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
-                                        {
-                                            ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
-                                            object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
-
-                                            m_Views.Add((View.BaseView)formView);
-                                        }
-                                    }
-                                }
                             }
                         }
                     }
@@ -515,28 +481,35 @@ namespace B1Base.Controller
                             m_FilteredView.SAPForm.Items.Item(m_FilteredView.SAPForm.Settings.MatrixUID).Enabled = true;
                         }
                     }                    
-                    else
+                    else if (!pVal.FormTypeEx.Contains("-"))
                     {
                         string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
 
                         foreach (string dll in dlls)
                         {
-                            Assembly assembly = Assembly.LoadFile(dll);
-
-                            if (assembly.GetName().Name.StartsWith(Assembly.GetEntryAssembly().GetName().Name))
+                            try
                             {
-                                Type type = assembly.GetType(assembly.GetName().Name + ".View.Form" + pVal.FormTypeEx + "View");
+                                Assembly assembly = Assembly.LoadFile(dll);
 
-                                if (type != null)
+                                if (assembly.GetName().Name.Contains("Code"))
                                 {
-                                    if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
-                                    {
-                                        ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
-                                        object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+                                    Type type = assembly.GetType(assembly.GetName().Name + ".View.Form" + pVal.FormTypeEx + "View");
 
-                                        m_Views.Add((View.BaseView)formView);
+                                    if (type != null)
+                                    {
+                                        //if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
+                                        //{
+                                        ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
+                                            object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+
+                                            m_Views.Add((View.BaseView)formView);
+                                        //}
                                     }
                                 }
+                            }
+                            catch (Exception ex)
+                            {
+                                //ConnectionController.Instance.Application.StatusBar.SetText(ex.Message);
                             }
                         }
                     }
@@ -573,11 +546,9 @@ namespace B1Base.Controller
                 try
                 {
                     string formType = pVal.FormTypeEx;
-
-                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                    {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).FormLostFocus();
-                    }
+                    
+                    foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                        view.FormLostFocus();
                 }
                 catch (Exception e)
                 {
@@ -599,21 +570,21 @@ namespace B1Base.Controller
                 {
                     string formType = pVal.FormTypeEx;
 
-                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
                     {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).GotFocus();
+                        view.GotFocus();
 
                         if (pVal.ItemUID != string.Empty)
                         {
                             if (pVal.ColUID != string.Empty)
                             {
-                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnFocus(pVal.ItemUID, pVal.Row, pVal.ColUID);
-                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
+                                view.ColumnFocus(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                                view.MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
                             }
                             else
                             {
-                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditFocus(pVal.ItemUID);
-                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ComboFocus(pVal.ItemUID);
+                                view.EditFocus(pVal.ItemUID);
+                                view.ComboFocus(pVal.ItemUID);
                             }
                         }
                     }
@@ -636,9 +607,10 @@ namespace B1Base.Controller
             {
                 string formType = pVal.FormTypeEx;
 
-                if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                {
-                    bubbleEvent = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).CanClose();
+                foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                { 
+                    if (bubbleEvent)
+                        bubbleEvent = view.CanClose();
                 }
             }
 
@@ -648,10 +620,8 @@ namespace B1Base.Controller
                 {
                     string formType = pVal.FormTypeEx;
 
-                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                    {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Close();
-                    }
+                    foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                        view.Close();
                 }
                 catch (Exception e)
                 {
@@ -679,12 +649,11 @@ namespace B1Base.Controller
                 {
                     string formType = pVal.FormTypeEx;
 
-                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                    {
-                        LastActiveView = m_Views.First(r => r.FormUID == formUID && r.FormType == formType);
+                    LastActiveView = m_Views.Last(r => r.FormUID == formUID && r.FormType == formType);
 
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).LostFocus();
-                    }
+                    foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                        view.LostFocus();
+
                 }
                 catch (Exception e)
                 {
@@ -706,15 +675,14 @@ namespace B1Base.Controller
                 {
                     string formType = pVal.FormTypeEx;
 
-                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    if (pVal.ColUID == string.Empty)
                     {
-                        if (pVal.ColUID != string.Empty)
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
                         {
+                            SupressPicker = view.SupressPickerClick(pVal.ItemUID);
 
-                        }
-                        else
-                        {
-                            SupressPicker = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).SupressPickerClick(pVal.ItemUID);
+                            if (SupressPicker)
+                                break;
                         }
                     }
                 }
@@ -743,7 +711,8 @@ namespace B1Base.Controller
                     {
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonOkClick();
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                view.ButtonOkClick();
                         }
 
                         if (formType == "50106")
@@ -753,11 +722,8 @@ namespace B1Base.Controller
                     }
                     else
                     {
-
-                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                        {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonClick(pVal.ItemUID);
-                        }
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                            view.ButtonClick(pVal.ItemUID);                        
                     }                   
                 }
                 catch (Exception e)
@@ -781,10 +747,8 @@ namespace B1Base.Controller
                     string formType = pVal.FormTypeEx;
                     string formId = pVal.FormUID;
 
-                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                    {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
-                    }
+                    foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                        view.MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
                 }
                 catch (Exception e)
                 {
@@ -804,20 +768,18 @@ namespace B1Base.Controller
 
                     if (pVal.ItemUID == "1")
                     {
-                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                        {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonOkPress();
-                        }
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                            view.ButtonOkPress();                       
                     }
                     else
                     {
-                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonPress(pVal.ItemUID);
+                            view.ButtonPress(pVal.ItemUID);
 
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonOpenView(pVal.ItemUID, m_Views[m_Views.Count - 1]);
+                            view.ButtonOpenView(pVal.ItemUID, m_Views[m_Views.Count - 1]);
 
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).LinkPress(pVal.ItemUID, m_Views[m_Views.Count - 1]);
+                            view.LinkPress(pVal.ItemUID, m_Views[m_Views.Count - 1]);
                         }
                     }
 
@@ -855,10 +817,8 @@ namespace B1Base.Controller
 
                     if (pVal.ItemUID == "1")
                     {
-                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                        {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ButtonOkPress();
-                        }
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                            view.ButtonOkPress();                        
                     }
                 }
                 catch (Exception e)
@@ -885,13 +845,17 @@ namespace B1Base.Controller
                     {
                         if (pVal.ColUID != string.Empty)
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnChecked(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                view.ColumnChecked(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
                         }
                         else
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Checked(pVal.ItemUID);
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                            {
+                                view.Checked(pVal.ItemUID);
 
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).OptionSelect(pVal.ItemUID);
+                                view.OptionSelect(pVal.ItemUID);
+                            }
                         }
 
                         bubbleEvent = false;
@@ -914,13 +878,17 @@ namespace B1Base.Controller
                     {
                         if (pVal.ColUID != string.Empty)
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnChecked(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                view.ColumnChecked(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
                         }
                         else
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Checked(pVal.ItemUID);
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                            {
+                                view.Checked(pVal.ItemUID);
 
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).OptionSelect(pVal.ItemUID);
+                                view.OptionSelect(pVal.ItemUID);
+                            }
                         }
 
                         bubbleEvent = false;
@@ -945,11 +913,13 @@ namespace B1Base.Controller
                         {
                             if (pVal.ColUID != string.Empty)
                             {
-                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnValidate(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                                foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                    view.ColumnValidate(pVal.ItemUID, pVal.Row, pVal.ColUID);
                             }
                             else if (pVal.ItemUID != string.Empty)
                             {
-                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).EditValidate(pVal.ItemUID);
+                                foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                    view.EditValidate(pVal.ItemUID);
                             }
 
                             bubbleEvent = false;
@@ -975,11 +945,13 @@ namespace B1Base.Controller
                     {
                         if (pVal.ColUID != string.Empty)
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColumnSelect(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                view.ColumnSelect(pVal.ItemUID, pVal.Row, pVal.ColUID);
                         }
                         else
                         {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ComboSelect(pVal.ItemUID);
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                view.ComboSelect(pVal.ItemUID);
                         }
 
                         bubbleEvent = false;
@@ -997,9 +969,9 @@ namespace B1Base.Controller
                 {
                     string formType = pVal.FormTypeEx;
 
-                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                    foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
                     {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).FormValidate();
+                        view.FormValidate();
 
                         bubbleEvent = false;
                     }
@@ -1043,10 +1015,8 @@ namespace B1Base.Controller
                 {
                     string formType = pVal.FormTypeEx;
 
-                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                    {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).Resize(); ;
-                    }
+                    foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                        view.Resize();                    
                 }
                 catch (Exception e)
                 {
@@ -1072,11 +1042,23 @@ namespace B1Base.Controller
                     {
                         if (pVal.ColUID != string.Empty)
                         {
-                            SuppressChoose = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColSupressChooseFrom(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                            {
+                                SuppressChoose = view.ColSupressChooseFrom(pVal.ItemUID, pVal.Row, pVal.ColUID);
+
+                                if (SuppressChoose)
+                                    break;
+                            }
                         }
                         else
                         {
-                            SuppressChoose = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).SupressChooseFrom(pVal.ItemUID);
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                            {
+                                SuppressChoose = view.SupressChooseFrom(pVal.ItemUID);
+
+                                if (SuppressChoose)
+                                    break;
+                            }
                         }
                     }
                 }
@@ -1111,24 +1093,23 @@ namespace B1Base.Controller
                                             catch { }
                                         }
 
-                                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColChooseFrom(pVal.ItemUID,
-                                            pVal.Row + cfRow,
-                                            pVal.ColUID,
-                                            values);
+                                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                            view.ColChooseFrom(pVal.ItemUID, pVal.Row + cfRow, pVal.ColUID, values);
                                     }
                                     else
                                     {
-                                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(pVal.ItemUID,
-                                            chooseFromListEvent.SelectedObjects.GetValue(0, 0).ToString(),
-                                            chooseFromListEvent.SelectedObjects.GetValue(1, 0).ToString(),
-                                            chooseFromListEvent.SelectedObjects.GetValue(2, 0).ToString(),
-                                            chooseFromListEvent.SelectedObjects.GetValue(3, 0).ToString(),
-                                            chooseFromListEvent.SelectedObjects.GetValue(4, 0).ToString(),
-                                            chooseFromListEvent.SelectedObjects.GetValue(5, 0).ToString(),
-                                            chooseFromListEvent.SelectedObjects.GetValue(6, 0).ToString(),
-                                            chooseFromListEvent.SelectedObjects.GetValue(7, 0).ToString(),
-                                            chooseFromListEvent.SelectedObjects.GetValue(8, 0).ToString(),
-                                            chooseFromListEvent.SelectedObjects.GetValue(9, 0).ToString());
+                                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                            view.ChooseFrom(pVal.ItemUID,
+                                                            chooseFromListEvent.SelectedObjects.GetValue(0, 0).ToString(),
+                                                            chooseFromListEvent.SelectedObjects.GetValue(1, 0).ToString(),
+                                                            chooseFromListEvent.SelectedObjects.GetValue(2, 0).ToString(),
+                                                            chooseFromListEvent.SelectedObjects.GetValue(3, 0).ToString(),
+                                                            chooseFromListEvent.SelectedObjects.GetValue(4, 0).ToString(),
+                                                            chooseFromListEvent.SelectedObjects.GetValue(5, 0).ToString(),
+                                                            chooseFromListEvent.SelectedObjects.GetValue(6, 0).ToString(),
+                                                            chooseFromListEvent.SelectedObjects.GetValue(7, 0).ToString(),
+                                                            chooseFromListEvent.SelectedObjects.GetValue(8, 0).ToString(),
+                                                            chooseFromListEvent.SelectedObjects.GetValue(9, 0).ToString());
                                     }
                                 }
                                 else
@@ -1146,10 +1127,8 @@ namespace B1Base.Controller
                                             catch { }
                                         }
 
-                                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ColChooseFrom(pVal.ItemUID,
-                                            pVal.Row + cfRow,
-                                            pVal.ColUID,
-                                            values);
+                                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                            view.ColChooseFrom(pVal.ItemUID, pVal.Row + cfRow, pVal.ColUID, values);
                                     }
                                     else
                                     {
@@ -1164,8 +1143,8 @@ namespace B1Base.Controller
                                             catch { }
                                         }
 
-                                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).ChooseFrom(pVal.ItemUID,
-                                           values);
+                                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                            view.ChooseFrom(pVal.ItemUID, values);
                                     }
                                 }
                             }
@@ -1192,10 +1171,8 @@ namespace B1Base.Controller
                 {
                     string formType = pVal.FormTypeEx;
 
-                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                    {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).FolderSelect(pVal.ItemUID);
-                    }
+                    foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                        view.FolderSelect(pVal.ItemUID);                    
                 }
                 catch (Exception e)
                 {
@@ -1219,10 +1196,9 @@ namespace B1Base.Controller
                     {
                         string formType = pVal.FormTypeEx;
 
-                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                        {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).GridRowDoubleClick(pVal.ItemUID, pVal.Row, pVal.ColUID);
-                        }
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                            view.GridRowDoubleClick(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                        
                     }
                 }
                 catch (Exception e)
@@ -1242,10 +1218,8 @@ namespace B1Base.Controller
                     {
                         string formType = pVal.FormTypeEx;
 
-                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                        {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).GridRowClick(pVal.ItemUID, pVal.Row, pVal.ColUID);
-                        }
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                            view.GridRowClick(pVal.ItemUID, pVal.Row, pVal.ColUID);                        
                     }
                 }
                 catch (Exception e)
@@ -1272,9 +1246,12 @@ namespace B1Base.Controller
                         {
                             string formType = pVal.FormTypeEx;
 
-                            if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
                             {
-                                SupressDetails = m_Views.First(r => r.FormUID == formUID && r.FormType == formType).SupressMatrixDetails(pVal.ItemUID);
+                                SupressDetails = view.SupressMatrixDetails(pVal.ItemUID);
+
+                                if (SupressDetails)
+                                    break;
                             }
                         }
                     }
@@ -1284,10 +1261,8 @@ namespace B1Base.Controller
                         {
                             string formType = pVal.FormTypeEx;
 
-                            if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                            {
-                                m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowDoubleClick(pVal.ItemUID, pVal.Row, pVal.ColUID);
-                            }
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                view.MatrixRowDoubleClick(pVal.ItemUID, pVal.Row, pVal.ColUID);                            
                         }
                     }
                 }
@@ -1308,10 +1283,8 @@ namespace B1Base.Controller
                     {
                         string formType = pVal.FormTypeEx;
 
-                        if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                        {
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
-                        }
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                            view.MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);                        
                     }
                 }
                 catch (Exception e)
@@ -1334,10 +1307,8 @@ namespace B1Base.Controller
                 {
                     string formType = pVal.FormTypeEx;
 
-                    if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
-                    {
-                        m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixSort(pVal.ItemUID, pVal.ColUID);
-                    }
+                    foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                        view.MatrixSort(pVal.ItemUID, pVal.ColUID);                    
                 }
                 catch (Exception e)
                 {
@@ -1362,9 +1333,15 @@ namespace B1Base.Controller
                     if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
                         if (pVal.CharPressed == 9 && pVal.Row > 0)
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).MatrixTabPressed(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                        {
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                view.MatrixTabPressed(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                        }
                         else
-                            m_Views.First(r => r.FormUID == formUID && r.FormType == formType).KeyDown(pVal.ItemUID);
+                        {
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                view.KeyDown(pVal.ItemUID);
+                        }
                     }
                 }
                 catch (Exception e)
@@ -1393,21 +1370,31 @@ namespace B1Base.Controller
 
                         if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_DELETE)
                         {
-                            if (!m_Views.First(r => r.FormUID == formId && r.FormType == formType).ValidateFormData(out msg, true))
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
                             {
-                                AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+                                if (!view.ValidateFormData(out msg, true))
+                                {
+                                    AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
 
-                                bubbleEvent = false;
+                                    bubbleEvent = false;
+
+                                    break;
+                                }
                             }
                         }
                         else if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_ADD || objectInfo.EventType == BoEventTypes.et_FORM_DATA_UPDATE)
                         {
-                            if (!m_Views.First(r => r.FormUID == formId && r.FormType == formType).ValidateFormData(out msg, false))
-                            {                                
-                                AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            {
+                                if (!view.ValidateFormData(out msg, false))
+                                {
+                                    AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
 
-                                bubbleEvent = false;
-                            }                            
+                                    bubbleEvent = false;
+
+                                    break;
+                                }
+                            }                       
                         }                        
                     }
                 }
@@ -1430,19 +1417,23 @@ namespace B1Base.Controller
                     {
                         if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_LOAD)
                         {
-                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).GotFormData();
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                                view.GotFormData();
                         }
                         if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_ADD)
                         {
-                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).AddFormData();
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                                view.AddFormData();
                         }
                         if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_UPDATE)
                         {
-                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).UpdateFormData();
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                                view.UpdateFormData();
                         }
                         if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_DELETE)
                         {
-                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).DeleteFormData();
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                                view.DeleteFormData();
                         }
                     }                    
                 }
@@ -1469,7 +1460,8 @@ namespace B1Base.Controller
 
                     if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                     {
-                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuInsert();
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            view.MenuInsert();
                     }
                     else if (formId.Contains("F_"))
                     {
@@ -1477,7 +1469,8 @@ namespace B1Base.Controller
 
                         if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                         {
-                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuInsert();
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                                view.MenuInsert();
                         }
                     }
                 }
@@ -1504,7 +1497,8 @@ namespace B1Base.Controller
 
                     if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                     {
-                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuSaveAsDraft();
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            view.MenuSaveAsDraft();
                     }
                     else if (formId.Contains("F_"))
                     {
@@ -1512,7 +1506,8 @@ namespace B1Base.Controller
 
                         if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                         {
-                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuSaveAsDraft();
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                                view.MenuSaveAsDraft();
                         }
                     }
                 }
@@ -1534,7 +1529,8 @@ namespace B1Base.Controller
 
                     if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                     {
-                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).AfterSaveAsDraft();
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            view.AfterSaveAsDraft();
                     }
                     else if (formId.Contains("F_"))
                     {
@@ -1542,7 +1538,8 @@ namespace B1Base.Controller
 
                         if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                         {
-                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).AfterSaveAsDraft();
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                                view.AfterSaveAsDraft();
                         }
                     }
                 }
@@ -1582,10 +1579,10 @@ namespace B1Base.Controller
                     }
                     else
                     {
-
                         if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                         {
-                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuSearch();
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                                view.MenuSearch();
                         }
                         else if (formId.Contains("F_"))
                         {
@@ -1593,12 +1590,11 @@ namespace B1Base.Controller
 
                             if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                             {
-                                m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuSearch();
+                                foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                                    view.MenuSearch();
                             }
                         }
-
                     }
-
                 }
                 catch (Exception e)
                 {
@@ -1619,11 +1615,11 @@ namespace B1Base.Controller
                     {
                         if (!formId.Contains("F_"))
                         {
-                            if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
                             {
                                 m_GridOnFilter = true;
 
-                                m_FilteredView = m_Views.First(r => r.FormUID == formId && r.FormType == formType);
+                                m_FilteredView = view;
 
                                 if (m_FilteredView.SAPForm.ActiveItem == m_FilteredView.SAPForm.Settings.MatrixUID)
                                 {
@@ -1669,16 +1665,15 @@ namespace B1Base.Controller
 
                     if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                     {
-                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuDuplicate();
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            view.MenuDuplicate();
                     }
                     else if (formId.Contains("F_"))
                     {
                         formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
 
-                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
-                        {
-                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuDuplicate();
-                        }
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            view.MenuDuplicate();                        
                     }
                 }
                 catch (Exception e)
@@ -1704,16 +1699,15 @@ namespace B1Base.Controller
 
                     if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                     {
-                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuCancel();
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            view.MenuCancel();
                     }
                     else if (formId.Contains("F_"))
                     {
                         formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
 
-                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
-                        {
-                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuCancel();
-                        }
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            view.MenuCancel();                        
                     }
                 }
                 catch (Exception e)
@@ -1739,16 +1733,15 @@ namespace B1Base.Controller
 
                     if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                     {
-                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuRightClick(pVal.MenuUID);
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            view.MenuRightClick(pVal.MenuUID);
                     }
                     else if (formId.Contains("F_"))
                     {
                         formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
 
-                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
-                        {
-                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuRightClick(pVal.MenuUID);
-                        }
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            view.MenuRightClick(pVal.MenuUID);                        
                     }
                 }
                 catch (Exception e)
@@ -1768,16 +1761,15 @@ namespace B1Base.Controller
 
                     if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                     {
-                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).RightMenuClicked(pVal.MenuUID);
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            view.RightMenuClicked(pVal.MenuUID);
                     }
                     else if (formId.Contains("F_"))
                     {
                         formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
 
-                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
-                        {
-                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).RightMenuClicked(pVal.MenuUID);
-                        }
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            view.RightMenuClicked(pVal.MenuUID);                        
                     }
                 }
                 catch (Exception e)
@@ -1859,16 +1851,15 @@ namespace B1Base.Controller
 
                     if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                     {
-                        m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuPaste();
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            view.MenuPaste();
                     }
                     else if (formId.Contains("F_"))
                     {
                         formId = "F_" + (Convert.ToInt32(formId.Replace("F_", "")) - 1).ToString();
 
-                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
-                        {
-                            m_Views.First(r => r.FormUID == formId && r.FormType == formType).MenuPaste();
-                        }
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            view.MenuPaste();
                     }
                 }
             }

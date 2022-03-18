@@ -9,12 +9,26 @@ namespace B1Base.Controller
     public class ConfigController<T> : BaseController where T : Model.ConfigModel
     {
         DAO.ConfigDAO<T> m_ConfigDAO;
-        DAO.ConfigSeqDAO m_ConfigSeqDAO;
+        DAO.ConfigSeqDAO m_ConfigSeqDAO;        
 
-        public ConfigController()
+
+        public ConfigController(string configTable)
         {
-            m_ConfigDAO = new DAO.ConfigDAO<T>();
+            if (configTable == "")
+                configTable = Controller.ConnectionController.Instance.AddOnID + "Cnf";
+
+            m_ConfigDAO = new DAO.ConfigDAO<T>(configTable);
             m_ConfigSeqDAO = new DAO.ConfigSeqDAO();
+        }
+
+        public void CreateMetadata(string field, FieldTypeEnum fieldType, string fieldTitle)
+        {
+            ConnectionController.Instance.CreateMetadata(m_ConfigDAO.TableName, field, fieldType, fieldTitle);
+        }
+
+        public void CreateMetadata(string field, FieldTypeEnum fieldType, int size = 10, Dictionary<string, string> validValues = null, string defaultValue = "", string fieldTitle = "")
+        {
+            ConnectionController.Instance.CreateMetadata(m_ConfigDAO.TableName, field, fieldType, size, validValues, defaultValue, fieldTitle);
         }
 
         public T GetConfig()

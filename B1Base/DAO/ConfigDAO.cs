@@ -8,13 +8,18 @@ namespace B1Base.DAO
 {
     public class ConfigDAO<T> : BaseDAO<T> where T : Model.ConfigModel
     {
-        protected override string TableName
+        string m_ConfigTable = "";
+
+        public ConfigDAO(string configTable)
+        {
+            m_ConfigTable = configTable;
+        }
+
+        public override string TableName
         {
             get
             {
-                return Controller.ConnectionController.Instance.ConfigTableName == "" ?
-                    (Controller.ConnectionController.Instance.AddOnID + "Cnf").ToUpper():
-                    Controller.ConnectionController.Instance.ConfigTableName;
+                return m_ConfigTable;
             }
         }
     }

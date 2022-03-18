@@ -8,24 +8,19 @@ namespace B1Base.DAO
 {
     public class ConfigSeqDAO : BaseDAO<Model.ConfigSeqModel>
     {
-        protected override string TableName
+        public ConfigSeqDAO()
         {
-            get
-            {
-                return AddOnSequenceTableName;
-            }
-        }        
+            
+        }
 
-        public static string AddOnSequenceTableName
+        public override string TableName
         {
             get
             {
-                //return (Controller.ConnectionController.Instance.AddOnID + "Seq").ToUpper();
-                return Controller.ConnectionController.Instance.ConfigSeqTableName == "" ?
-                    (Controller.ConnectionController.Instance.AddOnID + "Seq").ToUpper() :
-                    Controller.ConnectionController.Instance.ConfigSeqTableName;
+                return Controller.ConnectionController.Instance.AddOnID.ToUpper() + "SEQ";
             }
         }
+        
 
         public List<Model.ConfigSeqModel> GetList()
         {

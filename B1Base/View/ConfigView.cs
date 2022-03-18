@@ -30,6 +30,11 @@ namespace B1Base.View
             
         }
 
+        protected virtual Controller.ConfigController<T> GetController<T>() where T : Model.ConfigModel
+        {
+            return new Controller.ConfigController<T>("");
+        }
+
         protected virtual void SetFields(Model.ConfigModel configModel)
         {            
             SetValue(CHECK_AUTO_CREATE_METADATA, configModel.AutoCreateMetadata);
@@ -45,12 +50,12 @@ namespace B1Base.View
 
         protected virtual void SaveModel(Model.ConfigModel configModel)
         {
-            new Controller.ConfigController<Model.ConfigModel>().SaveConfig(configModel);
+            GetController<Model.ConfigModel>().SaveConfig(configModel);
         }
 
         protected virtual Model.ConfigModel GetModel()
         {
-            return new Controller.ConfigController<Model.ConfigModel>().GetConfig();
+            return GetController<Model.ConfigModel>().GetConfig();
         }
 
         protected override Dictionary<string, MatrixCanAddEventHandler> MatrixCanAddEvents
@@ -89,7 +94,7 @@ namespace B1Base.View
 
                 SetFields(configModel);
 
-                List<Model.ConfigSeqModel> configSeqList = new Controller.ConfigController<Model.ConfigModel>().GetListConfigSeq();
+                List<Model.ConfigSeqModel> configSeqList = GetController<Model.ConfigModel>().GetListConfigSeq();
                 
                 SetValue<Model.ConfigSeqModel>(base.SAPForm.DataSources.DataTables.Item(DATA_SEQ), (Matrix)base.SAPForm.Items.Item(MATRIX_SEQ).Specific, configSeqList);
             }
@@ -106,7 +111,7 @@ namespace B1Base.View
             
             SaveModel(configModel);
 
-            new Controller.ConfigController<Model.ConfigModel>().SaveConfigSeq(GetValue<Model.ConfigSeqModel>(base.SAPForm.DataSources.DataTables.Item(DATA_SEQ), (Matrix)base.SAPForm.Items.Item(MATRIX_SEQ).Specific));
+            GetController<Model.ConfigModel>().SaveConfigSeq(GetValue<Model.ConfigSeqModel>(base.SAPForm.DataSources.DataTables.Item(DATA_SEQ), (Matrix)base.SAPForm.Items.Item(MATRIX_SEQ).Specific));
 
             base.SAPForm.Close();
         }
