@@ -18,6 +18,7 @@ namespace B1Base.Model
         public double DocRate { get; set; }
         public EnumDocType DocType { get; set; }
         public int SlpCode { get; set; }        
+        public string PeyMethod { get; set; }
         public EnumObjType ObjType { get; set; }
         public string Comments { get; set; }
 
@@ -40,6 +41,7 @@ namespace B1Base.Model
             DocRate = 0;
             DocType = EnumDocType.Item;
             SlpCode = 0;
+            PeyMethod = string.Empty;
             ObjType = EnumObjType.None;
             Comments = string.Empty;
             Serial = 0;

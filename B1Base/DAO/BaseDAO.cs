@@ -89,6 +89,189 @@ namespace B1Base.DAO
             
         }
 
+        public void SaveViaSL(T model)
+        {
+            
+        }
+        
+        public void SaveViaInsert(T model)
+        {
+            Type type = typeof(T);
+
+            if (model.Code > 0)
+            {
+                string update = @"update @""" + TableName + @""" set ";
+
+                var props = type.GetProperties().Where(r => r.Name != "Changed" && r.Name != "Code");
+
+                foreach (var prop in props)
+                {
+                    if (prop.PropertyType == typeof(Boolean))
+                    {
+                        update += @"""U_" + prop.Name + @""" = " + ( (bool)prop.GetValue(model) ? "'Y'" : "'N'" ) + ", ";
+                    }
+                    else if (prop.PropertyType.IsEnum)
+                    {
+                        update += @"""U_" + prop.Name + @""" = " + ((int)prop.GetValue(model)).ToString() + ", ";
+                    }
+                    else if (prop.PropertyType == typeof(DateTime))
+                    {
+                        if (Convert.ToDateTime(prop.GetValue(model)) == DateTime.MinValue || Convert.ToDateTime(prop.GetValue(model)) == new DateTime(1899, 12, 30))
+                        {
+                            if (Controller.ConnectionController.Instance.DBServerType == "HANA")
+                                update += @"""U_" + prop.Name + @""" = " + "to_date(null)" + ", ";
+                            else
+                                update += @"""U_" + prop.Name + @""" = " + "cast(null as date)" + ", ";
+                        }
+                        else
+                        {
+                            update += @"""U_" + prop.Name + @""" = " + "cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)" + ",";
+                        }
+                    }
+                    else if (prop.PropertyType == typeof(Int32))
+                    {
+                        update += @"""U_" + prop.Name + @""" = " + prop.GetValue(model).ToString() + ", ";
+                    }
+                    else if (prop.PropertyType == typeof(double))
+                    {
+                        if (Convert.ToDouble(prop.GetValue(model)) == 0)
+                        {
+                            update += @"""U_" + prop.Name + @""" = 0.0, ";
+                        }
+                        else
+                        {
+                            Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+
+                            int decimalDigits = 2;
+
+                            if (specificType != null)
+                            {
+                                decimalDigits = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetDisplayDecimalDigits", ((int)specificType.Value).ToString());
+                            }
+
+                            update += @"""U_" + prop.Name + @""" = " + string.Format("cast({0} as decimal(15,{1}))", Convert.ToDouble(prop.GetValue(model)).ToString(new System.Globalization.NumberFormatInfo() { NumberDecimalSeparator = "." }), decimalDigits.ToString()) + ", ";
+                        }
+                    }
+                    else if (prop.PropertyType == typeof(string))
+                    {
+                        if (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) != null)
+                            update += @"""U_" + prop.Name + @""" = " + "cast('" + prop.GetValue(model) + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))" + ", ";
+                        else
+                            update += @"""U_" + prop.Name + @""" = " + "cast('" + prop.GetValue(model).ToString() + "' as nvarchar)" + ", ";
+                    }
+                }
+
+                update = update.Substring(0, update.Length - 2);
+
+                update += @" where ""U_Code"" = " + model.Code.ToString();
+
+                Controller.ConnectionController.Instance.ExecuteStatementDirect(update);
+            }
+            else
+            {
+                var props = type.GetProperties().Where(r => r.Name != "Changed" && r.Name != "Code");
+
+                string insert = @"insert into ""@" + TableName + @"""(";
+
+                insert += @" ""Code"", ""Name"", ""U_Code"", ";
+
+                foreach (var prop in props)
+                {
+                    if (!prop.PropertyType.IsGenericType)
+                        insert += @"""U_" + prop.Name + @""", ";
+                }
+
+                insert = insert.Substring(0, insert.Length - 2) + ")";
+
+                insert += " values (";
+
+
+                if (model.Code == 0)
+                {
+                    Type seqDAOType = Type.GetType(type.AssemblyQualifiedName.Replace("Model", "DAO").Replace(type.Name.Replace("Model", "DAO"), "ConfigSeqDAO"));
+
+                    if (seqDAOType == null)
+                        model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, new ConfigSeqDAO().TableName);
+                    else
+                    {
+                        var dao = (DAO.ConfigSeqDAO)Activator.CreateInstance(seqDAOType);
+
+                        model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, dao.TableName);
+                    }
+
+                }
+
+                insert += string.Format(" {0}, ", model.Code);
+                insert += string.Format(" {0}, ", model.Code);
+                insert += string.Format(" {0}, ", model.Code);
+
+                //insert += @"coalesce((select max(""U_Code"") from ""@" + TableName + @"""), 0) + 1, ";
+                //insert += @"coalesce((select max(""U_Code"") from ""@" + TableName + @"""), 0) + 1, ";
+                //insert += @"coalesce((select max(""U_Code"") from ""@" + TableName + @"""), 0) + 1, ";
+
+                foreach (var prop in props)
+                {
+                    if (prop.PropertyType == typeof(Boolean))
+                    {
+                        insert += (bool)prop.GetValue(model) ? "'Y'" : "'N'" + ", ";
+                    }
+                    else if (prop.PropertyType.IsEnum)
+                    {
+                        insert += ((int)prop.GetValue(model)).ToString() + ", ";
+                    }
+                    else if (prop.PropertyType == typeof(DateTime))
+                    {
+                        if (Convert.ToDateTime(prop.GetValue(model)) == DateTime.MinValue || Convert.ToDateTime(prop.GetValue(model)) == new DateTime(1899, 12, 30))
+                        {
+                            if (Controller.ConnectionController.Instance.DBServerType == "HANA")
+                                insert += "to_date(null)" + ", ";
+                            else
+                                insert += "cast(null as date)" + ", ";
+                        }
+                        else
+                        {
+                            insert += "cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)" + ",";
+                        }
+                    }
+                    else if (prop.PropertyType == typeof(Int32))
+                    {
+                        insert += prop.GetValue(model).ToString() + ", ";
+                    }
+                    else if (prop.PropertyType == typeof(double))
+                    {
+                        if (Convert.ToDouble(prop.GetValue(model)) == 0)
+                        {
+                            insert += "0.0, ";
+                        }
+                        else
+                        {
+                            Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+
+                            int decimalDigits = 2;
+
+                            if (specificType != null)
+                            {
+                                decimalDigits = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetDisplayDecimalDigits", ((int)specificType.Value).ToString());
+                            }
+
+                            insert += string.Format("cast({0} as decimal(15,{1}))", Convert.ToDouble(prop.GetValue(model)).ToString(new System.Globalization.NumberFormatInfo() { NumberDecimalSeparator = "." }), decimalDigits.ToString()) + ", ";
+                        }
+                    }
+                    else if (prop.PropertyType == typeof(string))
+                    {
+                        if (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) != null)
+                            insert += "cast('" + prop.GetValue(model).ToString().Replace("'", "''") + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))" + ", ";
+                        else
+                            insert += "cast('" + prop.GetValue(model).ToString().Replace("'", "''") + "' as nvarchar)" + ", ";
+                    }
+                }
+
+                insert = insert.Substring(0, insert.Length - 2) + ")";
+
+                Controller.ConnectionController.Instance.ExecuteStatementDirect(insert);
+            }
+        }
+
         public void Save(T model, bool retry = false)
         {
             Type type = typeof(T);

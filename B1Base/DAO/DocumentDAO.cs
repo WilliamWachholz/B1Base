@@ -73,6 +73,8 @@ namespace B1Base.DAO
                         document.SequenceModel = documentModel.Model.ToString();
                     }
 
+                    document.PaymentMethod = documentModel.PeyMethod;
+
                     document.CardCode = documentModel.CardCode;
                     document.DocDate = documentModel.DocDate;                    
 

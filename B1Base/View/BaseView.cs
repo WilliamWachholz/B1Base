@@ -90,19 +90,22 @@ namespace B1Base.View
 
         public BaseView(string formUID, string formType)
         {
-            FormUID = formUID;
-            FormType = formType;
+            if (!Inactive)
+            {
+                FormUID = formUID;
+                FormType = formType;
 
-            ParentView = AddOn.Instance.MainController.LastParent;
+                ParentView = AddOn.Instance.MainController.LastParent;
 
-            AddOn.Instance.MainController.LastParent = null;
+                AddOn.Instance.MainController.LastParent = null;
 
-            m_timerInitialize.Elapsed += Initialize;
-            m_timerInitialize.Enabled = true;
+                m_timerInitialize.Elapsed += Initialize;
+                m_timerInitialize.Enabled = true;
 
-            m_timerCreateControls.Interval = 1000;
-            m_timerCreateControls.Elapsed += ControlsCreation;
-            m_timerCreateControls.Enabled = true;            
+                m_timerCreateControls.Interval = 1000;
+                m_timerCreateControls.Elapsed += ControlsCreation;
+                m_timerCreateControls.Enabled = true;
+            }
         }
 
         public delegate void ButtonClickEventHandler();
@@ -117,7 +120,8 @@ namespace B1Base.View
         public delegate void MatixRowEnterEventHandler(int row, string column, bool rowChanged, bool rowSelected);
         public delegate void MatixRowDoubleClickEventHandler(int row, string column, bool rowChanged);
         public delegate void GridRowClickEventHandler(int row, string column);
-        public delegate void GridRowDoubleClickEventHandler(int row, string column);    
+        public delegate void GridRowDoubleClickEventHandler(int row, string column);
+        public delegate void GridTabPressedEventHandler(int row, string column);
         public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void MatrixCustomMenuEventHandler(int row, string column);
         public delegate void MatrixColPasteForAllEventHandler(string column);
@@ -201,6 +205,14 @@ namespace B1Base.View
         }
 
         public virtual bool SecondaryView
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public virtual bool Inactive
         {
             get
             {
@@ -386,6 +398,8 @@ namespace B1Base.View
 
         protected virtual Dictionary<string, GridRowClickEventHandler> GridRowClickEvents { get { return new Dictionary<string, GridRowClickEventHandler>(); } }
 
+        protected virtual Dictionary<string, GridTabPressedEventHandler> GridTabPressedEvents { get { return new Dictionary<string, GridTabPressedEventHandler>(); } }
+
         protected virtual Dictionary<string, MatixRowEnterEventHandler> MatrixRowEnterEvents { get { return new Dictionary<string, MatixRowEnterEventHandler>(); } }
 
         protected virtual Dictionary<string, MatixRowDoubleClickEventHandler> MatrixRowDoubleClickEvents { get { return new Dictionary<string, MatixRowDoubleClickEventHandler>(); } }
@@ -467,6 +481,7 @@ namespace B1Base.View
             {
                 if (browseItem != string.Empty && browseTable != string.Empty)
                 {
+
                     SAPForm.DataSources.DBDataSources.Add(string.Format("@{0}", browseTable));
 
                     SAPForm.Items.Add("BACKCODE", BoFormItemTypes.it_EDIT).Left = 9999;
@@ -494,7 +509,7 @@ namespace B1Base.View
 
                         MenuSearch();
                     }
-                }                            
+                }                          
             }
         }
 
@@ -1287,30 +1302,39 @@ namespace B1Base.View
                 }
                 else
                 {
-                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
-
-                    string alias = editText.Item.Description;
-
-                    try
+                    if (editText.DataBind.TableName.StartsWith("@"))
                     {
-                        alias = editText.DataBind.Alias;
-                    }
-                    catch { }
+                        DBDataSource dbDataSource = SAPForm.DataSources.DBDataSources.Item(editText.DataBind.TableName);
 
-                    if (editText.ChooseFromListUID != string.Empty)
-                    {
-                        try
-                        {
-                            return dataTable.GetValue("_" + alias, 0);
-                        }
-                        catch
-                        {
-                            return dataTable.GetValue(alias, 0);
-                        }
+                        return dbDataSource.GetValue(editText.DataBind.Alias, 0);
                     }
                     else
                     {
-                        return dataTable.GetValue(alias, 0);
+                        DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
+
+                        string alias = editText.Item.Description;
+
+                        try
+                        {
+                            alias = editText.DataBind.Alias;
+                        }
+                        catch { }
+
+                        if (editText.ChooseFromListUID != string.Empty)
+                        {
+                            try
+                            {
+                                return dataTable.GetValue("_" + alias, 0);
+                            }
+                            catch
+                            {
+                                return dataTable.GetValue(alias, 0);
+                            }
+                        }
+                        else
+                        {
+                            return dataTable.GetValue(alias, 0);
+                        }
                     }
                 }
             }
@@ -1826,9 +1850,9 @@ namespace B1Base.View
                     else if (prop.PropertyType == typeof(string))
                     {
                         if (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) != null)
-                            values.Add("cast('" + prop.GetValue(model) + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))");
+                            values.Add("cast('" + prop.GetValue(model).ToString().Replace("'", "''") + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))");
                         else
-                            values.Add("cast('" + prop.GetValue(model).ToString() + "' as nvarchar)");
+                            values.Add("cast('" + prop.GetValue(model).ToString().Replace("'", "''") + "' as nvarchar)");
                     }
                 }
 
@@ -1845,7 +1869,7 @@ namespace B1Base.View
                 }
                 catch (Exception ex)
                 {
-                    System.IO.File.WriteAllText("C:\\RNV Soluções\\SQL.txt", string.Join("union all", selects.ToArray()));
+                    System.IO.File.WriteAllText("sql.sql", string.Join("union all", selects.ToArray()));
                 }
             }
 
@@ -2176,7 +2200,10 @@ namespace B1Base.View
                 {
                     int code = GetValue(string.Format("@{0}.U_Code", m_BrowseTable), "", 0, true);
 
-                    SetValue(m_BrowseItem, code);
+                    if (m_BrowseItem == "BACKCODE")
+                        SetValue(m_BrowseItem, code.ToString());
+                    else
+                        SetValue(m_BrowseItem, code);
 
                     SAPForm.ActiveItem = "DUMMY";
 
@@ -2322,14 +2349,17 @@ namespace B1Base.View
             {
                 if (m_BrowseItem != string.Empty)
                 {
-                    SAPForm.ActiveItem = "DUMMY";
-
                     int code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", m_BrowseTable, new DAO.ConfigSeqDAO().TableName);
 
-                    SetValue(m_BrowseItem, code);
+                    if (m_BrowseItem == "BACKCODE")
+                        SetValue(m_BrowseItem, code.ToString());
+                    else
+                        SetValue(m_BrowseItem, code);
 
                     if (m_ReserveCode)
                         Controller.ConnectionController.Instance.ExecuteStatement("UpdateLastCode", m_BrowseTable, new DAO.ConfigSeqDAO().TableName, code.ToString());
+
+                    SAPForm.ActiveItem = "DUMMY";
 
                     SAPForm.Items.Item(m_BrowseItem).Enabled = false;
 
@@ -2364,7 +2394,7 @@ namespace B1Base.View
 
         public virtual void MenuSaveAsDraft() { }
 
-        public void AfterSaveAsDraft()
+        public virtual void AfterSaveAsDraft()
         {
         }
 
@@ -2841,6 +2871,14 @@ namespace B1Base.View
                 }
 
                 GridRowClickEvents[grid](row, column);
+            }
+        }
+
+        public void GridTabPressed(string grid, int row, string column)
+        {
+            if (GridTabPressedEvents.ContainsKey(grid))
+            {
+                GridTabPressedEvents[grid](row, column);
             }
         }
 

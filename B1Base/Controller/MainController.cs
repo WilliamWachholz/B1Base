@@ -68,6 +68,8 @@ namespace B1Base.Controller
 
         private bool SupressDetails { get; set; }
 
+        protected virtual bool LockUserFieldsWidth { get { return false; } }
+
         Timer m_timerFinalize = new Timer(60000);
 
         string m_NextMessage = string.Empty;
@@ -493,23 +495,42 @@ namespace B1Base.Controller
 
                                 if (assembly.GetName().Name.Contains("Code"))
                                 {
-                                    Type type = assembly.GetType(assembly.GetName().Name + ".View.Form" + pVal.FormTypeEx + "View");
+                                    Type type = assembly.GetType(assembly.GetName().Name + ".View.Form" + pVal.FormTypeEx + "View");                                                                       
 
                                     if (type != null)
                                     {
-                                        //if (m_Views.Where(r => r.FormUID == formUID).Count() == 0)
-                                        //{
                                         ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
-                                            object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+                                        object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });                                        
 
+                                        if (!((View.BaseView)formView).Inactive)
                                             m_Views.Add((View.BaseView)formView);
-                                        //}
                                     }
                                 }
                             }
                             catch (Exception ex)
                             {
                                 //ConnectionController.Instance.Application.StatusBar.SetText(ex.Message);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (LockUserFieldsWidth)
+                        {
+                            if (formType.StartsWith("-"))
+                            {
+                                int mainType = 0;
+
+                                try
+                                {
+                                    mainType = Convert.ToInt32(formType.Replace("-", ""));
+
+                                    if (ConnectionController.Instance.Application.Forms.GetFormByTypeAndCount(mainType, 0).UniqueID != string.Empty)
+                                    {
+                                        ConnectionController.Instance.Application.Forms.GetFormByTypeAndCount(pVal.FormType, pVal.FormTypeCount).Width = 350;
+                                    }
+                                }
+                                catch { }
                             }
                         }
                     }
@@ -712,7 +733,9 @@ namespace B1Base.Controller
                         if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                         {
                             foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                            {                                
                                 view.ButtonOkClick();
+                            }
                         }
 
                         if (formType == "50106")
@@ -1016,7 +1039,7 @@ namespace B1Base.Controller
                     string formType = pVal.FormTypeEx;
 
                     foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
-                        view.Resize();                    
+                        view.Resize();                       
                 }
                 catch (Exception e)
                 {
@@ -1332,15 +1355,26 @@ namespace B1Base.Controller
 
                     if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
-                        if (pVal.CharPressed == 9 && pVal.Row > 0)
+                        if (pVal.CharPressed == 9)
                         {
-                            foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
-                                view.MatrixTabPressed(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                            if (pVal.Row > 0)
+                            {
+                                foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                    view.MatrixTabPressed(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                            }
+
+                            if (pVal.Row >= 0)
+                            {
+                                foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                                    view.GridTabPressed(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                            }
                         }
                         else
                         {
                             foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                            {
                                 view.KeyDown(pVal.ItemUID);
+                            }
                         }
                     }
                 }
@@ -1423,7 +1457,9 @@ namespace B1Base.Controller
                         if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_ADD)
                         {
                             foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            {
                                 view.AddFormData();
+                            }
                         }
                         if (objectInfo.EventType == BoEventTypes.et_FORM_DATA_UPDATE)
                         {
