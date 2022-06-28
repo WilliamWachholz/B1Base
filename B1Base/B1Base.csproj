@@ -138,6 +138,8 @@
     <Compile Include="Model\EnumObjType.cs" />
     <Compile Include="Model\EnumOperation.cs" />
     <Compile Include="Model\DocumentInstallmentModel.cs" />
+    <Compile Include="Model\IFromRecordSet.cs" />
+    <Compile Include="Model\ISLContentID.cs" />
     <Compile Include="Model\ItemGroupModel.cs" />
     <Compile Include="Model\ItemModel.cs" />
     <Compile Include="Model\ItemWarehouseModel.cs" />
@@ -146,6 +148,7 @@
     <Compile Include="Model\LoginEntity.cs" />
     <Compile Include="Model\LoginResponseEntity.cs" />
     <Compile Include="Model\PaymentTermModel.cs" />
+    <Compile Include="Model\SLBatchModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service.cs" />
     <Compile Include="View\AppView.cs">

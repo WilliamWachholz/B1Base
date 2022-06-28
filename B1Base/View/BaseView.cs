@@ -122,6 +122,7 @@ namespace B1Base.View
         public delegate void GridRowClickEventHandler(int row, string column);
         public delegate void GridRowDoubleClickEventHandler(int row, string column);
         public delegate void GridTabPressedEventHandler(int row, string column);
+        public delegate void GridLinkPressedEventHandler(int row);
         public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void MatrixCustomMenuEventHandler(int row, string column);
         public delegate void MatrixColPasteForAllEventHandler(string column);
@@ -397,6 +398,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, GridRowDoubleClickEventHandler> GridRowDoubleClickEvents { get { return new Dictionary<string, GridRowDoubleClickEventHandler>(); } }
 
         protected virtual Dictionary<string, GridRowClickEventHandler> GridRowClickEvents { get { return new Dictionary<string, GridRowClickEventHandler>(); } }
+
+        protected virtual Dictionary<string, GridLinkPressedEventHandler> GridLinkPressedEvents { get { return new Dictionary<string, GridLinkPressedEventHandler>(); } }
 
         protected virtual Dictionary<string, GridTabPressedEventHandler> GridTabPressedEvents { get { return new Dictionary<string, GridTabPressedEventHandler>(); } }
 
@@ -2884,10 +2887,10 @@ namespace B1Base.View
 
         public void MatrixRowEnter(string matrix, int row, string column, BoModifiersEnum modifier)
         {
-            Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
-
             if (MatrixRowEnterEvents.ContainsKey(matrix) && !Frozen)
             {
+                Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
                 bool rowChanged = LastRows.ContainsKey(matrix) ? row != LastRows[matrix] : true;
 
                 if (LastRows.ContainsKey(matrix))
@@ -2903,17 +2906,37 @@ namespace B1Base.View
                     LastCols.Add(matrix, column);
                 }
 
-                LastModifier = modifier;               
+                LastModifier = modifier;
 
                 int selectedRow = 0;
-               
-                try                
+
+                try
                 {
                     selectedRow = matrixItem.GetNextSelectedRow();
                 }
-                catch{ }
+                catch { }
 
                 MatrixRowEnterEvents[matrix](row, column, rowChanged, selectedRow == row);
+            }
+
+            if (GridLinkPressedEvents.ContainsKey(matrix + "." + column) && !Frozen)
+            {
+                Grid gridItem = (Grid)SAPForm.Items.Item(matrix).Specific;
+
+                if (LastRows.ContainsKey(matrix))
+                {
+                    LastBeforeRows[matrix] = LastRows[matrix];
+                    LastRows[matrix] = row;
+                    LastCols[matrix] = column;
+                }
+                else
+                {
+                    LastBeforeRows.Add(matrix, 1);
+                    LastRows.Add(matrix, row);
+                    LastCols.Add(matrix, column);
+                }
+
+                GridLinkPressedEvents[matrix + "." + column](row);
             }
 
             string key = string.Format("{0}.{1}", matrix, column);
@@ -2922,6 +2945,8 @@ namespace B1Base.View
             {
                 if (SAPForm.Items.Item(matrix).Type == BoFormItemTypes.it_MATRIX)
                 {
+                    Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
                     EditText editText = (EditText)matrixItem.Columns.Item(column).Cells.Item(row).Specific;
 
                     LastColumnValue = editText.String;

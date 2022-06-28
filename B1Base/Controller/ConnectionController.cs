@@ -837,7 +837,7 @@ namespace B1Base.Controller
             }
         }
 
-        public List<T> ExecuteSqlForListPro<T>(string sqlScript, params string[] variables) where T: Model.BaseModel
+        public List<T> ExecuteSqlForListPro<T>(string sqlScript, params string[] variables) where T: Model.IFromRecordSet
         {
             string sql = GetSQL(sqlScript, variables);
 
@@ -866,6 +866,40 @@ namespace B1Base.Controller
                     recordSet.MoveNext();
                 }
                 return lst;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(sqlScript + " - " + e.Message);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(recordSet);
+                GC.Collect();
+            }
+        }
+
+        public T ExecuteSqlForObjectPro<T>(string sqlScript, params string[] variables) where T : Model.IFromRecordSet
+        {
+            string sql = GetSQL(sqlScript, variables);
+
+            LoggedSql = sql;
+
+            var lst = new List<T>();
+            Type type = typeof(T);
+
+            var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+            Recordset recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+            try
+            {
+                T obj = (T)Activator.CreateInstance(type);
+
+                recordSet.DoQuery(sql);
+                if (!recordSet.EoF)
+                {
+                    obj.FromRecordSet(recordSet);
+                }
+                return obj;
             }
             catch (Exception e)
             {

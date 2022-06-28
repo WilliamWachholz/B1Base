@@ -600,6 +600,7 @@ namespace B1Base.Controller
                             if (pVal.ColUID != string.Empty)
                             {
                                 view.ColumnFocus(pVal.ItemUID, pVal.Row, pVal.ColUID);
+
                                 view.MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
                             }
                             else
@@ -771,7 +772,9 @@ namespace B1Base.Controller
                     string formId = pVal.FormUID;
 
                     foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                    {
                         view.MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -1307,7 +1310,9 @@ namespace B1Base.Controller
                         string formType = pVal.FormTypeEx;
 
                         foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
-                            view.MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);                        
+                        {
+                            view.MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
+                        }
                     }
                 }
                 catch (Exception e)

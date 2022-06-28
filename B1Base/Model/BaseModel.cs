@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace B1Base.Model
 {
-    public class BaseModel
+    public class BaseModel : IFromRecordSet
     {
         public int Code { get; set; }
 
