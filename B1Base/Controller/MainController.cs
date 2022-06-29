@@ -432,6 +432,8 @@ namespace B1Base.Controller
                                 object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
 
                                 m_Views.Add((View.BaseView)formView);
+
+                                ((View.BaseView)formView).Initialize();
                             }
                         }
                     }
@@ -500,10 +502,14 @@ namespace B1Base.Controller
                                     if (type != null)
                                     {
                                         ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
-                                        object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });                                        
+                                        object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
 
                                         if (!((View.BaseView)formView).Inactive)
+                                        {
                                             m_Views.Add((View.BaseView)formView);
+
+                                            ((View.BaseView)formView).Initialize();
+                                        }
                                     }
                                 }
                             }
@@ -1035,6 +1041,26 @@ namespace B1Base.Controller
         {
             bubbleEvent = true;
 
+            if (pVal.EventType == BoEventTypes.et_GOT_FOCUS)
+            {
+                try
+                {
+                    string formType = pVal.FormTypeEx;
+
+                    foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                    {
+                        view.PostInitialize();
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 259 - " + e.Message);
+                    }
+                }
+            }
+
             if (pVal.EventType == BoEventTypes.et_FORM_RESIZE && pVal.BeforeAction == false)
             {
                 try
@@ -1042,7 +1068,10 @@ namespace B1Base.Controller
                     string formType = pVal.FormTypeEx;
 
                     foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
-                        view.Resize();                       
+                    {
+                        view.PostInitialize();
+                        view.Resize();
+                    }
                 }
                 catch (Exception e)
                 {

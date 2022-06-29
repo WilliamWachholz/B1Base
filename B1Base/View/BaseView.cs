@@ -31,7 +31,6 @@ namespace B1Base.View
 
         #region variables
 
-        Timer m_timerInitialize = new Timer(700);
         bool m_copyFlag;
         bool m_addFlag;
         bool m_updateFlag;
@@ -98,13 +97,6 @@ namespace B1Base.View
                 ParentView = AddOn.Instance.MainController.LastParent;
 
                 AddOn.Instance.MainController.LastParent = null;
-
-                m_timerInitialize.Elapsed += Initialize;
-                m_timerInitialize.Enabled = true;
-
-                m_timerCreateControls.Interval = 1000;
-                m_timerCreateControls.Elapsed += ControlsCreation;
-                m_timerCreateControls.Enabled = true;
             }
         }
 
@@ -180,8 +172,6 @@ namespace B1Base.View
 
         protected virtual int CreateControlsTime { get { return 1; } }
 
-        protected bool ControlsCreated { get { return !m_timerCreateControls.Enabled; } }
-
         private Timer m_timerCreateControls = new Timer(1000);
 
         private Timer m_timerFormClose = new Timer(1000);
@@ -231,28 +221,11 @@ namespace B1Base.View
             }
         }
 
-        private void Initialize(object sender, ElapsedEventArgs e)
+        public void Initialize()
         {                        
             try
             {
-                m_timerInitialize.Enabled = false;                
-
                 Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
-
-                bool formReady = true;
-
-                try
-                {
-                    Controller.ConnectionController.Instance.Application.Forms.Item(FormUID);
-
-                }
-                catch
-                {
-                    formReady = false;
-                }
-
-                if (!formReady)
-                    System.Threading.Thread.Sleep(1000);                
 
                 if (!FormUID.Contains("F_") && !SecondaryView && SAPForm.BorderStyle != BoFormBorderStyle.fbs_Floating)
                 {
@@ -279,27 +252,7 @@ namespace B1Base.View
                     LastModifier = BoModifiersEnum.mt_None;
                     LastParameters = new Dictionary<string, object>();
 
-                    bool retry = false;
-
-                    try
-                    {
-                        CreateControls();                        
-                    }
-                    catch (Exception ex)
-                    {
-                        if (!retry)
-                        {
-                            retry = true;
-                            System.Threading.Thread.Sleep(1000);
-                            CreateControls();
-                        }
-                        else
-                        {
-                            throw ex;
-                        }
-                    }
-
-                    AfterCreateControls();
+                    CreateControls();
 
                     if (!SAPForm.IsSystem)
                         SAPForm.PaneLevel = DefaultPane;
@@ -314,7 +267,6 @@ namespace B1Base.View
                         FormValidate();
                     }
 
-                    FormLoaded = true;
                 }
                 catch (Exception ex)
                 {
@@ -328,34 +280,13 @@ namespace B1Base.View
             }
         }
 
-        private void ControlsCreation(object sender, ElapsedEventArgs e)
+        public void PostInitialize()
         {
-            bool formReady = true;
-
-            try                
+            if (!FormLoaded && SAPForm.Visible)
             {
-                Controller.ConnectionController.Instance.Application.Forms.Item(FormUID);
-            }
-            catch
-            {
-                formReady = false;
-            }
+                FormLoaded = true;
 
-            if (formReady)
-            {
-                if ((DateTime.Now - m_StartTime).Seconds > CreateControlsTime)
-                {
-                    for (int i = 0; i < freezeCount; i++)
-                        Unfreeze();
-
-                    m_timerCreateControls.Enabled = false;
-                    SAPForm.Visible = true;                    
-                }
-                else
-                {
-                    Freeze();
-                    freezeCount++;
-                }
+                AfterCreateControls();
             }
         }
 
