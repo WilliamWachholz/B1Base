@@ -15,16 +15,24 @@ namespace B1Base.DAO
 
         bool _newObject = false;
 
-        public void InitializeObject(int docEntry, Model.EnumObjType objType)
+        bool _draft = false;
+
+        public void InitializeObject(int docEntry, Model.EnumObjType objType, bool draft = false)
         {
+            _draft = draft;
+
             _businessObject = GetDIObject(objType);
+
             _businessObjectDraft = GetDIObject(Model.EnumObjType.Draft);
             _businessObjectDraft.DocObjectCode = GetObjType(objType);
             _businessObjectDraft.GetByKey(docEntry);
 
-            if (!_businessObject.GetByKey(docEntry))
+            if (!draft)
             {
-                _newObject = true;
+                if (!_businessObject.GetByKey(docEntry))
+                {
+                    _newObject = true;
+                }
             }
         }
 
@@ -131,6 +139,20 @@ namespace B1Base.DAO
 
             _businessObjectDraft = GetDIObject(Model.EnumObjType.Draft);
             _businessObjectDraft.DocObjectCode = GetObjType(objType);
+        }
+
+        public void SetShipToCode(string value)
+        {
+            _businessObject.ShipToCode = value == null ? "" : value;
+
+            _businessObjectDraft.ShipToCode = value == null ? "" : value;
+        }
+
+        public void SetPayToCode(string value)
+        {
+            _businessObject.PayToCode = value == null ? "" : value;
+
+            _businessObjectDraft.PayToCode = value == null ? "" : value;
         }
 
         public void SetBplId(int value)
@@ -242,6 +264,11 @@ namespace B1Base.DAO
 
                 line = _businessObject.Lines.Count - 1;
             }
+            else if (_businessObject.Lines.Count <= line)
+            {
+                _businessObject.Lines.Add();
+                _businessObjectDraft.Lines.Add();
+            }
 
             _businessObject.Lines.SetCurrentLine(line);
 
@@ -297,7 +324,18 @@ namespace B1Base.DAO
 
             _businessObjectDraft.Lines.Usage = value == null ? "" : value;
         }
-        
+
+        public void SetItemWarehouse(string value, int line)
+        {
+            _businessObject.Lines.SetCurrentLine(line);
+
+            _businessObject.Lines.WarehouseCode = value == null ? "" : value;
+
+            _businessObjectDraft.Lines.SetCurrentLine(line);
+
+            _businessObjectDraft.Lines.WarehouseCode = value == null ? "" : value;
+        }
+
         public void SetItemTaxCode(string value, int line)
         {
             _businessObject.Lines.SetCurrentLine(line);
@@ -424,6 +462,12 @@ namespace B1Base.DAO
             _businessObjectDraft.TaxExtension.Incoterms = value;
         }
 
+        public void SetCarrier(string value)
+        {
+            _businessObject.TaxExtension.Carrier = value;
+            _businessObjectDraft.TaxExtension.Carrier = value;
+        }
+
         public void AutoSelectItemBatchSerial(int line)
         {
             _businessObject.Lines.SetCurrentLine(line);
@@ -452,6 +496,12 @@ namespace B1Base.DAO
         public void Save()
         {
             _businessObject.UserFields.Fields.Item("U_DIUpdate").Value = "Y";
+
+            if (_draft)
+            {
+                SaveAsDraft();
+                return;
+            }
 
             try
             {

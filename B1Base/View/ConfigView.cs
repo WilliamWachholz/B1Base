@@ -89,13 +89,27 @@ namespace B1Base.View
                 SAPForm.Title = string.Format(SAPForm.Title, AddOn.Instance.MainController.AddOnName);
 
                 ControlMenus(false, false, false);
+            }
+            catch (Exception e)
+            {
+                Controller.ConnectionController.Instance.Application.StatusBar.SetText(e.Message);
+            }
+        }
+
+        protected override void AfterCreateControls()
+        {
+            try
+            {
+                SAPForm.Title = string.Format(SAPForm.Title, AddOn.Instance.MainController.AddOnName);
+
+                ControlMenus(false, false, false);
 
                 Model.ConfigModel configModel = GetModel();
 
                 SetFields(configModel);
 
                 List<Model.ConfigSeqModel> configSeqList = GetController<Model.ConfigModel>().GetListConfigSeq();
-                
+
                 SetValue<Model.ConfigSeqModel>(base.SAPForm.DataSources.DataTables.Item(DATA_SEQ), (Matrix)base.SAPForm.Items.Item(MATRIX_SEQ).Specific, configSeqList);
             }
             catch (Exception e)

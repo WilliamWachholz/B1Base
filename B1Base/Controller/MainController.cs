@@ -1092,14 +1092,14 @@ namespace B1Base.Controller
                 if (!SuppressChoose)
                 {
                     string formType = pVal.FormTypeEx;
-
+                    
                     if (m_Views.Any(r => r.FormUID == formUID && r.FormType == formType))
                     {
                         if (pVal.ColUID != string.Empty)
                         {
                             foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
                             {
-                                SuppressChoose = view.ColSupressChooseFrom(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                                 SuppressChoose = view.ColSupressChooseFrom(pVal.ItemUID, pVal.Row, pVal.ColUID);
 
                                 if (SuppressChoose)
                                     break;

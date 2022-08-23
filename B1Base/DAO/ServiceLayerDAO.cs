@@ -243,6 +243,81 @@ namespace B1Base.DAO
             }
         }
 
+        public void PatchEntity(object obj, string entityName, int entityID, IContractResolver contractResolver = null)
+        {
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName + "(" + entityID.ToString() + ")");
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Method = "PATCH";
+            httpWebRequest.KeepAlive = true;
+            httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
+            httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
+            httpWebRequest.Headers.Add("Cookie", Cookies);
+            httpWebRequest.Headers.Add("Prefer", "return-no-content");
+            httpWebRequest.Accept = "*/*";
+            httpWebRequest.ServicePoint.Expect100Continue = false;
+            httpWebRequest.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+            httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;
+
+            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                streamWriter.Write(ConvertToJsonString(obj, contractResolver));
+            }
+
+            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
+            if (httpResponse.StatusCode != (HttpStatusCode)204)
+            {
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    string resultContent = streamReader.ReadToEnd();
+
+                    string messageJson = "";
+
+                    dynamic jobj = JObject.Parse(resultContent);
+
+                    messageJson = jobj.error.message.value;
+
+                    throw new Exception(messageJson);
+                }
+            }
+        }
+
+        public void DeleteEntity(string entityName, string entityCode, IContractResolver contractResolver = null)
+        {
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName + "('" + entityCode + "')");
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Method = "DELETE";
+            httpWebRequest.KeepAlive = true;
+            httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
+            httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
+            httpWebRequest.Headers.Add("Cookie", Cookies);
+            httpWebRequest.Headers.Add("Prefer", "return-no-content");
+            httpWebRequest.Accept = "*/*";
+            httpWebRequest.ServicePoint.Expect100Continue = false;
+            httpWebRequest.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+            httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;
+
+            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
+            if (httpResponse.StatusCode != (HttpStatusCode)204)
+            {
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    string resultContent = streamReader.ReadToEnd();
+
+                    string messageJson = "";
+
+                    dynamic jobj = JObject.Parse(resultContent);
+
+                    messageJson = jobj.error.message.value;
+
+                    throw new Exception(messageJson);
+                }
+            }
+        }
+
         public string GenerateBatchID()
         {
             return string.Format("batch_{0}", Guid.NewGuid().ToString());
@@ -376,10 +451,15 @@ namespace B1Base.DAO
                         locationIndex++;
                     }
 
-                    int id = Convert.ToInt32(content[locationIndex].Substring(content[locationIndex].IndexOf("(") + 1, 
-                        content[locationIndex].IndexOf(")") - content[locationIndex].IndexOf("(") - 1));
+                    slBatchModel.ResultEntityCode = content[locationIndex].Substring(content[locationIndex].IndexOf("(") + 1,
+                        content[locationIndex].IndexOf(")") - content[locationIndex].IndexOf("(") - 1);
 
-                    slBatchModel.ResultEntityId = id;
+                    slBatchModel.ResultEntityCode = slBatchModel.ResultEntityCode.Replace("'", "");
+
+                    int id;
+
+                    if (int.TryParse(slBatchModel.ResultEntityCode, out id))
+                        slBatchModel.ResultEntityId = id;
                 }
                 else if (code == 204)
                 {

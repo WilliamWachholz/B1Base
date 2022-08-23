@@ -21,6 +21,8 @@ namespace B1Base.Model
 
         public int ResultEntityId { get; set; }
 
+        public string ResultEntityCode { get; set; }
+
         public static SLBatchModel PostMethod(string method, IContractResolver contractResolver = null)
         {
             SLBatchModel result = new SLBatchModel();
@@ -47,6 +49,24 @@ namespace B1Base.Model
             result.Verb = "PATCH";
             result.Path = entityName + "(" + id.ToString() + ")";
             result.Content = DAO.ServiceLayerDAO.ConvertToJsonString(obj, contractResolver);
+
+            return result;
+        }
+
+        public static SLBatchModel DeleteEntity(string entityName, string code, IContractResolver contractResolver = null)
+        {
+            SLBatchModel result = new SLBatchModel();
+            result.Verb = "DELETE";
+            result.Path = entityName + "('" + code + "')";
+            
+            return result;
+        }
+
+        public static SLBatchModel DeleteEntity(string entityName, int id, IContractResolver contractResolver = null)
+        {
+            SLBatchModel result = new SLBatchModel();
+            result.Verb = "DELETE";
+            result.Path = entityName + "(" + id.ToString() + ")";
 
             return result;
         }
