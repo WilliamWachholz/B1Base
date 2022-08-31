@@ -155,16 +155,16 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.ItemEvent += HandlePickerClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFolderSelect;
-            Controller.ConnectionController.Instance.Application.ItemEvent += HandleChooseFrom;
-            Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonPress;
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleChooseFrom;            
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormValidate;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormResize;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleGridRowClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixRowClick;
-            Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixSort;
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixSort;            
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleKeyDown;
-            Controller.ConnectionController.Instance.Application.FormDataEvent += HandleFormData;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormClose;
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonPress;
+            Controller.ConnectionController.Instance.Application.FormDataEvent += HandleFormData;            
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuInsert;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSaveAsDraft;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSearch;
@@ -175,6 +175,9 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuPaste;
             Controller.ConnectionController.Instance.Application.StatusBarEvent += HandleStatusBarMessage;
             Controller.ConnectionController.Instance.Application.RightClickEvent += HandleRightClick;
+
+
+            
 
             try
             {
@@ -770,27 +773,6 @@ namespace B1Base.Controller
         {
             bubbleEvent = true;
 
-            if (pVal.EventType == BoEventTypes.et_MATRIX_LINK_PRESSED && pVal.BeforeAction == true)
-            {
-                try
-                {
-                    string formType = pVal.FormTypeEx;
-                    string formId = pVal.FormUID;
-
-                    foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
-                    {
-                        view.MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
-                    }
-                }
-                catch (Exception e)
-                {
-                    if (LogIsActive)
-                    {
-                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 211 - " + e.Message);
-                    }
-                }
-            }
-
             if (pVal.EventType == BoEventTypes.et_ITEM_PRESSED && pVal.BeforeAction == false)
             {
                 try
@@ -861,6 +843,38 @@ namespace B1Base.Controller
                     }
                 }
             }
+            
+            if (pVal.EventType == BoEventTypes.et_MATRIX_LINK_PRESSED && pVal.BeforeAction == true)
+            {
+                try
+                {
+                    string formType = pVal.FormTypeEx;
+                    string formId = pVal.FormUID;
+
+                    foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                    {
+                        view.MatrixRowEnter(pVal.ItemUID, pVal.Row, pVal.ColUID, pVal.Modifiers);
+                    }
+
+                    bool suspend = false;
+
+                    foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                    {
+                        view.GridLinkPressed(pVal.ItemUID, pVal.Row, pVal.ColUID, ref suspend);
+                    }
+                    
+                    if (suspend)
+                        bubbleEvent = false;
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 211 - " + e.Message);
+                    }
+                }
+            }
+
         }
 
         private void HandleFormValidate(string formUID, ref ItemEvent pVal, out bool bubbleEvent)

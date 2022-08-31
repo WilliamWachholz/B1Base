@@ -114,7 +114,8 @@ namespace B1Base.View
         public delegate void GridRowClickEventHandler(int row, string column);
         public delegate void GridRowDoubleClickEventHandler(int row, string column);
         public delegate void GridTabPressedEventHandler(int row, string column);
-        public delegate void GridLinkPressedEventHandler(int row);
+        public delegate void GridLinkPressedEventHandler(int row, out bool suspend);
+        public delegate void GridCustomMenuEventHandler(int row, string column);
         public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void MatrixCustomMenuEventHandler(int row, string column);
         public delegate void MatrixColPasteForAllEventHandler(string column);
@@ -333,6 +334,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, GridLinkPressedEventHandler> GridLinkPressedEvents { get { return new Dictionary<string, GridLinkPressedEventHandler>(); } }
 
         protected virtual Dictionary<string, GridTabPressedEventHandler> GridTabPressedEvents { get { return new Dictionary<string, GridTabPressedEventHandler>(); } }
+
+        protected virtual Dictionary<string, Tuple<string, GridCustomMenuEventHandler>> GridCustomMenuEvents { get { return new Dictionary<string, Tuple<string, GridCustomMenuEventHandler>>(); } }
 
         protected virtual Dictionary<string, MatixRowEnterEventHandler> MatrixRowEnterEvents { get { return new Dictionary<string, MatixRowEnterEventHandler>(); } }
 
@@ -1395,7 +1398,23 @@ namespace B1Base.View
                         }
                         else
                         {
-                            prop.SetValue(model, dataTable.GetValue(col, row));
+                            Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+
+                            if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
+                            {
+                                int time = Convert.ToInt32(dataTable.GetValue(col, row).ToString().Replace(":", ""));
+
+                                int hours = time / 100;
+                                int minutes = time % 100;
+
+                                DateTime date = DateTime.Today.AddHours(hours).AddMinutes(minutes);
+
+                                prop.SetValue(model, date, null);
+                            }
+                            else
+                            {
+                                prop.SetValue(model, dataTable.GetValue(col, row));
+                            }
                         }
                     }
                 }
@@ -1694,7 +1713,20 @@ namespace B1Base.View
                         }
                         else
                         {
-                            dataTable.SetValue(col, dataTable.Rows.Count - 1, prop.GetValue(model));
+                            Model.BaseModel.SpecificType specificType = prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType;
+
+                            if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
+                            {
+                                DateTime date = Convert.ToDateTime(prop.GetValue(model));
+
+                                string time = date.Hour.ToString("00") + ":" + date.Minute.ToString("00");
+
+                                dataTable.SetValue(col, dataTable.Rows.Count - 1, time);
+                            }
+                            else
+                            {
+                                dataTable.SetValue(col, dataTable.Rows.Count - 1, prop.GetValue(model));
+                            }
                         }
                     }
                 }
@@ -2816,6 +2848,29 @@ namespace B1Base.View
             }
         }
 
+        public void GridLinkPressed(string grid, int row, string column, ref bool suspend)
+        {
+            if (GridLinkPressedEvents.ContainsKey(grid + "." + column) && !Frozen)
+            {
+                Grid gridItem = (Grid)SAPForm.Items.Item(grid).Specific;
+
+                if (LastRows.ContainsKey(grid))
+                {
+                    LastBeforeRows[grid] = LastRows[grid];
+                    LastRows[grid] = row;
+                    LastCols[grid] = column;
+                }
+                else
+                {
+                    LastBeforeRows.Add(grid, 1);
+                    LastRows.Add(grid, row);
+                    LastCols.Add(grid, column);
+                }
+
+                GridLinkPressedEvents[grid + "." + column](row, out suspend);
+            }
+        }
+
         public void MatrixRowEnter(string matrix, int row, string column, BoModifiersEnum modifier)
         {
             if (MatrixRowEnterEvents.ContainsKey(matrix) && !Frozen)
@@ -2849,27 +2904,7 @@ namespace B1Base.View
 
                 MatrixRowEnterEvents[matrix](row, column, rowChanged, selectedRow == row);
             }
-
-            if (GridLinkPressedEvents.ContainsKey(matrix + "." + column) && !Frozen)
-            {
-                Grid gridItem = (Grid)SAPForm.Items.Item(matrix).Specific;
-
-                if (LastRows.ContainsKey(matrix))
-                {
-                    LastBeforeRows[matrix] = LastRows[matrix];
-                    LastRows[matrix] = row;
-                    LastCols[matrix] = column;
-                }
-                else
-                {
-                    LastBeforeRows.Add(matrix, 1);
-                    LastRows.Add(matrix, row);
-                    LastCols.Add(matrix, column);
-                }
-
-                GridLinkPressedEvents[matrix + "." + column](row);
-            }
-
+                        
             string key = string.Format("{0}.{1}", matrix, column);
 
             if (ColumnValidateEvents.ContainsKey(key) && !Frozen)
@@ -3049,6 +3084,14 @@ namespace B1Base.View
                 }
             }
 
+            foreach (KeyValuePair<string, Tuple<string, GridCustomMenuEventHandler>> gridCustomEvent in GridCustomMenuEvents)
+            {
+                if (menu.Contains(gridCustomEvent.Key))
+                {
+                    gridCustomEvent.Value.Item2(LastRightClickRow, LastRightClickCol);
+                }
+            }
+
             foreach (KeyValuePair<string, Tuple<string, CustomMenuEventHandler>> customEvent in CustomMenuEvents)
             {
                 if (menu.Contains(customEvent.Key))
@@ -3198,6 +3241,47 @@ namespace B1Base.View
                         creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
                         creationPackage.UniqueID = menuID;
                         creationPackage.String = matrixCustomEvent.Value.Item1;
+                        creationPackage.Enabled = true;
+                        creationPackage.Position = pos;
+
+                        pos++;
+
+                        menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
+                        menu = menuItem.SubMenus;
+                        menu.AddEx(creationPackage);
+                    }
+                }
+            }
+
+            foreach (KeyValuePair<string, Tuple<string, GridCustomMenuEventHandler>> gridCustomEvent in GridCustomMenuEvents)
+            {
+                string menuID = string.Format("{0}{1}", gridCustomEvent.Key, SAPForm.TypeEx);
+
+                if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
+                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
+
+                if (item != "" && gridCustomEvent.Key.StartsWith(item))
+                {
+                    SAPbouiCOM.Grid grid = (Grid)SAPForm.Items.Item(item).Specific;
+
+                    string colTitle = grid.Columns.Item(col).TitleObject.Caption;
+                    string firstCol = grid.Columns.Item(0).UniqueID;
+
+                    if (row > 0 && row <= grid.Rows.Count && (col != firstCol || colTitle != "#" || colTitle != ""))
+                    {
+                        LastRightClickMatrix = item;
+                        LastRightClickRow = row;
+                        LastRightClickCol = col;
+
+                        MenuItem menuItem = null;
+                        Menus menu = null;
+                        MenuCreationParams creationPackage = null;
+
+                        creationPackage = ((MenuCreationParams)(Controller.ConnectionController.Instance.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
+
+                        creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
+                        creationPackage.UniqueID = menuID;
+                        creationPackage.String = gridCustomEvent.Value.Item1;
                         creationPackage.Enabled = true;
                         creationPackage.Position = pos;
 

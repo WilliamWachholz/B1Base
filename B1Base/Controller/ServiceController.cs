@@ -86,40 +86,43 @@ namespace B1Base.Controller
         {
             try
             {
-                m_ExecutingMain = true;
-                try
+                if (m_ExecutingMain == false)
                 {
-                    if (!LaziInitialization)
+                    m_ExecutingMain = true;
+                    try
                     {
-                        AddLog("Connecting");
+                        if (!LaziInitialization)
+                        {
+                            AddLog("Connecting");
 
-                        B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("AddOnId"),
-                            ConfigurationSettings.AppSettings.Get("Server"),
-                            ConfigurationSettings.AppSettings.Get("CompanyDB"),
-                            ConfigurationSettings.AppSettings.Get("UserName"),
-                            ConfigurationSettings.AppSettings.Get("Password"),
-                            ConfigurationSettings.AppSettings.Get("LicenseServer"),
-                            ConfigurationSettings.AppSettings.Get("DBUserName"),
-                            ConfigurationSettings.AppSettings.Get("DBPassword"),
-                            ConfigurationSettings.AppSettings.Get("DBServerType"));
+                            B1Base.Controller.ConnectionController.Instance.Initialize(ConfigurationSettings.AppSettings.Get("AddOnId"),
+                                ConfigurationSettings.AppSettings.Get("Server"),
+                                ConfigurationSettings.AppSettings.Get("CompanyDB"),
+                                ConfigurationSettings.AppSettings.Get("UserName"),
+                                ConfigurationSettings.AppSettings.Get("Password"),
+                                ConfigurationSettings.AppSettings.Get("LicenseServer"),
+                                ConfigurationSettings.AppSettings.Get("DBUserName"),
+                                ConfigurationSettings.AppSettings.Get("DBPassword"),
+                                ConfigurationSettings.AppSettings.Get("DBServerType"));
+                        }
+
+                        AddLog("Executing");
+
+                        Execute();
+
+                        AddLog("Executed");
                     }
+                    finally
+                    {
+                        m_ExecutingMain = false;
+                        if (!LaziInitialization)
+                        {
+                            AddLog("Desconnecting");
 
-                    AddLog("Executing");
-
-                    Execute();
-
-                    AddLog("Executed");
+                            B1Base.Controller.ConnectionController.Instance.Finalize();
+                        }
+                    }
                 }
-                finally
-                {
-                    m_ExecutingMain = false;
-                    if (!LaziInitialization)
-                    {
-                        AddLog("Desconnecting");
-
-                        B1Base.Controller.ConnectionController.Instance.Finalize();                        
-                    }
-                }                
             }
             catch (Exception ex)
             {

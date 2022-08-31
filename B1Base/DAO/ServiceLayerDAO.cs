@@ -285,7 +285,7 @@ namespace B1Base.DAO
 
         public void DeleteEntity(string entityName, string entityCode, IContractResolver contractResolver = null)
         {
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName + "('" + entityCode + "')");
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName + "(" + entityCode + ")");
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "DELETE";
             httpWebRequest.KeepAlive = true;
