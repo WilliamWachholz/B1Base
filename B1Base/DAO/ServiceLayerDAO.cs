@@ -17,7 +17,7 @@ namespace B1Base.DAO
         {
             get
             {
-                return string.Format("https://{0}/b1s/v1/", B1Base.AddOn.Instance.ConnectionController.Company.LicenseServer.Replace("40000", "50000"));
+                return string.Format("https://{0}/b1s/v1/", B1Base.Controller.ConnectionController.Instance.Company.LicenseServer.Replace("40000", "50000"));
             }
         }
 

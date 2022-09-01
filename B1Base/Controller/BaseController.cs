@@ -81,7 +81,10 @@ namespace B1Base.Controller
                 }
                 catch (Exception ex)
                 {
-                    B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText(ex.Message);
+                    if (B1Base.Controller.ConnectionController.Instance.Application != null)
+                        B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText(ex.Message);
+                    else
+                        throw ex;
                 }
             }
 
