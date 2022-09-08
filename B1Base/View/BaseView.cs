@@ -3404,7 +3404,9 @@ namespace B1Base.View
 
                 if (SAPForm.Items.Item(matrix).Type == BoFormItemTypes.it_GRID)
                 {
-                    check = ((CheckBoxColumn)((Grid)SAPForm.Items.Item(matrix).Specific).Columns.Item(column)).IsChecked(row);
+                    //check = ((CheckBoxColumn)((Grid)SAPForm.Items.Item(matrix).Specific).Columns.Item(column)).IsChecked(row);
+
+                    check = ((Grid)SAPForm.Items.Item(matrix).Specific).DataTable.GetValue(column, row).ToString() != "N";
                 }
                 else
                 {
