@@ -40,7 +40,7 @@ namespace B1Base.View
         Dictionary<string, int> cachedDBDataSources = new Dictionary<string, int>();
 
         #endregion
-
+        
         protected System.Globalization.NumberFormatInfo DefaultNumberFormat
         {
             get
@@ -99,6 +99,10 @@ namespace B1Base.View
                 AddOn.Instance.MainController.LastParent = null;
             }
         }
+
+        public BaseView() { }
+
+        public virtual BaseView CreateNew(string formUID, string formType) { return null;  }
 
         public delegate void ButtonClickEventHandler();
         public delegate void ButtonPressEventHandler();
@@ -173,8 +177,6 @@ namespace B1Base.View
 
         protected virtual int CreateControlsTime { get { return 1; } }
 
-        private Timer m_timerCreateControls = new Timer(1000);
-
         private Timer m_timerFormClose = new Timer(1000);
 
         private DateTime m_StartTime = DateTime.Now;
@@ -223,69 +225,64 @@ namespace B1Base.View
         }
 
         public void Initialize()
-        {                        
-            try
+        {
+            if (!FormUID.Contains("F_") && !SecondaryView && SAPForm.BorderStyle != BoFormBorderStyle.fbs_Floating)
             {
                 Form mainForm = Controller.ConnectionController.Instance.Application.Forms.GetForm("0", 1);
 
-                if (!FormUID.Contains("F_") && !SecondaryView && SAPForm.BorderStyle != BoFormBorderStyle.fbs_Floating)
-                {
-                    SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
-                    SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
-                }
-
-                try
-                {
-                    LastEditValue = string.Empty;
-                    LastComboValue = string.Empty;
-                    LastButtonClicked = string.Empty;
-                    LastSortedColPos = 1;
-                    LastRows = new Dictionary<string, int>();
-                    LastCols = new Dictionary<string, string>();
-                    LastBeforeRows = new Dictionary<string, int>();
-                    LastRightClickRow = 1;
-                    LastRightClickMatrix = string.Empty;
-                    LastCopiedDocEntry = 0;
-                    LastCopiedObjType = Model.EnumObjType.None;
-                    LastDocEntry = 0;
-                    LastAbsEntry = 0;
-                    LastFormMode = SAPForm.Mode;
-                    LastModifier = BoModifiersEnum.mt_None;
-                    LastParameters = new Dictionary<string, object>();
-
-                    CreateControls();
-
-                    if (!SAPForm.IsSystem)
-                        SAPForm.PaneLevel = DefaultPane;
-
-                    if (SAPForm.BusinessObject != null && SAPForm.BusinessObject.Key != string.Empty)
-                        GotFormData();
-
-                    if (DocCopyEvents.Count > 0)
-                    {
-                        m_copyFlag = true;
-
-                        FormValidate();
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    if (new Controller.ConfigController<Model.ConfigModel>("").GetConfig().ActivateLog)
-                        B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOn.Instance.MainController.AddOnID + "]" + ex.Message + ". FormType: " + this.GetType().Name);
-                }
+                SAPForm.Top = (System.Windows.Forms.SystemInformation.WorkingArea.Height - 115 - SAPForm.Height) / 2;
+                SAPForm.Left = (mainForm.ClientWidth - SAPForm.Width) / 2;
             }
-            finally
-            {
 
+            try
+            {
+                LastEditValue = string.Empty;
+                LastComboValue = string.Empty;
+                LastButtonClicked = string.Empty;
+                LastSortedColPos = 1;
+                LastRows = new Dictionary<string, int>();
+                LastCols = new Dictionary<string, string>();
+                LastBeforeRows = new Dictionary<string, int>();
+                LastRightClickRow = 1;
+                LastRightClickMatrix = string.Empty;
+                LastCopiedDocEntry = 0;
+                LastCopiedObjType = Model.EnumObjType.None;
+                LastDocEntry = 0;
+                LastAbsEntry = 0;
+                LastFormMode = SAPForm.Mode;
+                LastModifier = BoModifiersEnum.mt_None;
+                LastParameters = new Dictionary<string, object>();
+
+                CreateControls();
+
+                if (!SAPForm.IsSystem)
+                    SAPForm.PaneLevel = DefaultPane;
+
+                if (SAPForm.BusinessObject != null && SAPForm.BusinessObject.Key != string.Empty)
+                    GotFormData();
+
+                if (DocCopyEvents.Count > 0)
+                {
+                    m_copyFlag = true;
+
+                    FormValidate();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                if (new Controller.ConfigController<Model.ConfigModel>("").GetConfig().ActivateLog)
+                    B1Base.Controller.ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOn.Instance.MainController.AddOnID + "]" + ex.Message + ". FormType: " + this.GetType().Name);
             }
         }
 
         public void PostInitialize()
         {
-            if (!FormLoaded && SAPForm.Visible)
+            if (!FormLoaded && ( (SAPForm.UniqueID.StartsWith("RW") && SAPForm.Visible) || !SAPForm.UniqueID.StartsWith("RW") ))
             {
                 FormLoaded = true;
+
+                SAPForm.Select();                
 
                 AfterCreateControls();
             }
@@ -304,8 +301,6 @@ namespace B1Base.View
             m_timerFormClose.Elapsed += CloseForm;
             m_timerFormClose.Enabled = true;
         }
-
-        int freezeCount = 0;
 
         /// <summary>
         /// Não atribuir a esse evento o botão OK (uid=1). Para esses casos, usar as sobrecargas correspondentes (FindFormData, GotFormData, AddFormData, UpdateFormData e DeleteFormData)
@@ -531,6 +526,24 @@ namespace B1Base.View
             return _item;
         }
 
+        protected string GeneratePartialXML(string xmlScript, params string[] variables)
+        {
+            string xml = "";
+
+            using (var stream = new MemoryStream(File.ReadAllBytes(AddOn.Instance.CurrentDirectory + "//XML//" + xmlScript + ".xml")))
+            {
+                if (stream != null)
+                {
+                    using (var streamReader = new StreamReader(stream))
+                    {
+                        xml = string.Format(streamReader.ReadToEnd(), variables);
+                    }
+                }
+            }
+
+            return xml;
+        }
+
         protected void UpdateFormByXML(string xmlScript, params string[] variables)
         {
             try
@@ -547,9 +560,7 @@ namespace B1Base.View
                         }
                     }
                 }
-
-
-
+                
                 string sFileName = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".xml");
 
                 File.WriteAllText(sFileName, xml);

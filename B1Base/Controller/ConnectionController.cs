@@ -20,12 +20,7 @@ namespace B1Base.Controller
 
         }
 
-        static readonly ConnectionController m_Instance = new ConnectionController();
-
-        public static ConnectionController Instance
-        {
-            get { return m_Instance; }
-        }
+        public static ConnectionController Instance { get; } = new ConnectionController();
 
         public SAPbobsCOM.Company Company { get; private set; }
 

@@ -14,6 +14,8 @@ namespace B1Base.Controller
     {
         List<View.BaseView> m_Views = new List<View.BaseView>();
 
+        List<Type> m_SystemFormTypes = new List<Type>();
+
         public abstract string AddOnID { get; }
 
         public abstract string AddOnName { get; }
@@ -176,8 +178,25 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.StatusBarEvent += HandleStatusBarMessage;
             Controller.ConnectionController.Instance.Application.RightClickEvent += HandleRightClick;
 
+            string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
 
-            
+            foreach (string dll in dlls)
+            {
+                if (dll.Contains("Code"))
+                {
+                    Assembly assembly = Assembly.LoadFile(dll);
+
+                    Type[] types = assembly.GetTypes();
+
+                    foreach (Type type in types)
+                    {
+                        if (type.Name.Contains("Form") && type.Name.Contains("View"))
+                        {
+                            m_SystemFormTypes.Add(type);
+                        }
+                    }
+                }
+            }
 
             try
             {
@@ -402,6 +421,36 @@ namespace B1Base.Controller
                 }
             }
 
+            if (pVal.EventType == BoEventTypes.et_FORM_LOAD && pVal.BeforeAction)
+            {
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandleGotFocus;
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandleLostFocus;
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFormDeactivate;
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandlePickerClick;
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandleButtonClick;
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFolderSelect;
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandleChooseFrom;
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFormValidate;
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFormResize;
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandleGridRowClick;
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandleMatrixRowClick;
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandleMatrixSort;
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandleKeyDown;
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFormClose;
+                Controller.ConnectionController.Instance.Application.ItemEvent -= HandleButtonPress;
+                Controller.ConnectionController.Instance.Application.FormDataEvent -= HandleFormData;
+                Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuInsert;
+                Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuSaveAsDraft;
+                Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuSearch;
+                Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuDuplicate;
+                Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuCancel;
+                Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuAny;
+                Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuRightClick;
+                Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuPaste;
+                Controller.ConnectionController.Instance.Application.StatusBarEvent -= HandleStatusBarMessage;
+                Controller.ConnectionController.Instance.Application.RightClickEvent -= HandleRightClick;
+            }
+
             if ((pVal.EventType == BoEventTypes.et_FORM_LOAD || (pVal.EventType == BoEventTypes.et_FORM_ACTIVATE && pVal.FormType == 198) ) && !pVal.BeforeAction)
             {
                 bubbleEvent = true;
@@ -490,36 +539,32 @@ namespace B1Base.Controller
                     }                    
                     else if (!pVal.FormTypeEx.Contains("-"))
                     {
-                        string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
+                        string formTypeName = "Form" + pVal.FormTypeEx + "View";
 
-                        foreach (string dll in dlls)
+                        Form form = Controller.ConnectionController.Instance.Application.Forms.Item(formUID);
+
+                        form.Freeze(true);
+                        try
                         {
-                            try
+                            foreach (Type type in m_SystemFormTypes)
                             {
-                                Assembly assembly = Assembly.LoadFile(dll);
-
-                                if (assembly.GetName().Name.Contains("Code"))
+                                if (type.Name == formTypeName)
                                 {
-                                    Type type = assembly.GetType(assembly.GetName().Name + ".View.Form" + pVal.FormTypeEx + "View");                                                                       
+                                    View.BaseView view = (View.BaseView)Activator.CreateInstance(type, formUID, pVal.FormTypeEx);
 
-                                    if (type != null)
+                                    if (!view.Inactive)
                                     {
-                                        ConstructorInfo constructor = type.GetConstructor(new Type[] { formUID.GetType(), pVal.FormTypeEx.GetType() });
-                                        object formView = constructor.Invoke(new object[] { formUID, pVal.FormTypeEx });
+                                        m_Views.Add(view);
 
-                                        if (!((View.BaseView)formView).Inactive)
-                                        {
-                                            m_Views.Add((View.BaseView)formView);
-
-                                            ((View.BaseView)formView).Initialize();
-                                        }
+                                        view.Initialize();
                                     }
+
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                //ConnectionController.Instance.Application.StatusBar.SetText(ex.Message);
-                            }
+                            }                            
+                        }
+                        finally
+                        {
+                            form.Freeze(false);
                         }
                     }
                     else
@@ -551,6 +596,33 @@ namespace B1Base.Controller
                         ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 114 - " + e.Message);
                     }
                 }
+
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandleGotFocus;
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandleLostFocus;
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormDeactivate;
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandlePickerClick;
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonClick;
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandleFolderSelect;
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandleChooseFrom;
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormValidate;
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormResize;
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandleGridRowClick;
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixRowClick;
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixSort;
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandleKeyDown;
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormClose;
+                Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonPress;
+                Controller.ConnectionController.Instance.Application.FormDataEvent += HandleFormData;
+                Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuInsert;
+                Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSaveAsDraft;
+                Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSearch;
+                Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuDuplicate;
+                Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuCancel;
+                Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuAny;
+                Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuRightClick;
+                Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuPaste;
+                Controller.ConnectionController.Instance.Application.StatusBarEvent += HandleStatusBarMessage;
+                Controller.ConnectionController.Instance.Application.RightClickEvent += HandleRightClick;
             }            
 
             try
