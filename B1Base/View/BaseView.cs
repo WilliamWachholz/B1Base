@@ -1413,14 +1413,17 @@ namespace B1Base.View
 
                             if (specificType != null && specificType.Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
                             {
-                                int time = Convert.ToInt32(dataTable.GetValue(col, row).ToString().Replace(":", ""));
+                                if (dataTable.GetValue(col, row).ToString() != "")
+                                {
+                                    int time = Convert.ToInt32(dataTable.GetValue(col, row).ToString().Replace(":", ""));
 
-                                int hours = time / 100;
-                                int minutes = time % 100;
+                                    int hours = time / 100;
+                                    int minutes = time % 100;
 
-                                DateTime date = DateTime.Today.AddHours(hours).AddMinutes(minutes);
+                                    DateTime date = DateTime.Today.AddHours(hours).AddMinutes(minutes);
 
-                                prop.SetValue(model, date, null);
+                                    prop.SetValue(model, date, null);
+                                }                                
                             }
                             else
                             {
