@@ -206,7 +206,7 @@ namespace B1Base.DAO
             httpWebRequest.Headers.Add("Cookie", Cookies);
             httpWebRequest.Headers.Add("Prefer", "return-no-content");
             httpWebRequest.Accept = "*/*";
-            httpWebRequest.ServicePoint.Expect100Continue = false;
+            httpWebRequest.ServicePoint.Expect100Continue = false;            
             httpWebRequest.Headers.Add("Accept-Encoding", "gzip, deflate, br");
             httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;
 
