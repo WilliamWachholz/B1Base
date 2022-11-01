@@ -233,6 +233,11 @@ namespace B1Base.Controller
 
         public void Initialize(string addOnID, string server, string companyDB, string userName, string password, string licenseServer, string dbUserName, string dbPassword, string dbServerType)
         {
+            Initialize(addOnID, server, companyDB, userName, password, licenseServer, dbUserName, dbPassword, dbServerType, licenseServer);
+        }
+
+        public void Initialize(string addOnID, string server, string companyDB, string userName, string password, string licenseServer, string dbUserName, string dbPassword, string dbServerType, string sldServer)
+        {
             AddOnID = addOnID;
 
             this.Company = null;
@@ -245,6 +250,7 @@ namespace B1Base.Controller
                 this.Company.UserName = userName;
                 this.Company.Password = password;
                 this.Company.LicenseServer = licenseServer;
+                this.Company.SLDServer = sldServer;
                 this.Company.DbUserName = dbUserName;
                 this.Company.DbPassword = dbPassword;
                 this.Company.UseTrusted = false;                

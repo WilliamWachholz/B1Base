@@ -100,10 +100,11 @@ namespace B1Base.Controller
                                 ConfigurationSettings.AppSettings.Get("CompanyDB"),
                                 ConfigurationSettings.AppSettings.Get("UserName"),
                                 ConfigurationSettings.AppSettings.Get("Password"),
-                                ConfigurationSettings.AppSettings.Get("LicenseServer"),
+                                ConfigurationSettings.AppSettings.Get("LicenseServer"),                                
                                 ConfigurationSettings.AppSettings.Get("DBUserName"),
                                 ConfigurationSettings.AppSettings.Get("DBPassword"),
-                                ConfigurationSettings.AppSettings.Get("DBServerType"));
+                                ConfigurationSettings.AppSettings.Get("DBServerType"),
+                                ConfigurationSettings.AppSettings.Get("SLDServer"));
                         }
 
                         AddLog("Executing");
