@@ -16,8 +16,8 @@ namespace B1Base.DAO
         private string BaseUrl
         {
             get
-            {                
-                return string.Format("https://{0}/b1s/v1/", B1Base.Controller.ConnectionController.Instance.Company.SLDServer.Replace("40000", "50000"));
+            {
+                return string.Format("{0}/b1s/v1/", B1Base.Controller.ConnectionController.Instance.ServiceLayerURL);
             }
         }
 

@@ -112,6 +112,21 @@ namespace B1Base.Controller
             }
         }
 
+        string _ServiceLayerURL;
+
+        public string ServiceLayerURL
+        {
+            get
+            {
+                if (_ServiceLayerURL == null)
+                {
+                    _ServiceLayerURL = ExecuteSqlForDirectObject<string>(@"SELECT ""ACCESSURL"" FROM ""SLDDATA"".""B1SERVICELAYERS"" LIMIT 1");
+                }
+
+                return _ServiceLayerURL;
+            }
+        }
+
         public dynamic LastObjectCode
         {
             get
