@@ -4,3 +4,4 @@ union
 select  0,
 		''
 from dummy
+order by 2

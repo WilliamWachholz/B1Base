@@ -180,6 +180,7 @@ namespace B1Base.DAO
             httpWebRequest.ServicePoint.Expect100Continue = false;
             httpWebRequest.Headers.Add("Accept-Encoding", "gzip, deflate, br");
             httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;
+            httpWebRequest.Timeout = 1800000;
 
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             { streamWriter.Write(data); }
