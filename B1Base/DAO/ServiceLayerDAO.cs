@@ -216,30 +216,129 @@ namespace B1Base.DAO
                 streamWriter.Write(ConvertToJsonString(obj, contractResolver));
             }
 
-            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-
-            if (httpResponse.StatusCode == (HttpStatusCode) 204)
+            try
             {
-                string location = httpResponse.Headers.Get("Location");
+                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
 
-                int id = Convert.ToInt32(location.Substring(location.IndexOf("(") + 1,
-                        location.IndexOf(")") - location.IndexOf("(") - 1));
-
-                return id;
-            }
-            else
-            {
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                if (httpResponse.StatusCode == (HttpStatusCode)204)
                 {
-                    string resultContent = streamReader.ReadToEnd();
+                    string location = httpResponse.Headers.Get("Location");
 
-                    string messageJson = "";
+                    int id = Convert.ToInt32(location.Substring(location.IndexOf("(") + 1,
+                            location.IndexOf(")") - location.IndexOf("(") - 1));
 
-                    dynamic jobj = JObject.Parse(resultContent);
+                    return id;
+                }
+                else
+                {
+                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                    {
+                        string resultContent = streamReader.ReadToEnd();
 
-                    messageJson = jobj.error.message.value;
+                        string messageJson = "";
 
-                    throw new Exception(messageJson);
+                        dynamic jobj = JObject.Parse(resultContent);
+
+                        messageJson = jobj.error.message.value;
+
+                        throw new Exception(messageJson);
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                using (WebResponse response = e.Response)
+                {
+                    HttpWebResponse httpResponse = (HttpWebResponse)response;
+
+                    using (Stream data = response.GetResponseStream())
+                    using (var reader = new StreamReader(data))
+                    {
+                        string resultContent = reader.ReadToEnd();
+
+                        string messageJson = "";
+
+                        dynamic jobj = JObject.Parse(resultContent);
+
+                        messageJson = jobj.error.message.value;
+
+                        throw new Exception(messageJson);
+                    }
+                }
+            }
+        }
+
+        public string PostEntityString(object obj, string entityName, IContractResolver contractResolver = null)
+        {
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName);
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Method = "POST";
+            httpWebRequest.KeepAlive = true;
+            httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
+            httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
+            httpWebRequest.Headers.Add("Cookie", Cookies);
+            httpWebRequest.Headers.Add("Prefer", "return-no-content");
+            httpWebRequest.Accept = "*/*";
+            httpWebRequest.ServicePoint.Expect100Continue = false;
+            httpWebRequest.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+            httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;
+
+            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                streamWriter.Write(ConvertToJsonString(obj, contractResolver));
+            }
+
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
+                if (httpResponse.StatusCode == (HttpStatusCode)204)
+                {
+                    string location = httpResponse.Headers.Get("Location");
+
+                    string id = location.Substring(location.IndexOf("(") + 2,
+                            location.IndexOf(")") - location.IndexOf("(") - 3);
+
+                    return id;
+                }
+                else
+                {
+                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                    {
+                        string resultContent = streamReader.ReadToEnd();
+
+                        string messageJson = "";
+
+                        dynamic jobj = JObject.Parse(resultContent);
+
+                        messageJson = jobj.error.message.value;
+
+                        throw new Exception(messageJson);
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                Controller.ConnectionController.Instance.Application.StatusBar.SetText(e.Message);
+
+                using (WebResponse response = e.Response)
+                {
+                    HttpWebResponse httpResponse = (HttpWebResponse)response;
+                    
+                    using (Stream data = response.GetResponseStream())
+                    using (var reader = new StreamReader(data))
+                    {
+                        string resultContent = reader.ReadToEnd();
+
+                        string messageJson = "";
+
+                        dynamic jobj = JObject.Parse(resultContent);
+
+                        messageJson = jobj.error.message.value;
+
+                        throw new Exception(messageJson);
+                    }
                 }
             }
         }
@@ -265,21 +364,120 @@ namespace B1Base.DAO
                 streamWriter.Write(ConvertToJsonString(obj, contractResolver));
             }
 
-            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-
-            if (httpResponse.StatusCode != (HttpStatusCode)204)
+            try
             {
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
+                if (httpResponse.StatusCode != (HttpStatusCode)204)
                 {
-                    string resultContent = streamReader.ReadToEnd();
+                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                    {
+                        string resultContent = streamReader.ReadToEnd();
 
-                    string messageJson = "";
+                        string messageJson = "";
 
-                    dynamic jobj = JObject.Parse(resultContent);
+                        dynamic jobj = JObject.Parse(resultContent);
 
-                    messageJson = jobj.error.message.value;
+                        messageJson = jobj.error.message.value;
 
-                    throw new Exception(messageJson);
+                        throw new Exception(messageJson);
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                using (WebResponse response = e.Response)
+                {
+                    HttpWebResponse httpResponse = (HttpWebResponse)response;
+
+                    using (Stream data = response.GetResponseStream())
+                    using (var reader = new StreamReader(data))
+                    {
+                        string resultContent = reader.ReadToEnd();
+
+                        string messageJson = "";
+
+                        dynamic jobj = JObject.Parse(resultContent);
+
+                        messageJson = jobj.error.message.value;
+
+                        throw new Exception(messageJson);
+                    }
+                }
+            }
+        }
+
+        public string PatchEntityString(object obj, string entityName, string entityID, IContractResolver contractResolver = null)
+        {
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName + "('" + entityID.ToString() + "')");
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Method = "PATCH";
+            httpWebRequest.KeepAlive = true;
+            httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
+            httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
+            httpWebRequest.Headers.Add("Cookie", Cookies);
+            httpWebRequest.Headers.Add("Prefer", "return-no-content");
+            httpWebRequest.Accept = "*/*";
+            httpWebRequest.ServicePoint.Expect100Continue = false;
+            httpWebRequest.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+            httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;
+
+            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                streamWriter.Write(ConvertToJsonString(obj, contractResolver));
+            }
+
+            try
+            {
+                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
+                if (httpResponse.StatusCode == (HttpStatusCode)204)
+                {
+                    string location = httpResponse.Headers.Get("Location");
+
+                    string id = location.Substring(location.IndexOf("(") + 2,
+                            location.IndexOf(")") - location.IndexOf("(") - 3);
+
+                    return id;
+                }
+                else
+                {
+                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                    {
+                        string resultContent = streamReader.ReadToEnd();
+
+                        string messageJson = "";
+
+                        dynamic jobj = JObject.Parse(resultContent);
+
+                        messageJson = jobj.error.message.value;
+
+                        throw new Exception(messageJson);
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                Controller.ConnectionController.Instance.Application.StatusBar.SetText(e.Message);
+
+                using (WebResponse response = e.Response)
+                {
+                    HttpWebResponse httpResponse = (HttpWebResponse)response;
+
+                    using (Stream data = response.GetResponseStream())
+                    using (var reader = new StreamReader(data))
+                    {
+                        string resultContent = reader.ReadToEnd();
+
+                        string messageJson = "";
+
+                        dynamic jobj = JObject.Parse(resultContent);
+
+                        messageJson = jobj.error.message.value;
+
+                        throw new Exception(messageJson);
+                    }
                 }
             }
         }

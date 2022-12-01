@@ -1276,14 +1276,10 @@ namespace B1Base.Controller
             {
                 try
                 {
-                    if (pVal.Row >= 0)
-                    {
-                        string formType = pVal.FormTypeEx;
+                    string formType = pVal.FormTypeEx;
 
-                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
-                            view.GridRowDoubleClick(pVal.ItemUID, pVal.Row, pVal.ColUID);
-                        
-                    }
+                    foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                        view.GridRowDoubleClick(pVal.ItemUID, pVal.Row, pVal.ColUID);
                 }
                 catch (Exception e)
                 {

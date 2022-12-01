@@ -120,6 +120,7 @@ namespace B1Base.View
         public delegate void GridTabPressedEventHandler(int row, string column);
         public delegate void GridLinkPressedEventHandler(int row, out bool suspend);
         public delegate void GridCustomMenuEventHandler(int row, string column);
+        public delegate bool GridCheckAllEventHandler();
         public delegate void MatrixRowRemoveEventHandler(int row);
         public delegate void MatrixCustomMenuEventHandler(int row, string column);
         public delegate void MatrixColPasteForAllEventHandler(string column);
@@ -329,6 +330,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, GridLinkPressedEventHandler> GridLinkPressedEvents { get { return new Dictionary<string, GridLinkPressedEventHandler>(); } }
 
         protected virtual Dictionary<string, GridTabPressedEventHandler> GridTabPressedEvents { get { return new Dictionary<string, GridTabPressedEventHandler>(); } }
+
+        protected virtual Dictionary<string, GridCheckAllEventHandler> GridCheckAllEvents { get { return new Dictionary<string, GridCheckAllEventHandler>(); } }
 
         protected virtual Dictionary<string, Tuple<string, GridCustomMenuEventHandler>> GridCustomMenuEvents { get { return new Dictionary<string, Tuple<string, GridCustomMenuEventHandler>>(); } }
 
@@ -2769,7 +2772,7 @@ namespace B1Base.View
                             }
                             catch { }
 
-                            if (values.ContainsKey(alias))
+                            if (values.ContainsKey(alias) && matrixItem.Columns.Item(col).ChooseFromListUID == matrixItem.Columns.Item(column).ChooseFromListUID)
                             {
                                 try
                                 {
@@ -2814,7 +2817,37 @@ namespace B1Base.View
 
         public void GridRowDoubleClick(string grid, int row, string column)
         {
-            if (GridRowDoubleClickEvents.ContainsKey(grid) && !Frozen)
+            
+            if (row == -1)
+            {
+                string key = string.Format("{0}.{1}", grid, column);
+
+                if (GridCheckAllEvents.ContainsKey(key))
+                {
+                    if (GridCheckAllEvents[key]())
+                    {
+                        bool check = false;
+
+                        Grid gridItem = (Grid)SAPForm.Items.Item(grid).Specific;
+
+                        if (gridItem.Rows.Count > 0)
+                            check = !((CheckBoxColumn)gridItem.Columns.Item(column)).IsChecked(0);
+
+                        List<int> rows = new List<int>();
+
+                        for (int aux = 0; aux < gridItem.Rows.Count; aux++)
+                        {
+                            ((CheckBoxColumn)gridItem.Columns.Item(column)).Check(aux, check);
+
+                            rows.Add(aux);
+                        }
+
+                        if (ColumnCheckProEvents.ContainsKey(key))
+                            ColumnCheckProEvents[key](rows.ToArray(), check);
+                    }
+                }
+            }
+            else if (GridRowDoubleClickEvents.ContainsKey(grid) && !Frozen)
             {
                 if (LastRows.ContainsKey(grid))
                 {
@@ -3397,7 +3430,7 @@ namespace B1Base.View
                         }
                     }
                 }
-            }
+            }            
             else if (ColumnCheckEvents.ContainsKey(key) && !Frozen)
             {
                 if (SAPForm.Items.Item(matrix).Type == BoFormItemTypes.it_GRID)
