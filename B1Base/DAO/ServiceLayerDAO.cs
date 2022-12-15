@@ -60,7 +60,7 @@ namespace B1Base.DAO
                 Console.WriteLine(result);
                 Model.LoginResponseEntity loginResponseEntity = JsonConvert.DeserializeObject<Model.LoginResponseEntity>(result);
 
-                Cookies = "B1SESSION=" + loginResponseEntity.SessionId + "; ROUTEID=.node4";
+                Cookies = "B1SESSION=" + loginResponseEntity.SessionId + "; ROUTEID=" + loginResponseEntity.RouteId;
             }
         }
 
@@ -407,7 +407,7 @@ namespace B1Base.DAO
             }
         }
 
-        public string PatchEntityString(object obj, string entityName, string entityID, IContractResolver contractResolver = null)
+        public void PatchEntityString(object obj, string entityName, string entityID, IContractResolver contractResolver = null)
         {
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName + "('" + entityID.ToString() + "')");
             httpWebRequest.ContentType = "application/json";
@@ -432,16 +432,7 @@ namespace B1Base.DAO
             {
                 var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
 
-                if (httpResponse.StatusCode == (HttpStatusCode)204)
-                {
-                    string location = httpResponse.Headers.Get("Location");
-
-                    string id = location.Substring(location.IndexOf("(") + 2,
-                            location.IndexOf(")") - location.IndexOf("(") - 3);
-
-                    return id;
-                }
-                else
+                if (httpResponse.StatusCode != (HttpStatusCode)204)
                 {
                     using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
                     {
@@ -459,8 +450,6 @@ namespace B1Base.DAO
             }
             catch (WebException e)
             {
-                Controller.ConnectionController.Instance.Application.StatusBar.SetText(e.Message);
-
                 using (WebResponse response = e.Response)
                 {
                     HttpWebResponse httpResponse = (HttpWebResponse)response;
