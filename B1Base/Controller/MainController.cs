@@ -76,6 +76,8 @@ namespace B1Base.Controller
 
         string m_NextMessage = string.Empty;
 
+        string m_NextInvisibleGuy = string.Empty;
+
         protected const string MENU_SAP = "43520";
         protected const string MENU_CONFIG_SAP = "43525";
         
@@ -393,6 +395,11 @@ namespace B1Base.Controller
             m_NextMessage = message;
         }
 
+        public void InvisibleNextForm(string formType)
+        {
+            m_NextInvisibleGuy = formType;
+        }
+
         private void HandleFormLoad(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
@@ -577,6 +584,14 @@ namespace B1Base.Controller
                         ConnectionController.Instance.Application.Forms.Item(formUID).Visible = false;
                         ConnectionController.Instance.Application.Forms.Item(formUID).VisibleEx = false;
                     }
+                }
+
+                if (m_NextInvisibleGuy == pVal.FormTypeEx)
+                {
+                    m_NextInvisibleGuy = string.Empty;
+
+                    ConnectionController.Instance.Application.Forms.Item(formUID).Visible = false;
+                    ConnectionController.Instance.Application.Forms.Item(formUID).VisibleEx = false;
                 }
             }
             catch { }
@@ -1050,7 +1065,11 @@ namespace B1Base.Controller
 
             try
             {
-                string formUID = eventInfo.FormUID;                
+                string formUID = eventInfo.FormUID;
+
+
+                foreach (View.BaseView view in m_Views)
+                    view.UnloadMenus();
 
                 foreach (View.BaseView baseView in m_Views.Where(r => r.FormUID == formUID))
                 {

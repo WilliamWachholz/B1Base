@@ -2400,6 +2400,11 @@ namespace B1Base.View
 
         public void FormLostFocus()
         {
+            UnloadMenus();
+        }
+
+        public void UnloadMenus()
+        {
             foreach (KeyValuePair<string, MatrixColPasteForAllEventHandler> menuEvent in MatrixColPasteForAllEvents)
             {
                 string menuID = string.Format("MNUPFA{0}", SAPForm.TypeEx);
@@ -2421,7 +2426,7 @@ namespace B1Base.View
                 string menuID = string.Format("{0}{1}", matrixCustomEvent.Key, SAPForm.TypeEx);
 
                 if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
-                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);               
+                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
             }
 
 
@@ -2433,7 +2438,7 @@ namespace B1Base.View
                 string menuID = string.Format("{0}{1}", customEvent.Key, SAPForm.TypeEx);
 
                 if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
-                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);              
+                    Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
             }
         }
 
@@ -2899,8 +2904,6 @@ namespace B1Base.View
         {
             if (GridLinkPressedEvents.ContainsKey(grid + "." + column) && !Frozen)
             {
-                Grid gridItem = (Grid)SAPForm.Items.Item(grid).Specific;
-
                 if (LastRows.ContainsKey(grid))
                 {
                     LastBeforeRows[grid] = LastRows[grid];
@@ -3387,7 +3390,7 @@ namespace B1Base.View
                 creationPackage.Position = pos;
 
                 pos++;
-
+                
                 menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
                 menu = menuItem.SubMenus;
                 menu.AddEx(creationPackage);

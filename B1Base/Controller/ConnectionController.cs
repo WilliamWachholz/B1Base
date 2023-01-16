@@ -352,7 +352,7 @@ namespace B1Base.Controller
             CreateMetadata(table, field, fieldType, 10, null, "", fieldTitle);
         }
 
-        public void CreateMetadata(string table, string field, FieldTypeEnum fieldType, int size = 10, Dictionary<string, string> validValues = null, string defaultValue = "", string fieldTitle = "")
+        public void CreateMetadata(string table, string field, FieldTypeEnum fieldType, int size = 10, Dictionary<string, string> validValues = null, string defaultValue = "", string fieldTitle = "", string linkedTable = "")
         {
             int tableExists = ExecuteSqlForObject<int>("GetTableExists", table);
 
@@ -403,6 +403,16 @@ namespace B1Base.Controller
                     userField.TableName = (sapTable ? "" : "@") + table;
                     userField.Name = field;
                     userField.Description = fieldTitle == string.Empty ? field : fieldTitle;
+
+                    if (linkedTable != "")
+                    {
+                        switch (linkedTable)
+                        {
+                            case "OITM":
+                                userField.LinkedSystemObject = UDFLinkedSystemObjectTypesEnum.ulItems;
+                                break;
+                        }                        
+                    }
 
                     switch (fieldType)
                     {
@@ -492,7 +502,7 @@ namespace B1Base.Controller
 
                     userField.Add();
 
-                    VerifyBussinesObjectSuccess();
+                    VerifyBussinesObjectSuccess();                                       
                 }
                 catch (Exception e)
                 {

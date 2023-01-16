@@ -309,6 +309,11 @@ namespace B1Base.DAO
             _businessObject.SalesPersonCode = value;
         }
 
+        public void SetOwnerCode(int value)
+        {
+            _businessObject.OwnerCode = value;
+        }
+
         public void SetQryGroup3(bool value)
         {
             _businessObject.Properties[3] = value ? BoYesNoEnum.tYES : BoYesNoEnum.tNO;

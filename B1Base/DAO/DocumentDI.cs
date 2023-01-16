@@ -468,6 +468,18 @@ namespace B1Base.DAO
             _businessObjectDraft.TaxExtension.Carrier = value;
         }
 
+        public void SetQoP(int value)
+        {
+            _businessObject.TaxExtension.PackQuantity = value;
+            _businessObjectDraft.TaxExtension.PackQuantity = value;
+        }
+
+        public void SetGrsWeight(double value)
+        {
+            _businessObject.TaxExtension.GrossWeight = value;
+            _businessObjectDraft.TaxExtension.GrossWeight = value;
+        }
+
         public void AutoSelectItemBatchSerial(int line)
         {
             _businessObject.Lines.SetCurrentLine(line);

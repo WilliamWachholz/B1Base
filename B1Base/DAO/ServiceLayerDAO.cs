@@ -78,7 +78,7 @@ namespace B1Base.DAO
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "PATCH";
-            httpWebRequest.KeepAlive = true;
+            httpWebRequest.KeepAlive = false;
             httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
             httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
@@ -91,11 +91,12 @@ namespace B1Base.DAO
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             { streamWriter.Write(data); }
 
-            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
             {
-                result = streamReader.ReadToEnd();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    result = streamReader.ReadToEnd();
+                }
             }
 
             return result;
@@ -110,7 +111,7 @@ namespace B1Base.DAO
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "POST";
-            httpWebRequest.KeepAlive = true;
+            httpWebRequest.KeepAlive = false;
             httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
             httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
@@ -118,13 +119,14 @@ namespace B1Base.DAO
             httpWebRequest.Accept = "*/*";
             httpWebRequest.ServicePoint.Expect100Continue = false;
             httpWebRequest.Headers.Add("Accept-Encoding", "gzip, deflate, br");
-            httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;            
+            httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;
 
-            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
             {
-                result = streamReader.ReadToEnd();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    result = streamReader.ReadToEnd();
+                }
             }
 
             return result;
@@ -139,7 +141,7 @@ namespace B1Base.DAO
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "POST";
-            httpWebRequest.KeepAlive = true;
+            httpWebRequest.KeepAlive = false;
             httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
             httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
@@ -152,11 +154,12 @@ namespace B1Base.DAO
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             { streamWriter.Write(data); }
 
-            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
             {
-                result = streamReader.ReadToEnd();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    result = streamReader.ReadToEnd();
+                }
             }
 
             return result;
@@ -171,7 +174,7 @@ namespace B1Base.DAO
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
             httpWebRequest.ContentType = "multipart/mixed;boundary=" + batch;
             httpWebRequest.Method = "POST";
-            httpWebRequest.KeepAlive = true;
+            httpWebRequest.KeepAlive = false;
             httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
             httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
@@ -185,11 +188,12 @@ namespace B1Base.DAO
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             { streamWriter.Write(data); }
 
-            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
             {
-                result = streamReader.ReadToEnd();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    result = streamReader.ReadToEnd();
+                }
             }
 
             return result;
@@ -275,7 +279,7 @@ namespace B1Base.DAO
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName);
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "POST";
-            httpWebRequest.KeepAlive = true;
+            httpWebRequest.KeepAlive = false;
             httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
             httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
@@ -293,30 +297,31 @@ namespace B1Base.DAO
 
             try
             {
-                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-
-                if (httpResponse.StatusCode == (HttpStatusCode)204)
+                using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                 {
-                    string location = httpResponse.Headers.Get("Location");
-
-                    string id = location.Substring(location.IndexOf("(") + 2,
-                            location.IndexOf(")") - location.IndexOf("(") - 3);
-
-                    return id;
-                }
-                else
-                {
-                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                    if (httpResponse.StatusCode == (HttpStatusCode)204)
                     {
-                        string resultContent = streamReader.ReadToEnd();
+                        string location = httpResponse.Headers.Get("Location");
 
-                        string messageJson = "";
+                        string id = location.Substring(location.IndexOf("(") + 2,
+                                location.IndexOf(")") - location.IndexOf("(") - 3);
 
-                        dynamic jobj = JObject.Parse(resultContent);
+                        return id;
+                    }
+                    else
+                    {
+                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            string resultContent = streamReader.ReadToEnd();
 
-                        messageJson = jobj.error.message.value;
+                            string messageJson = "";
 
-                        throw new Exception(messageJson);
+                            dynamic jobj = JObject.Parse(resultContent);
+
+                            messageJson = jobj.error.message.value;
+
+                            throw new Exception(messageJson);
+                        }
                     }
                 }
             }
@@ -326,20 +331,21 @@ namespace B1Base.DAO
 
                 using (WebResponse response = e.Response)
                 {
-                    HttpWebResponse httpResponse = (HttpWebResponse)response;
-                    
-                    using (Stream data = response.GetResponseStream())
-                    using (var reader = new StreamReader(data))
+                    using (var httpResponse = (HttpWebResponse)response)
                     {
-                        string resultContent = reader.ReadToEnd();
+                        using (Stream data = response.GetResponseStream())
+                        using (var reader = new StreamReader(data))
+                        {
+                            string resultContent = reader.ReadToEnd();
 
-                        string messageJson = "";
+                            string messageJson = "";
 
-                        dynamic jobj = JObject.Parse(resultContent);
+                            dynamic jobj = JObject.Parse(resultContent);
 
-                        messageJson = jobj.error.message.value;
+                            messageJson = jobj.error.message.value;
 
-                        throw new Exception(messageJson);
+                            throw new Exception(messageJson);
+                        }
                     }
                 }
             }
@@ -350,7 +356,7 @@ namespace B1Base.DAO
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName + "(" + entityID.ToString() + ")");
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "PATCH";
-            httpWebRequest.KeepAlive = true;
+            httpWebRequest.KeepAlive = false;
             httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
             httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
@@ -368,21 +374,22 @@ namespace B1Base.DAO
 
             try
             {
-                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-
-                if (httpResponse.StatusCode != (HttpStatusCode)204)
+                using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                 {
-                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                    if (httpResponse.StatusCode != (HttpStatusCode)204)
                     {
-                        string resultContent = streamReader.ReadToEnd();
+                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            string resultContent = streamReader.ReadToEnd();
 
-                        string messageJson = "";
+                            string messageJson = "";
 
-                        dynamic jobj = JObject.Parse(resultContent);
+                            dynamic jobj = JObject.Parse(resultContent);
 
-                        messageJson = jobj.error.message.value;
+                            messageJson = jobj.error.message.value;
 
-                        throw new Exception(messageJson);
+                            throw new Exception(messageJson);
+                        }
                     }
                 }
             }
@@ -390,20 +397,21 @@ namespace B1Base.DAO
             {
                 using (WebResponse response = e.Response)
                 {
-                    HttpWebResponse httpResponse = (HttpWebResponse)response;
+                    using (var httpResponse = (HttpWebResponse)response)
+                    { 
+                        using (Stream data = response.GetResponseStream())
+                        using (var reader = new StreamReader(data))
+                        {
+                            string resultContent = reader.ReadToEnd();
 
-                    using (Stream data = response.GetResponseStream())
-                    using (var reader = new StreamReader(data))
-                    {
-                        string resultContent = reader.ReadToEnd();
+                            string messageJson = "";
 
-                        string messageJson = "";
+                            dynamic jobj = JObject.Parse(resultContent);
 
-                        dynamic jobj = JObject.Parse(resultContent);
+                            messageJson = jobj.error.message.value;
 
-                        messageJson = jobj.error.message.value;
-
-                        throw new Exception(messageJson);
+                            throw new Exception(messageJson);
+                        }
                     }
                 }
             }
@@ -414,7 +422,7 @@ namespace B1Base.DAO
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName + "('" + entityID.ToString() + "')");
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "PATCH";
-            httpWebRequest.KeepAlive = true;
+            httpWebRequest.KeepAlive = false;
             httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
             httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
@@ -432,21 +440,22 @@ namespace B1Base.DAO
 
             try
             {
-                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-
-                if (httpResponse.StatusCode != (HttpStatusCode)204)
+                using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                 {
-                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                    if (httpResponse.StatusCode != (HttpStatusCode)204)
                     {
-                        string resultContent = streamReader.ReadToEnd();
+                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            string resultContent = streamReader.ReadToEnd();
 
-                        string messageJson = "";
+                            string messageJson = "";
 
-                        dynamic jobj = JObject.Parse(resultContent);
+                            dynamic jobj = JObject.Parse(resultContent);
 
-                        messageJson = jobj.error.message.value;
+                            messageJson = jobj.error.message.value;
 
-                        throw new Exception(messageJson);
+                            throw new Exception(messageJson);
+                        }
                     }
                 }
             }
@@ -454,20 +463,21 @@ namespace B1Base.DAO
             {
                 using (WebResponse response = e.Response)
                 {
-                    HttpWebResponse httpResponse = (HttpWebResponse)response;
-
-                    using (Stream data = response.GetResponseStream())
-                    using (var reader = new StreamReader(data))
+                    using (var httpResponse = (HttpWebResponse)response)
                     {
-                        string resultContent = reader.ReadToEnd();
+                        using (Stream data = response.GetResponseStream())
+                        using (var reader = new StreamReader(data))
+                        {
+                            string resultContent = reader.ReadToEnd();
 
-                        string messageJson = "";
+                            string messageJson = "";
 
-                        dynamic jobj = JObject.Parse(resultContent);
+                            dynamic jobj = JObject.Parse(resultContent);
 
-                        messageJson = jobj.error.message.value;
+                            messageJson = jobj.error.message.value;
 
-                        throw new Exception(messageJson);
+                            throw new Exception(messageJson);
+                        }
                     }
                 }
             }
