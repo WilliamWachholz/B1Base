@@ -2407,7 +2407,7 @@ namespace B1Base.View
         {
             foreach (KeyValuePair<string, MatrixColPasteForAllEventHandler> menuEvent in MatrixColPasteForAllEvents)
             {
-                string menuID = string.Format("MNUPFA{0}", SAPForm.TypeEx);
+                string menuID = string.Format("MNUPFA{0}{1}", SAPForm.TypeEx, SAPForm.UniqueID);
 
                 if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
                     Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
@@ -2415,7 +2415,7 @@ namespace B1Base.View
 
             foreach (KeyValuePair<string, MatrixRowRemoveEventHandler> menuEvent in MatrixRowRemoveEvents)
             {
-                string menuID = string.Format("MNUREM{0}", SAPForm.TypeEx);
+                string menuID = string.Format("MNUREM{0}{1}", SAPForm.TypeEx, SAPForm.UniqueID);
 
                 if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
                     Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
@@ -2423,7 +2423,7 @@ namespace B1Base.View
 
             foreach (KeyValuePair<string, Tuple<string, MatrixCustomMenuEventHandler>> matrixCustomEvent in MatrixCustomMenuEvents)
             {
-                string menuID = string.Format("{0}{1}", matrixCustomEvent.Key, SAPForm.TypeEx);
+                string menuID = string.Format("{0}{1}{2}", matrixCustomEvent.Key, SAPForm.TypeEx, SAPForm.UniqueID);
 
                 if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
                     Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
@@ -2435,7 +2435,7 @@ namespace B1Base.View
 
             foreach (KeyValuePair<string, Tuple<string, CustomMenuEventHandler>> customEvent in CustomMenuEvents)
             {
-                string menuID = string.Format("{0}{1}", customEvent.Key, SAPForm.TypeEx);
+                string menuID = string.Format("{0}{1}{2}", customEvent.Key, SAPForm.TypeEx, SAPForm.UniqueID);
 
                 if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
                     Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
@@ -3144,7 +3144,10 @@ namespace B1Base.View
 
             foreach (KeyValuePair<string, Tuple<string, CustomMenuEventHandler>> customEvent in CustomMenuEvents)
             {
-                if (menu.Contains(customEvent.Key))
+                string menuID = string.Format("{0}{1}{2}", customEvent.Key, SAPForm.TypeEx, SAPForm.UniqueID);
+
+                //if (menu.Contains(customEvent.Key))
+                if (menu.Equals(menuID))
                 {
                     customEvent.Value.Item2();
                 }
@@ -3176,7 +3179,7 @@ namespace B1Base.View
         {
             foreach (KeyValuePair<string, MatrixColPasteForAllEventHandler> menuEvent in MatrixColPasteForAllEvents)
             {
-                string menuID = string.Format("MNUPFA{0}", SAPForm.TypeEx);
+                string menuID = string.Format("MNUPFA{0}{1}", SAPForm.TypeEx, SAPForm.UniqueID);
 
                 if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
                     Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
@@ -3184,7 +3187,7 @@ namespace B1Base.View
 
             foreach (KeyValuePair<string, MatrixRowRemoveEventHandler> menuEvent in MatrixRowRemoveEvents)
             {
-                string menuID = string.Format("MNUREM{0}", SAPForm.TypeEx);
+                string menuID = string.Format("MNUREM{0}{1}", SAPForm.TypeEx, SAPForm.UniqueID);
 
                 if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
                     Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
@@ -3194,7 +3197,7 @@ namespace B1Base.View
 
             if (MatrixColPasteForAllEvents.ContainsKey(item))
             {
-                string menuID = string.Format("MNUPFA{0}", SAPForm.TypeEx);
+                string menuID = string.Format("MNUPFA{0}{1}", SAPForm.TypeEx, SAPForm.UniqueID);
 
                 SAPbouiCOM.Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
 
@@ -3229,7 +3232,7 @@ namespace B1Base.View
 
             if (MatrixRowRemoveEvents.ContainsKey(item))
             {
-                string menuID = string.Format("MNUREM{0}", SAPForm.TypeEx);
+                string menuID = string.Format("MNUREM{0}{1}", SAPForm.TypeEx, SAPForm.UniqueID);
 
                 SAPbouiCOM.Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
 
@@ -3305,7 +3308,7 @@ namespace B1Base.View
 
             foreach (KeyValuePair<string, Tuple<string, GridCustomMenuEventHandler>> gridCustomEvent in GridCustomMenuEvents)
             {
-                string menuID = string.Format("{0}{1}", gridCustomEvent.Key, SAPForm.TypeEx);
+                string menuID = string.Format("{0}{1}{2}", gridCustomEvent.Key, SAPForm.TypeEx, SAPForm.UniqueID);
 
                 if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
                     Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);
@@ -3372,7 +3375,7 @@ namespace B1Base.View
 
             foreach (KeyValuePair<string, Tuple<string, CustomMenuEventHandler>> customEvent in CustomMenuEvents)
             {
-                string menuID = string.Format("{0}{1}", customEvent.Key, SAPForm.TypeEx);
+                string menuID = string.Format("{0}{1}{2}", customEvent.Key, SAPForm.TypeEx, SAPForm.UniqueID);
 
                 if (Controller.ConnectionController.Instance.Application.Menus.Exists(menuID))
                     Controller.ConnectionController.Instance.Application.Menus.RemoveEx(menuID);

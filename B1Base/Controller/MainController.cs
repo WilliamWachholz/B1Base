@@ -179,6 +179,7 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuPaste;
             Controller.ConnectionController.Instance.Application.StatusBarEvent += HandleStatusBarMessage;
             Controller.ConnectionController.Instance.Application.RightClickEvent += HandleRightClick;
+            
 
             string[] dlls = Directory.GetFiles(AddOn.Instance.CurrentDirectory, "*.dll");
 
@@ -682,7 +683,11 @@ namespace B1Base.Controller
                     string formType = pVal.FormTypeEx;
 
                     foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                    {
                         view.Close();
+
+                        m_Views.Remove(view);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -1067,9 +1072,8 @@ namespace B1Base.Controller
             {
                 string formUID = eventInfo.FormUID;
 
-
-                foreach (View.BaseView view in m_Views)
-                    view.UnloadMenus();
+                foreach (View.BaseView baseView in m_Views.Where(r => r.FormUID != formUID))
+                    baseView.UnloadMenus();
 
                 foreach (View.BaseView baseView in m_Views.Where(r => r.FormUID == formUID))
                 {
