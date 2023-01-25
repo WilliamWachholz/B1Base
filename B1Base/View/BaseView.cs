@@ -3320,7 +3320,7 @@ namespace B1Base.View
                     string colTitle = grid.Columns.Item(col).TitleObject.Caption;
                     string firstCol = grid.Columns.Item(0).UniqueID;
 
-                    if (row > 0 && row <= grid.Rows.Count && (col != firstCol || colTitle != "#" || colTitle != ""))
+                    if (row >= 0 && row < grid.Rows.Count && (col != firstCol || colTitle != "#" || colTitle != ""))
                     {
                         LastRightClickMatrix = item;
                         LastRightClickRow = row;
