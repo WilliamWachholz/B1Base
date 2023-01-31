@@ -202,22 +202,27 @@ namespace B1Base.DAO
         public int PostEntity(object obj, string entityName, IContractResolver contractResolver = null)
         {
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName);
-            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.ContentType = "application/json;odata=minimalmetadata;charset=utf8";
             httpWebRequest.Method = "POST";
             httpWebRequest.KeepAlive = false;
+            httpWebRequest.ServicePoint.Expect100Continue = false;
+            //httpWebRequest.AllowAutoRedirect = true;
             httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
             httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
             httpWebRequest.Headers.Add("Cookie", Cookies);
             httpWebRequest.Headers.Add("Prefer", "return-no-content");
-            httpWebRequest.Accept = "*/*";
-            httpWebRequest.ServicePoint.Expect100Continue = false;            
+            httpWebRequest.Accept = "application/json;odata=minimalmetadata";
             httpWebRequest.Headers.Add("Accept-Encoding", "gzip, deflate, br");
             httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;
+            httpWebRequest.UserAgent = "b1base";
+            httpWebRequest.Timeout = 600000;
 
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
                 streamWriter.Write(ConvertToJsonString(obj, contractResolver));
+                streamWriter.Flush();
+                streamWriter.Close();
             }
 
             try
@@ -230,7 +235,7 @@ namespace B1Base.DAO
 
                         int id = Convert.ToInt32(location.Substring(location.IndexOf("(") + 1,
                                 location.IndexOf(")") - location.IndexOf("(") - 1));
-
+                        
                         return id;
                     }
                     else
@@ -254,21 +259,30 @@ namespace B1Base.DAO
             {
                 using (WebResponse response = e.Response)
                 {
-                    using (var httpResponse = (HttpWebResponse)response)
+                    try
                     {
-                        using (Stream data = response.GetResponseStream())
-                        using (var reader = new StreamReader(data))
+                        using (var httpResponse = (HttpWebResponse)response)
                         {
-                            string resultContent = reader.ReadToEnd();
+                            using (Stream data = response.GetResponseStream())
+                            {
+                                using (var reader = new StreamReader(data))
+                                {
+                                    string resultContent = reader.ReadToEnd();
 
-                            string messageJson = "";
+                                    string messageJson = "";
 
-                            dynamic jobj = JObject.Parse(resultContent);
+                                    dynamic jobj = JObject.Parse(resultContent);
 
-                            messageJson = jobj.error.message.value;
+                                    messageJson = jobj.error.message.value;
 
-                            throw new Exception(messageJson);
+                                    throw new Exception(messageJson);
+                                }
+                            }
                         }
+                    }
+                    catch
+                    {
+                        throw new Exception(e.Message);
                     }
                 }
             }
