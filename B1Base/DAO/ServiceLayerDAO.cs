@@ -244,13 +244,20 @@ namespace B1Base.DAO
                         {
                             string resultContent = streamReader.ReadToEnd();
 
-                            string messageJson = "";
+                            try
+                            {
+                                string messageJson = "";
 
-                            dynamic jobj = JObject.Parse(resultContent);
+                                dynamic jobj = JObject.Parse(resultContent);
 
-                            messageJson = jobj.error.message.value;
+                                messageJson = jobj.error.message.value;
 
-                            throw new Exception(messageJson);
+                                throw new Exception(messageJson);
+                            }
+                            catch
+                            {
+                                throw new Exception(resultContent);
+                            }
                         }
                     }
                 }
@@ -269,13 +276,20 @@ namespace B1Base.DAO
                                 {
                                     string resultContent = reader.ReadToEnd();
 
-                                    string messageJson = "";
+                                    try
+                                    {
+                                        string messageJson = "";
 
-                                    dynamic jobj = JObject.Parse(resultContent);
+                                        dynamic jobj = JObject.Parse(resultContent);
 
-                                    messageJson = jobj.error.message.value;
+                                        messageJson = jobj.error.message.value;
 
-                                    throw new Exception(messageJson);
+                                        throw new Exception(messageJson);
+                                    }
+                                    catch
+                                    {
+                                        throw new Exception(resultContent);
+                                    }
                                 }
                             }
                         }
@@ -431,7 +445,7 @@ namespace B1Base.DAO
             }
         }
 
-        public void PatchEntityString(object obj, string entityName, string entityID, IContractResolver contractResolver = null)
+        public void PatchEntityString(object obj, string entityName, string entityID, IContractResolver contractResolver = null, bool replaceCollections = false)
         {
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName + "('" + entityID.ToString() + "')");
             httpWebRequest.ContentType = "application/json";
@@ -440,12 +454,16 @@ namespace B1Base.DAO
             httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
             httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
+            if (replaceCollections)
+            {
+                httpWebRequest.Headers.Add("B1S-ReplaceCollectionsOnPatch", "true");
+            }
             httpWebRequest.Headers.Add("Cookie", Cookies);
-            httpWebRequest.Headers.Add("Prefer", "return-no-content");
+            httpWebRequest.Headers.Add("Prefer", "return-no-content");            
             httpWebRequest.Accept = "*/*";
             httpWebRequest.ServicePoint.Expect100Continue = false;
             httpWebRequest.Headers.Add("Accept-Encoding", "gzip, deflate, br");
-            httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;
+            httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;            
 
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             {

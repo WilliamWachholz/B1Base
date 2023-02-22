@@ -1786,35 +1786,35 @@ namespace B1Base.View
                 {
                     if (prop.PropertyType == typeof(Boolean))
                     {
-                        values.Add((bool)prop.GetValue(model) ? "'Y'" : "'N'");
+                        values.Add((bool)prop.GetValue(model) ? "'Y'" : "'N'" + @" AS """ + prop.Name + @"""");
                     }
                     else if (prop.PropertyType.IsEnum)
                     {
-                        values.Add(((int)prop.GetValue(model)).ToString());
+                        values.Add(((int)prop.GetValue(model)).ToString() + @" AS """ + prop.Name + @"""");
                     }
                     else if (prop.PropertyType == typeof(DateTime))
                     {
                         if (Convert.ToDateTime(prop.GetValue(model)) == DateTime.MinValue || Convert.ToDateTime(prop.GetValue(model)) == new DateTime(1899, 12, 30))
                         {
                             if (ConnectionController.Instance.DBServerType == "HANA")
-                                values.Add("to_date(null)");
+                                values.Add("to_date(null) " + @" AS """ + prop.Name + @"""");
                             else
                                 values.Add("cast(null as date)");
                         }
                         else
                         {
-                            values.Add("cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)");
+                            values.Add("cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)" + @" AS """ + prop.Name + @"""");
                         }
                     }
                     else if (prop.PropertyType == typeof(Int32))
                     {
-                        values.Add(prop.GetValue(model).ToString() + " as " + prop.Name);
+                        values.Add(prop.GetValue(model).ToString() + @" AS """ + prop.Name + @"""");
                     }
                     else if (prop.PropertyType == typeof(double))
                     {
                         if (Convert.ToDouble(prop.GetValue(model)) == 0)
                         {
-                            values.Add("0.0");
+                            values.Add("0.0" + @" AS """ + prop.Name + @"""");
                         }
                         else
                         {
@@ -1827,19 +1827,19 @@ namespace B1Base.View
                                 decimalDigits = B1Base.AddOn.Instance.ConnectionController.ExecuteSqlForObject<int>("GetDisplayDecimalDigits", ((int)specificType.Value).ToString());
                             }
 
-                            values.Add(string.Format("cast({0} as decimal(15,{1}))", Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat), decimalDigits.ToString()));
+                            values.Add(string.Format("cast({0} as decimal(15,{1}))", Convert.ToDouble(prop.GetValue(model)).ToString(DefaultSQLNumberFormat), decimalDigits.ToString()) + @" AS """ + prop.Name + @"""");
                         }
                     }
                     else if (prop.PropertyType == typeof(string))
                     {
                         if (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) != null)
-                            values.Add("cast('" + prop.GetValue(model).ToString().Replace("'", "''") + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))");
+                            values.Add("cast('" + prop.GetValue(model).ToString().Replace("'", "''") + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))" + @" AS """ + prop.Name + @"""");
                         else
-                            values.Add("cast('" + prop.GetValue(model).ToString().Replace("'", "''") + "' as nvarchar)");
+                            values.Add("cast('" + prop.GetValue(model).ToString().Replace("'", "''") + "' as nvarchar)" + @" AS """ + prop.Name + @"""");
                     }
                 }
 
-                selects.Add(" select " + (type.BaseType == typeof(Model.BaseModel) ? type.GetProperty("Code").GetValue(model) + "," : "") + string.Join(",", values.ToArray()) + (Controller.ConnectionController.Instance.DBServerType == "HANA" ? " from dummy " : " "));
+                selects.Add(" select " + (type.BaseType == typeof(Model.BaseModel) ? type.GetProperty("Code").GetValue(model) + @" AS ""Code"" " + "," : "") + string.Join(",", values.ToArray()) + (Controller.ConnectionController.Instance.DBServerType == "HANA" ? " from dummy " : " "));
             }
 
             if (list.Count == 0)
