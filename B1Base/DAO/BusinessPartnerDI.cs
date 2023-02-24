@@ -69,6 +69,11 @@ namespace B1Base.DAO
             _businessObject.EmailAddress = value == null ? "" : value; ;
         }
 
+        public void SetMainUsage(int value)
+        {
+            _businessObject.MainUsage = value;
+        }
+
         public void SetCurrency(string value)
         {
             _businessObject.Currency = value == null ? "##" : value;
@@ -357,7 +362,7 @@ namespace B1Base.DAO
                 }
             }
 
-            _businessObject.FiscalTaxID.TaxId4 = value == null ? "" : value;
+            _businessObject.FiscalTaxID.TaxId4 = value == null ? "" : value;            
         }
 
         public void SetCnpj(string value, string address = "", BoAddressType adresType = BoAddressType.bo_ShipTo)

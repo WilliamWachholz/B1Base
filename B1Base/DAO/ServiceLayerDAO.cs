@@ -202,6 +202,7 @@ namespace B1Base.DAO
         public int PostEntity(object obj, string entityName, IContractResolver contractResolver = null)
         {
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName);
+            
             httpWebRequest.ContentType = "application/json;odata=minimalmetadata;charset=utf8";
             httpWebRequest.Method = "POST";
             httpWebRequest.KeepAlive = false;
@@ -216,7 +217,7 @@ namespace B1Base.DAO
             httpWebRequest.Headers.Add("Accept-Encoding", "gzip, deflate, br");
             httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;
             httpWebRequest.UserAgent = "b1base";
-            httpWebRequest.Timeout = 600000;
+            httpWebRequest.Timeout = 600000;            
 
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
@@ -235,7 +236,7 @@ namespace B1Base.DAO
 
                         int id = Convert.ToInt32(location.Substring(location.IndexOf("(") + 1,
                                 location.IndexOf(")") - location.IndexOf("(") - 1));
-                        
+
                         return id;
                     }
                     else
@@ -244,20 +245,20 @@ namespace B1Base.DAO
                         {
                             string resultContent = streamReader.ReadToEnd();
 
+                            string messageJson = "";
+
                             try
                             {
-                                string messageJson = "";
-
                                 dynamic jobj = JObject.Parse(resultContent);
 
                                 messageJson = jobj.error.message.value;
-
-                                throw new Exception(messageJson);
                             }
                             catch
                             {
                                 throw new Exception(resultContent);
                             }
+
+                            throw new Exception(messageJson);
                         }
                     }
                 }
@@ -266,37 +267,28 @@ namespace B1Base.DAO
             {
                 using (WebResponse response = e.Response)
                 {
-                    try
+                    using (var httpResponse = (HttpWebResponse)response)
                     {
-                        using (var httpResponse = (HttpWebResponse)response)
+                        using (Stream data = response.GetResponseStream())
+                        using (var reader = new StreamReader(data))
                         {
-                            using (Stream data = response.GetResponseStream())
+                            string resultContent = reader.ReadToEnd();
+
+                            string messageJson = "";
+
+                            try
                             {
-                                using (var reader = new StreamReader(data))
-                                {
-                                    string resultContent = reader.ReadToEnd();
+                                dynamic jobj = JObject.Parse(resultContent);
 
-                                    try
-                                    {
-                                        string messageJson = "";
-
-                                        dynamic jobj = JObject.Parse(resultContent);
-
-                                        messageJson = jobj.error.message.value;
-
-                                        throw new Exception(messageJson);
-                                    }
-                                    catch
-                                    {
-                                        throw new Exception(resultContent);
-                                    }
-                                }
+                                messageJson = jobj.error.message.value;
                             }
+                            catch
+                            {
+                                throw new Exception(resultContent);
+                            }
+
+                            throw new Exception(messageJson);
                         }
-                    }
-                    catch
-                    {
-                        throw new Exception(e.Message);
                     }
                 }
             }
