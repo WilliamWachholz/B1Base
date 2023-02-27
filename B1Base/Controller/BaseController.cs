@@ -34,7 +34,7 @@ namespace B1Base.Controller
             return Controller.ConnectionController.Instance.ExecuteSqlForList<T>("GetListModel", modelType.Name.Replace("Model", "").ToUpper(), fields);
         }
 
-        public void Save<T>(T model) where T : Model.BaseModel
+        public void Save<T>(T model, bool viaInsert = false) where T : Model.BaseModel
         {
             Type modelType = typeof(T);
 
@@ -42,10 +42,13 @@ namespace B1Base.Controller
 
             var dao = (DAO.BaseDAO<T>)Activator.CreateInstance(daoType);
 
-            dao.Save(model);
+            if (viaInsert)
+                dao.SaveViaInsert(model);
+            else
+                dao.Save(model);
         }
 
-        public void Save<T>(List<T> listSource, List<T> listCurrent, bool log = false) where T : Model.BaseModel
+        public void Save<T>(List<T> listSource, List<T> listCurrent, bool log = false, bool viaInsert = false) where T : Model.BaseModel
         {
             for (int i = 0; i < listCurrent.Count; i++)
             {

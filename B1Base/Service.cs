@@ -8,6 +8,8 @@ using System.Data;
 using System.Diagnostics;
 using System.ServiceProcess;
 using Microsoft.Win32;
+using System.Reflection;
+using System.IO;
 
 namespace B1Base
 {
@@ -30,25 +32,50 @@ namespace B1Base
 
             try
             {
-                if (ServiceController.GetServices().FirstOrDefault(s => s.ServiceName == m_ServiceController.ServiceName) == null)
+                
+                if (Environment.GetCommandLineArgs().GetValue(1).ToString().Trim() == "DEV")
                 {
-                    Install();
+                    try
+                    {
+                        Assembly assembly = Assembly.GetEntryAssembly();
+
+                        foreach (Type type in assembly.GetTypes())
+                        {
+                            if (type.Name.Contains("Service1"))
+                            {
+                                var instance = Activator.CreateInstance(type);
+
+                                ((Controller.ServiceController)instance).Execute();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Windows.Forms.MessageBox.Show(ex.Message);
+                    }
                 }
                 else
                 {
-                    bool uninstall = Environment.GetCommandLineArgs().Count() > 1 && Environment.GetCommandLineArgs().GetValue(1).ToString() == "uninstall";
-
-                    if (uninstall)
+                    if (ServiceController.GetServices().FirstOrDefault(s => s.ServiceName == m_ServiceController.ServiceName) == null)
                     {
-                        Uninstall();
+                        Install();
                     }
                     else
                     {
-                        EventLog.WriteEntry(m_ServiceController.ServiceName, "Iniciado", EventLogEntryType.Information);
-                        ServiceBase[] ServicesToRun;
-                        ServicesToRun = new ServiceBase[] { (ServiceBase)m_ServiceController };
-                        
-                        ServiceBase.Run(ServicesToRun);
+                        bool uninstall = Environment.GetCommandLineArgs().Count() > 1 && Environment.GetCommandLineArgs().GetValue(1).ToString() == "uninstall";
+
+                        if (uninstall)
+                        {
+                            Uninstall();
+                        }
+                        else
+                        {
+                            EventLog.WriteEntry(m_ServiceController.ServiceName, "Iniciado", EventLogEntryType.Information);
+                            ServiceBase[] ServicesToRun;
+                            ServicesToRun = new ServiceBase[] { (ServiceBase)m_ServiceController };
+
+                            ServiceBase.Run(ServicesToRun);
+                        }
                     }
                 }
             }

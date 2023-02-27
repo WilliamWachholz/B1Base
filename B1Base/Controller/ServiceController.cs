@@ -26,7 +26,7 @@ namespace B1Base.Controller
 
         }
 
-        protected virtual void Execute()
+        public virtual void Execute()
         {
 
         }
