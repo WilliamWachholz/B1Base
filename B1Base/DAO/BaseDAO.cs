@@ -213,7 +213,11 @@ namespace B1Base.DAO
                 //insert += string.Format(" {0}, ", model.Code);
 
                 insert += @"coalesce((select max(""U_Code"") from ""@" + TableName + @"""), 0) + 1, ";
-                insert += @"coalesce((select max(""U_Code"") from ""@" + TableName + @"""), 0) + 1, ";
+
+                string guid = Guid.NewGuid().ToString();
+
+                insert += "'" + guid + "', ";  
+                                    
                 insert += @"coalesce((select max(""U_Code"") from ""@" + TableName + @"""), 0) + 1, ";
 
                 foreach (var prop in props)
@@ -286,6 +290,12 @@ namespace B1Base.DAO
                 insert = insert.Substring(0, insert.Length - 2) + ")";
 
                 Controller.ConnectionController.Instance.ExecuteStatementDirect(insert);
+
+                int code = Controller.ConnectionController.Instance.ExecuteSqlForDirectObject<int>(@"select ""Code"" from " + @"""@" + TableName + @""" where ""Name"" = '" + guid + "'");
+
+                model.Code = code;
+
+                Controller.ConnectionController.Instance.ExecuteStatementDirect(@"update ""@" + TableName + @""" set ""Name"" = ""Code"" where ""Name"" = '" + guid + "'");
             }
         }
 
