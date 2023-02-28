@@ -10,15 +10,30 @@ namespace B1Base.Controller
     {
         public T Get<T>(int code) where T : Model.BaseModel
         {
-            Type modelType = typeof(T);
+            if (Controller.ConnectionController.Instance.ODBCConnection)
+            {
+                Type modelType = typeof(T);
 
-            var model = (T)Activator.CreateInstance(modelType);
+                var model = (T)Activator.CreateInstance(modelType);
 
-            Type daoType = Type.GetType(modelType.AssemblyQualifiedName.Replace("Model", "DAO"));
+                List<string> fieldList = Controller.ConnectionController.Instance.ExecuteSqlForList<string>("GetListField", modelType.Name.Replace("Model", "").ToUpper());
 
-            var dao = (DAO.BaseDAO<T>)Activator.CreateInstance(daoType);
+                string fields = string.Join(",", fieldList.ToArray());
 
-            return dao.Get(code);
+                return Controller.ConnectionController.Instance.ExecuteSqlForObject<T>("GetModel", modelType.Name.Replace("Model", "").ToUpper(), fields, code.ToString());
+            }
+            else
+            {
+                Type modelType = typeof(T);
+
+                var model = (T)Activator.CreateInstance(modelType);
+
+                Type daoType = Type.GetType(modelType.AssemblyQualifiedName.Replace("Model", "DAO"));
+
+                var dao = (DAO.BaseDAO<T>)Activator.CreateInstance(daoType);
+
+                return dao.Get(code);
+            }
         }
 
         public List<T> Get<T>() where T : Model.BaseModel
@@ -34,7 +49,7 @@ namespace B1Base.Controller
             return Controller.ConnectionController.Instance.ExecuteSqlForList<T>("GetListModel", modelType.Name.Replace("Model", "").ToUpper(), fields);
         }
 
-        public void Save<T>(T model, bool viaInsert = false) where T : Model.BaseModel
+        public void Save<T>(T model) where T : Model.BaseModel
         {
             Type modelType = typeof(T);
 
@@ -42,13 +57,17 @@ namespace B1Base.Controller
 
             var dao = (DAO.BaseDAO<T>)Activator.CreateInstance(daoType);
 
-            if (viaInsert)
+            if (Controller.ConnectionController.Instance.ODBCConnection)
+            {
                 dao.SaveViaInsert(model);
+            }
             else
+            { 
                 dao.Save(model);
+            }
         }
 
-        public void Save<T>(List<T> listSource, List<T> listCurrent, bool log = false, bool viaInsert = false) where T : Model.BaseModel
+        public void Save<T>(List<T> listSource, List<T> listCurrent, bool log = false) where T : Model.BaseModel
         {
             for (int i = 0; i < listCurrent.Count; i++)
             {

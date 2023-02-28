@@ -37,8 +37,11 @@ namespace B1Base.Controller
         public int User
         {
             get
-            {                
-                return Company.UserSignature;
+            {
+                if (ODBCConnection)
+                    return ODBCUser;
+                else
+                    return Company.UserSignature;
             }
         }
 
@@ -250,6 +253,35 @@ namespace B1Base.Controller
         {
             Initialize(addOnID, server, companyDB, userName, password, licenseServer, dbUserName, dbPassword, dbServerType, licenseServer);
         }
+
+        public void InitializeODBC(string addOnID, string dbServer, string dbUserName, string dbPassword, string companyDB, string userName)
+        {
+            AddOnID = addOnID;
+            this.ODBCConnection = true;
+            this.ODBCServer = dbServer;
+            this.ODBCCompanyDB = companyDB;            
+            this.ODBCDbUserName = dbUserName;
+            this.ODBCDbPassword = dbPassword;
+            ODBCUser = ExecuteSqlForDirectObject<int>("SELECT USERID FROM OUSR WHERE USER_CODE = '" + userName + "'");
+            this.DBServerType = "HANA";
+        }
+
+        public void FinalizeODBC()
+        {
+            ODBCConnection = false;
+        }
+
+        public bool ODBCConnection = false;
+
+        protected string ODBCServer = string.Empty;
+
+        protected string ODBCCompanyDB = string.Empty;
+
+        protected string ODBCDbUserName = string.Empty;        
+
+        protected string ODBCDbPassword = string.Empty;
+
+        protected int ODBCUser = 0;
 
         public void Initialize(string addOnID, string server, string companyDB, string userName, string password, string licenseServer, string dbUserName, string dbPassword, string dbServerType, string sldServer)
         {
@@ -552,94 +584,217 @@ namespace B1Base.Controller
 
         public void ExecuteStatement(string sqlScript, params string[] variables)
         {
+            if (ODBCConnection)
+            {
+                ExecuteStatementODBC(ODBCServer, ODBCDbUserName, ODBCDbPassword, ODBCCompanyDB, sqlScript, variables);
+            }
+            else
+            {
+                string sql = GetSQL(sqlScript, variables);
+
+                LoggedSql = sql;
+
+                Recordset recordSet = null;
+                try
+                {
+                    recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                    recordSet.DoQuery(sql);
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(recordSet);
+                    GC.Collect();
+                }
+            }
+        }
+
+        public void ExecuteStatementODBC(string server, string dbUserName, string password, string companyDB, string sqlScript, params string[] variables)
+        {
+            if (DBServerType == null)
+                DBServerType = "HANA";
+
             string sql = GetSQL(sqlScript, variables);
 
             LoggedSql = sql;
 
-            Recordset recordSet = null;
-            try
+            using (OdbcConnection myConnection = new OdbcConnection())
             {
-                recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-                recordSet.DoQuery(sql);
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(recordSet);
-                GC.Collect();
+                if (server.Contains("@"))
+                {
+                    server = server.Split('@')[1];
+                }
+
+                string myConnectionString;
+                myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);
+                myConnection.ConnectionString = myConnectionString;
+
+                try
+                {
+                    myConnection.Open();
+                }
+                catch (System.Data.Odbc.OdbcException ex)
+                {
+                    throw ex;
+                }
+
+                if (myConnection.State == System.Data.ConnectionState.Open)
+                {
+                    OdbcCommand DbCommand = myConnection.CreateCommand();
+                    DbCommand.CommandText = sql;
+
+                    try
+                    {
+                        DbCommand.ExecuteNonQuery();
+                    }
+                    finally
+                    {
+                        DbCommand.Dispose();
+                        myConnection.Close();
+                    }
+
+                }
+                else
+                {
+                    throw new Exception("Não foi possível abrir conexão");
+                }
             }
         }
 
         public void ExecuteStatementDirect(string sql, params string[] variables)
         {
+            if (ODBCConnection)
+            {
+                ExecuteStatementDirectODBC(ODBCServer, ODBCDbUserName, ODBCDbPassword, ODBCCompanyDB, sql, variables);
+            }
+            else
+            {
+                LoggedSql = sql;
+
+                Recordset recordSet = null;
+                try
+                {
+                    recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                    recordSet.DoQuery(sql);
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(recordSet);
+                    GC.Collect();
+                }
+            }
+        }
+
+        public void ExecuteStatementDirectODBC(string server, string dbUserName, string password, string companyDB, string sql, params string[] variables)
+        {
+            if (DBServerType == null)
+                DBServerType = "HANA";
+
             LoggedSql = sql;
 
-            Recordset recordSet = null;
-            try
+            using (OdbcConnection myConnection = new OdbcConnection())
             {
-                recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-                recordSet.DoQuery(sql);
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(recordSet);
-                GC.Collect();
+                if (server.Contains("@"))
+                {
+                    server = server.Split('@')[1];
+                }
+
+                string myConnectionString;
+                myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);
+                myConnection.ConnectionString = myConnectionString;
+
+                try
+                {
+                    myConnection.Open();
+                }
+                catch (System.Data.Odbc.OdbcException ex)
+                {
+                    throw ex;
+                }
+
+                if (myConnection.State == System.Data.ConnectionState.Open)
+                {
+                    OdbcCommand DbCommand = myConnection.CreateCommand();
+                    DbCommand.CommandText = sql;
+
+                    try
+                    {
+                        DbCommand.ExecuteNonQuery();
+                    }
+                    finally
+                    {
+                        DbCommand.Dispose();
+                        myConnection.Close();
+                    }
+
+                }
+                else
+                {
+                    throw new Exception("Não foi possível abrir conexão");
+                }
             }
         }
 
         public T ExecuteSqlForDirectObject<T>(string sql, params string[] variables)
         {
-            sql = string.Format(sql, variables);
-
-            LoggedSql = sql;
-
-            Type type = typeof(T);
-            Recordset recordSet = null;
-            try
+            if (ODBCConnection)
             {
-                recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-                recordSet.DoQuery(sql);
-                if (!recordSet.EoF)
+                return ExecuteSqlForDirectObjectODBC<T>(ODBCServer, ODBCDbUserName, ODBCDbPassword, ODBCCompanyDB, sql, variables);
+            }
+            else
+            {
+                sql = string.Format(sql, variables);
+
+                LoggedSql = sql;
+
+                Type type = typeof(T);
+                Recordset recordSet = null;
+                try
                 {
-                    if (!isNotCoreType(type))
+                    recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                    recordSet.DoQuery(sql);
+                    if (!recordSet.EoF)
                     {
-                        object obj = recordSet.Fields.Item(0).Value;
-
-                        if (type == typeof(bool))
+                        if (!isNotCoreType(type))
                         {
-                            if (obj.GetType() != typeof(Int32))
-                            {
-                                String errMsg = String.Format("Object of type {0}, needs to be integer for SQL object of type {1}", obj.GetType(), type);
-                                throw new ArgumentException(errMsg);
-                            }
+                            object obj = recordSet.Fields.Item(0).Value;
 
-                            return (T)((Convert.ToInt32(obj) != 0) as object);
+                            if (type == typeof(bool))
+                            {
+                                if (obj.GetType() != typeof(Int32))
+                                {
+                                    String errMsg = String.Format("Object of type {0}, needs to be integer for SQL object of type {1}", obj.GetType(), type);
+                                    throw new ArgumentException(errMsg);
+                                }
+
+                                return (T)((Convert.ToInt32(obj) != 0) as object);
+                            }
+                            else
+                            {
+                                if (obj.GetType() != type)
+                                {
+                                    String errMsg = String.Format("Object of type {0}. SQL object type is {1}", obj.GetType(), type);
+                                    throw new ArgumentException(errMsg);
+                                }
+                                return (T)obj;
+                            }
                         }
                         else
                         {
-                            if (obj.GetType() != type)
-                            {
-                                String errMsg = String.Format("Object of type {0}. SQL object type is {1}", obj.GetType(), type);
-                                throw new ArgumentException(errMsg);
-                            }
-                            return (T)obj;
+                            var ret = PrepareObject<T>(recordSet);
+                            return ret;
                         }
                     }
-                    else
-                    {
-                        var ret = PrepareObject<T>(recordSet);
-                        return ret;
-                    }
+                    return default(T);
                 }
-                return default(T);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(sql + " - " + e.Message);
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(recordSet);
-                GC.Collect();
+                catch (Exception e)
+                {
+                    throw new Exception(sql + " - " + e.Message);
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(recordSet);
+                    GC.Collect();
+                }
             }
         }
 
@@ -700,6 +855,18 @@ namespace B1Base.Controller
 
                                     return (T)((Convert.ToInt32(obj) != 0) as object);
                                 }
+                                else if (type == typeof(double))
+                                {
+                                    return (T)(Convert.ToDouble(obj) as object);
+                                }
+                                else if (type == typeof(Int32))
+                                {
+                                    return (T)(Convert.ToInt32(obj) as object);
+                                }
+                                else if (type == typeof(Int16))
+                                {
+                                    return (T)(Convert.ToInt16(obj) as object);
+                                }
                                 else
                                 {
                                     if (obj.GetType() != type)
@@ -735,120 +902,409 @@ namespace B1Base.Controller
 
         public T ExecuteSqlForObject<T>(string sqlScript, params string[] variables)
         {
-            string sql = GetSQL(sqlScript, variables);
-
-            LoggedSql = sql;
-
-            Type type = typeof(T);
-            Recordset recordSet = null;
-            try
+            if (ODBCConnection)
             {
-                recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-                recordSet.DoQuery(sql);
-                if (!recordSet.EoF)
+                return ExecuteSqlForObjectODBC<T>(ODBCServer, ODBCDbUserName, ODBCDbPassword, ODBCCompanyDB, sqlScript, variables);
+            }
+            else
+            {
+                string sql = GetSQL(sqlScript, variables);
+
+                LoggedSql = sql;
+
+                Type type = typeof(T);
+                Recordset recordSet = null;
+                try
                 {
-                    if (!isNotCoreType(type))
+                    recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                    recordSet.DoQuery(sql);
+                    if (!recordSet.EoF)
                     {
-                        object obj = recordSet.Fields.Item(0).Value;
-
-                        if (type == typeof(bool))
+                        if (!isNotCoreType(type))
                         {
-                            if (obj.GetType() != typeof(Int32))
-                            {
-                                String errMsg = String.Format("Object of type {0}, needs to be integer for SQL object of type {1}", obj.GetType(), type);
-                                throw new ArgumentException(errMsg);
-                            }
+                            object obj = recordSet.Fields.Item(0).Value;
 
-                            return (T)((Convert.ToInt32(obj) != 0) as object);
+                            if (type == typeof(bool))
+                            {
+                                if (obj.GetType() != typeof(Int32))
+                                {
+                                    String errMsg = String.Format("Object of type {0}, needs to be integer for SQL object of type {1}", obj.GetType(), type);
+                                    throw new ArgumentException(errMsg);
+                                }
+
+                                return (T)((Convert.ToInt32(obj) != 0) as object);
+                            }
+                            else
+                            {
+                                if (obj.GetType() != type)
+                                {
+                                    String errMsg = String.Format("Object of type {0}. SQL object type is {1}", obj.GetType(), type);
+                                    throw new ArgumentException(errMsg);
+                                }
+                                return (T)obj;
+                            }
                         }
                         else
                         {
-                            if (obj.GetType() != type)
-                            {
-                                String errMsg = String.Format("Object of type {0}. SQL object type is {1}", obj.GetType(), type);
-                                throw new ArgumentException(errMsg);
-                            }
-                            return (T)obj;
+                            var ret = PrepareObject<T>(recordSet);
+                            return ret;
                         }
                     }
-                    else
-                    {
-                        var ret = PrepareObject<T>(recordSet);
-                        return ret;
-                    }
+                    return default(T);
                 }
-                return default(T);
+                catch (Exception e)
+                {
+                    throw new Exception(sqlScript + " - " + e.Message);
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(recordSet);
+                    GC.Collect();
+                }
             }
-            catch (Exception e)
+        }
+
+        public T ExecuteSqlForObjectODBC<T>(string server, string dbUserName, string password, string companyDB, string sqlScript, params string[] variables)
+        {
+            if (DBServerType == null)
+                DBServerType = "HANA";
+
+            using (OdbcConnection myConnection = new OdbcConnection())
             {
-                throw new Exception(sqlScript + " - " + e.Message);
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(recordSet);
-                GC.Collect();
+                if (server.Contains("@"))
+                {
+                    server = server.Split('@')[1];
+                }
+
+                string myConnectionString;
+                myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);
+                myConnection.ConnectionString = myConnectionString;
+
+                try
+                {
+                    myConnection.Open();
+                }
+                catch (System.Data.Odbc.OdbcException ex)
+                {
+                    throw ex;
+                }
+
+                string sql = GetSQL(sqlScript, variables);
+
+                LoggedSql = sql;
+
+                Type type = typeof(T);
+
+                if (myConnection.State == System.Data.ConnectionState.Open)
+                {
+                    OdbcCommand DbCommand = myConnection.CreateCommand();
+                    DbCommand.CommandText = sql;
+                    OdbcDataReader DbReader = DbCommand.ExecuteReader();
+
+                    try
+                    {
+                        string step = "1";
+                        try
+                        {
+                            if (DbReader.Read())
+                            {
+                                if (!isNotCoreType(type))
+                                {
+                                    step = "2";
+
+                                    object obj = DbReader[0];
+
+                                    step = "3";
+
+                                    if (type == typeof(bool))
+                                    {
+                                        if (obj.GetType() != typeof(Int32))
+                                        {
+                                            String errMsg = String.Format("Object of type {0}, needs to be integer for SQL object of type {1}", obj.GetType(), type);
+                                            throw new ArgumentException(errMsg);
+                                        }
+
+                                        return (T)((Convert.ToInt32(obj) != 0) as object);
+                                    }
+                                    else if (type == typeof(double))
+                                    {
+                                        return (T)(Convert.ToDouble(obj) as object);
+                                    }
+                                    else if (type == typeof(Int32))
+                                    {
+                                        return (T)(Convert.ToInt32(obj) as object);
+                                    }
+                                    else if (type == typeof(Int16))
+                                    {
+                                        return (T)(Convert.ToInt16(obj) as object);
+                                    }
+                                    else
+                                    {
+                                        if (obj.GetType() != type)
+                                        {
+                                            String errMsg = String.Format("Object of type {0}. SQL object type is {1}", obj.GetType(), type);
+                                            throw new ArgumentException(errMsg);
+                                        }
+                                        return (T)obj;
+                                    }
+                                    
+                                }
+                                else
+                                {
+                                    var ret = PrepareObject<T>(DbReader);
+                                    return ret;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception("(" + step + ") " + ex.Message);
+                        }
+                    }
+                    finally
+                    {
+                        DbReader.Close();
+                        DbCommand.Dispose();
+                        myConnection.Close();
+                    }
+
+                    return default(T);
+                }
+                else
+                {
+                    throw new Exception("Não foi possível abrir conexão");
+                }
             }
         }
 
         public T ExecuteSqlForBasicObject<T>(string valueColumn, string table, string filterColumn, string filterValue, string valueIfNull)
         {
-            string sql = GetSQL("ExecuteBasicSelect", valueColumn, table, filterColumn, filterValue, valueIfNull);
-
-            LoggedSql = sql;
-
-            Type type = typeof(T);
-            Recordset recordSet = null;
-            try
+            if (ODBCConnection)
             {
-                recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-                recordSet.DoQuery(sql);
-                if (!recordSet.EoF)
+                return ExecuteSqlForBasicObjectODBC<T>(ODBCServer, ODBCDbUserName, ODBCDbPassword, ODBCCompanyDB, valueColumn, table, filterColumn, filterValue, valueIfNull);
+            }
+            else
+            {
+                string sql = GetSQL("ExecuteBasicSelect", valueColumn, table, filterColumn, filterValue, valueIfNull);
+
+                LoggedSql = sql;
+
+                Type type = typeof(T);
+                Recordset recordSet = null;
+                try
                 {
-                    if (!isNotCoreType(type))
+                    recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                    recordSet.DoQuery(sql);
+                    if (!recordSet.EoF)
                     {
-                        object obj = recordSet.Fields.Item(0).Value;
-
-                        if (type == typeof(bool))
+                        if (!isNotCoreType(type))
                         {
-                            if (obj.GetType() != typeof(Int32))
-                            {
-                                String errMsg = String.Format("Object of type {0}, needs to be integer for SQL object of type {1}", obj.GetType(), type);
-                                throw new ArgumentException(errMsg);
-                            }
+                            object obj = recordSet.Fields.Item(0).Value;
 
-                            return (T)((Convert.ToInt32(obj) != 0) as object);
+                            if (type == typeof(bool))
+                            {
+                                if (obj.GetType() != typeof(Int32))
+                                {
+                                    String errMsg = String.Format("Object of type {0}, needs to be integer for SQL object of type {1}", obj.GetType(), type);
+                                    throw new ArgumentException(errMsg);
+                                }
+
+                                return (T)((Convert.ToInt32(obj) != 0) as object);
+                            }
+                            else
+                            {
+                                if (obj.GetType() != type)
+                                {
+                                    String errMsg = String.Format("Object of type {0}. SQL object type is {1}", obj.GetType(), type);
+                                    throw new ArgumentException(errMsg);
+                                }
+                                return (T)obj;
+                            }
                         }
                         else
                         {
-                            if (obj.GetType() != type)
-                            {
-                                String errMsg = String.Format("Object of type {0}. SQL object type is {1}", obj.GetType(), type);
-                                throw new ArgumentException(errMsg);
-                            }
-                            return (T)obj;
+                            var ret = PrepareObject<T>(recordSet);
+                            return ret;
                         }
                     }
-                    else
-                    {
-                        var ret = PrepareObject<T>(recordSet);
-                        return ret;
-                    }
+                    return default(T);
                 }
-                return default(T);
+                catch (Exception e)
+                {
+                    throw new Exception(sql + " - " + e.Message);
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(recordSet);
+                    GC.Collect();
+                }
             }
-            catch (Exception e)
+        }
+
+        public T ExecuteSqlForBasicObjectODBC<T>(string server, string dbUserName, string password, string companyDB, string valueColumn, string table, string filterColumn, string filterValue, string valueIfNull)
+        {
+            if (DBServerType == null)
+                DBServerType = "HANA";
+
+            using (OdbcConnection myConnection = new OdbcConnection())
             {
-                throw new Exception(sql + " - " + e.Message);
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(recordSet);
-                GC.Collect();
+                if (server.Contains("@"))
+                {
+                    server = server.Split('@')[1];
+                }
+
+                string myConnectionString;
+                myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);
+                myConnection.ConnectionString = myConnectionString;
+
+                try
+                {
+                    myConnection.Open();
+                }
+                catch (System.Data.Odbc.OdbcException ex)
+                {
+                    throw ex;
+                }
+
+                string sql = GetSQL("ExecuteBasicSelect", valueColumn, table, filterColumn, filterValue, valueIfNull);
+
+                LoggedSql = sql;
+
+                Type type = typeof(T);
+
+                if (myConnection.State == System.Data.ConnectionState.Open)
+                {
+                    OdbcCommand DbCommand = myConnection.CreateCommand();
+                    DbCommand.CommandText = sql;
+                    OdbcDataReader DbReader = DbCommand.ExecuteReader();
+
+                    try
+                    {
+                        if (DbReader.Read())
+                        {
+                            if (!isNotCoreType(type))
+                            {
+                                object obj = DbReader[0];
+
+                                if (type == typeof(bool))
+                                {
+                                    if (obj.GetType() != typeof(Int32))
+                                    {
+                                        String errMsg = String.Format("Object of type {0}, needs to be integer for SQL object of type {1}", obj.GetType(), type);
+                                        throw new ArgumentException(errMsg);
+                                    }
+
+                                    return (T)((Convert.ToInt32(obj) != 0) as object);
+                                }
+                                else if (type == typeof(double))
+                                {
+                                    return (T)(Convert.ToDouble(obj) as object);
+                                }
+                                else if (type == typeof(Int32))
+                                {
+                                    return (T)(Convert.ToInt32(obj) as object);
+                                }
+                                else if (type == typeof(Int16))
+                                {
+                                    return (T)(Convert.ToInt16(obj) as object);
+                                }
+                                else
+                                {
+                                    if (obj.GetType() != type)
+                                    {
+                                        String errMsg = String.Format("Object of type {0}. SQL object type is {1}", obj.GetType(), type);
+                                        throw new ArgumentException(errMsg);
+                                    }
+                                    return (T)obj;
+                                }
+                            }
+                            else
+                            {
+                                var ret = PrepareObject<T>(DbReader);
+                                return ret;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        DbReader.Close();
+                        DbCommand.Dispose();
+                        myConnection.Close();
+                    }
+
+                    return default(T);
+                }
+                else
+                {
+                    throw new Exception("Não foi possível abrir conexão");
+                }
             }
         }
 
         public List<T> ExecuteSqlForDirectList<T>(string sql, params string[] variables)
         {
+            if (ODBCConnection)
+            {
+                return ExecuteSqlForDirectListODBC<T>(ODBCServer, ODBCDbUserName, ODBCDbPassword, ODBCCompanyDB, sql, variables);
+            }
+            else
+            {
+                sql = string.Format(sql, variables);
+
+                LoggedSql = sql;
+
+                var lst = new List<T>();
+                Type type = typeof(T);
+
+                var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+                Recordset recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+
+                try
+                {
+                    recordSet.DoQuery(sql);
+                    while (!recordSet.EoF)
+                    {
+                        T obj;
+                        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                        {
+                            obj = (T)Activator.CreateInstance(type, new[] { recordSet.Fields.Item(0).Value, recordSet.Fields.Item(1).Value.ToString() });
+                        }
+                        else if (isNotCoreType(type))
+                        {
+                            obj = PrepareObject<T>(recordSet);
+                        }
+                        else
+                        {
+                            if (recordSet.Fields.Item(0).Value.GetType() != type)
+                            {
+                                String errMsg = String.Format("Object of type {0}. SQL object type is {1}", recordSet.Fields.Item(0).Value.GetType(), type);
+                                throw new Exception(errMsg);
+                            }
+                            obj = (T)recordSet.Fields.Item(0).Value;
+                        }
+                        lst.Add(obj);
+                        recordSet.MoveNext();
+                    }
+                    return lst;
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(sql + " - " + e.Message);
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(recordSet);
+                    GC.Collect();
+                }
+            }
+        }
+
+        public List<T> ExecuteSqlForDirectListODBC<T>(string server, string dbUserName, string password, string companyDB, string sql, params string[] variables)
+        {            
+            if (DBServerType == string.Empty)
+                DBServerType = "HANA";
+
             sql = string.Format(sql, variables);
 
             LoggedSql = sql;
@@ -856,52 +1312,138 @@ namespace B1Base.Controller
             var lst = new List<T>();
             Type type = typeof(T);
 
-            var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
-
-
-            Recordset recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-
-            try
+            using (OdbcConnection myConnection = new OdbcConnection())
             {
-                recordSet.DoQuery(sql);
-                while (!recordSet.EoF)
+                if (server.Contains("@"))
                 {
-                    T obj;
-                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
-                    {
-                        obj = (T)Activator.CreateInstance(type, new[] { recordSet.Fields.Item(0).Value, recordSet.Fields.Item(1).Value.ToString() });
-                    }
-                    else if (isNotCoreType(type))
-                    {
-                        obj = PrepareObject<T>(recordSet);
-                    }
-                    else
-                    {
-                        if (recordSet.Fields.Item(0).Value.GetType() != type)
-                        {
-                            String errMsg = String.Format("Object of type {0}. SQL object type is {1}", recordSet.Fields.Item(0).Value.GetType(), type);
-                            throw new Exception(errMsg);
-                        }
-                        obj = (T)recordSet.Fields.Item(0).Value;
-                    }
-                    lst.Add(obj);
-                    recordSet.MoveNext();
+                    server = server.Split('@')[1];
                 }
-                return lst;
-            }
-            catch (Exception e)
-            {
-                throw new Exception(sql + " - " + e.Message);
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(recordSet);
-                GC.Collect();
+
+                string myConnectionString;
+                myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);
+                myConnection.ConnectionString = myConnectionString;
+
+                try
+                {
+                    myConnection.Open();
+                }
+                catch (System.Data.Odbc.OdbcException ex)
+                {
+                    throw ex;
+                }
+
+                if (myConnection.State == System.Data.ConnectionState.Open)
+                {
+                    OdbcCommand DbCommand = myConnection.CreateCommand();
+                    DbCommand.CommandText = sql;
+                    OdbcDataReader DbReader = DbCommand.ExecuteReader();
+
+                    try
+                    {
+                        while (DbReader.Read())
+                        {
+                            T obj;
+                            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                            {
+                                obj = (T)Activator.CreateInstance(type, new[] { DbReader[0].ToString(), DbReader[1].ToString() });
+                            }
+                            else if (isNotCoreType(type))
+                            {
+                                obj = PrepareObject<T>(DbReader);
+                            }                            
+                            else
+                            {
+                                if (DbReader[0].GetType() != type)
+                                {
+                                    String errMsg = String.Format("Object of type {0}. SQL object type is {1}", DbReader[0].GetType(), type);
+                                    throw new Exception(errMsg);
+                                }
+                                obj = (T)DbReader[0];
+                            }
+                            lst.Add(obj);
+                        }
+                    }
+                    finally
+                    {
+                        DbReader.Close();
+                        DbCommand.Dispose();
+                        myConnection.Close();
+                    }
+
+                    return lst;
+                }
+                else
+                {
+                    throw new Exception("Não foi possível abrir conexão");
+                }
             }
         }
 
         public List<T> ExecuteSqlForList<T>(string sqlScript, params string[] variables)
         {
+            if (ODBCConnection)
+            {
+                return ExecuteSqlForListODBC<T>(ODBCServer, ODBCDbUserName, ODBCDbPassword, ODBCCompanyDB, sqlScript, variables);
+            }
+            else
+            {
+                string sql = GetSQL(sqlScript, variables);
+
+                LoggedSql = sql;
+
+                var lst = new List<T>();
+                Type type = typeof(T);
+
+                var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+
+                Recordset recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+
+                try
+                {
+                    recordSet.DoQuery(sql);
+                    while (!recordSet.EoF)
+                    {
+                        T obj;
+                        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                        {
+                            obj = (T)Activator.CreateInstance(type, new[] { recordSet.Fields.Item(0).Value, recordSet.Fields.Item(1).Value.ToString() });
+                        }
+                        else if (isNotCoreType(type))
+                        {
+                            obj = PrepareObject<T>(recordSet);
+                        }
+                        else
+                        {
+                            if (recordSet.Fields.Item(0).Value.GetType() != type)
+                            {
+                                String errMsg = String.Format("Object of type {0}. SQL object type is {1}", recordSet.Fields.Item(0).Value.GetType(), type);
+                                throw new Exception(errMsg);
+                            }
+                            obj = (T)recordSet.Fields.Item(0).Value;
+                        }
+                        lst.Add(obj);
+                        recordSet.MoveNext();
+                    }
+                    return lst;
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(sqlScript + " - " + e.Message);
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(recordSet);
+                    GC.Collect();
+                }
+            }
+        }
+
+        public List<T> ExecuteSqlForListODBC<T>(string server, string dbUserName, string password, string companyDB, string sqlScript, params string[] variables)
+        {
+            if (DBServerType == string.Empty)
+                DBServerType = "HANA";
+
             string sql = GetSQL(sqlScript, variables);
 
             LoggedSql = sql;
@@ -909,51 +1451,124 @@ namespace B1Base.Controller
             var lst = new List<T>();
             Type type = typeof(T);
 
-            var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
-
-
-            Recordset recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-
-            try
+            using (OdbcConnection myConnection = new OdbcConnection())
             {
-                recordSet.DoQuery(sql);
-                while (!recordSet.EoF)
+                if (server.Contains("@"))
                 {
-                    T obj;
-                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
-                    {
-                        obj = (T)Activator.CreateInstance(type, new[] { recordSet.Fields.Item(0).Value, recordSet.Fields.Item(1).Value.ToString() });
-                    }
-                    else if (isNotCoreType(type))
-                    {
-                        obj = PrepareObject<T>(recordSet);
-                    }
-                    else
-                    {
-                        if (recordSet.Fields.Item(0).Value.GetType() != type)
-                        {
-                            String errMsg = String.Format("Object of type {0}. SQL object type is {1}", recordSet.Fields.Item(0).Value.GetType(), type);
-                            throw new Exception(errMsg);
-                        }
-                        obj = (T)recordSet.Fields.Item(0).Value;
-                    }
-                    lst.Add(obj);
-                    recordSet.MoveNext();
+                    server = server.Split('@')[1];
                 }
-                return lst;
-            }
-            catch (Exception e)
-            {
-                throw new Exception(sqlScript + " - " + e.Message);
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(recordSet);
-                GC.Collect();
+
+                string myConnectionString;
+                myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);
+                myConnection.ConnectionString = myConnectionString;
+
+                try
+                {
+                    myConnection.Open();
+                }
+                catch (System.Data.Odbc.OdbcException ex)
+                {
+                    throw ex;
+                }
+
+                if (myConnection.State == System.Data.ConnectionState.Open)
+                {
+                    OdbcCommand DbCommand = myConnection.CreateCommand();
+                    DbCommand.CommandText = sql;
+                    OdbcDataReader DbReader = DbCommand.ExecuteReader();
+
+                    try
+                    {
+                        while (DbReader.Read())
+                        {
+                            T obj;
+                            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                            {
+                                obj = (T)Activator.CreateInstance(type, new[] { DbReader[0].ToString(), DbReader[1].ToString() });
+                            }
+                            else if (isNotCoreType(type))
+                                obj = PrepareObject<T>(DbReader);
+                            else
+                            {
+                                if (DbReader[0].GetType() == typeof(System.Int16) && type == typeof(System.Int32))
+                                {
+                                    obj = (T)(Convert.ToInt32(DbReader[0]) as object);
+                                }
+                                else if (DbReader[0].GetType() != type)
+                                {
+                                    String errMsg = String.Format("Object of type {0}. SQL object type is {1}", DbReader[0].GetType(), type);
+                                    throw new Exception(errMsg);
+                                }
+                                else obj = (T)DbReader[0];
+                            }
+                            lst.Add(obj);
+                        }
+                    }
+                    finally
+                    {
+                        DbReader.Close();
+                        DbCommand.Dispose();
+                        myConnection.Close();
+                    }
+
+                    return lst;
+                }
+                else
+                {
+                    throw new Exception("Não foi possível abrir conexão");
+                }
             }
         }
 
-        public List<T> ExecuteSqlForListPro<T>(string sqlScript, params string[] variables) where T: Model.IFromRecordSet
+        public List<T> ExecuteSqlForListPro<T>(string sqlScript, params string[] variables) where T : Model.IFromRecordSet
+        {
+            if (ODBCConnection)
+            {
+                return ExecuteSqlForListProODBC<T>(sqlScript, variables);
+            }
+            else
+            {
+                string sql = GetSQL(sqlScript, variables);
+
+                LoggedSql = sql;
+
+                var lst = new List<T>();
+                Type type = typeof(T);
+
+                var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+
+                Recordset recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+
+                try
+                {
+                    recordSet.DoQuery(sql);
+                    while (!recordSet.EoF)
+                    {
+                        T obj;
+
+                        obj = (T)Activator.CreateInstance(type);
+
+                        obj.FromRecordSet(recordSet);
+
+                        lst.Add(obj);
+                        recordSet.MoveNext();
+                    }
+                    return lst;
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(sqlScript + " - " + e.Message);
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(recordSet);
+                    GC.Collect();
+                }
+            }
+        }
+
+        public List<T> ExecuteSqlForListProODBC<T>(string sqlScript, params string[] variables) where T : Model.IFromRecordSet
         {
             string sql = GetSQL(sqlScript, variables);
 
@@ -962,69 +1577,170 @@ namespace B1Base.Controller
             var lst = new List<T>();
             Type type = typeof(T);
 
-            var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
-
-
-            Recordset recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-
-            try
+            using (OdbcConnection myConnection = new OdbcConnection())
             {
-                recordSet.DoQuery(sql);
-                while (!recordSet.EoF)
+                string server = ODBCServer;
+
+                if (server.Contains("@"))
                 {
-                    T obj;
-
-                    obj = (T)Activator.CreateInstance(type);
-
-                    obj.FromRecordSet(recordSet);
-
-                    lst.Add(obj);
-                    recordSet.MoveNext();
+                    server = server.Split('@')[1];
                 }
-                return lst;
-            }
-            catch (Exception e)
-            {
-                throw new Exception(sqlScript + " - " + e.Message);
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(recordSet);
-                GC.Collect();
+
+                string myConnectionString;
+                myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, ODBCDbUserName, ODBCDbPassword, "NDB", ODBCCompanyDB);
+                myConnection.ConnectionString = myConnectionString;
+
+                try
+                {
+                    myConnection.Open();
+                }
+                catch (System.Data.Odbc.OdbcException ex)
+                {
+                    throw ex;
+                }
+
+                if (myConnection.State == System.Data.ConnectionState.Open)
+                {
+                    OdbcCommand DbCommand = myConnection.CreateCommand();
+                    DbCommand.CommandText = sql;
+                    OdbcDataReader DbReader = DbCommand.ExecuteReader();
+
+                    try
+                    {
+                        while (DbReader.Read())
+                        {
+                            T obj;
+
+                            obj = (T)Activator.CreateInstance(type);
+
+                            obj.FromDBReader(DbReader);
+
+                            lst.Add(obj);
+                        }
+                    }
+                    finally
+                    {
+                        DbReader.Close();
+                        DbCommand.Dispose();
+                        myConnection.Close();
+                    }
+
+                    return lst;
+                }
+                else
+                {
+                    throw new Exception("Não foi possível abrir conexão");
+                }
             }
         }
 
         public T ExecuteSqlForObjectPro<T>(string sqlScript, params string[] variables) where T : Model.IFromRecordSet
         {
+            if (ODBCConnection)
+            {
+                return ExecuteSqlForObjectProODBC<T>(sqlScript, variables);
+            }
+            else
+            {
+                string sql = GetSQL(sqlScript, variables);
+
+                LoggedSql = sql;
+
+                var lst = new List<T>();
+                Type type = typeof(T);
+
+                var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
+                Recordset recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
+                try
+                {
+                    T obj = (T)Activator.CreateInstance(type);
+
+                    recordSet.DoQuery(sql);
+                    if (!recordSet.EoF)
+                    {
+                        obj.FromRecordSet(recordSet);
+                    }
+                    return obj;
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(sqlScript + " - " + e.Message);
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(recordSet);
+                    GC.Collect();
+                }
+            }
+        }
+
+        public T ExecuteSqlForObjectProODBC<T>(string sqlScript, params string[] variables) where T : Model.IFromRecordSet
+        {
             string sql = GetSQL(sqlScript, variables);
 
             LoggedSql = sql;
 
-            var lst = new List<T>();
-            Type type = typeof(T);
-
-            var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
-
-            Recordset recordSet = (Recordset)Company.GetBusinessObject(BoObjectTypes.BoRecordset);
-            try
+            using (OdbcConnection myConnection = new OdbcConnection())
             {
-                T obj = (T)Activator.CreateInstance(type);
+                string server = ODBCServer;
 
-                recordSet.DoQuery(sql);
-                if (!recordSet.EoF)
+                if (server.Contains("@"))
                 {
-                    obj.FromRecordSet(recordSet);
+                    server = server.Split('@')[1];
                 }
-                return obj;
-            }
-            catch (Exception e)
-            {
-                throw new Exception(sqlScript + " - " + e.Message);
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(recordSet);
-                GC.Collect();
+
+                string myConnectionString;
+                myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, ODBCDbUserName, ODBCDbPassword, "NDB", ODBCCompanyDB);
+                myConnection.ConnectionString = myConnectionString;
+
+                try
+                {
+                    myConnection.Open();
+                }
+                catch (System.Data.Odbc.OdbcException ex)
+                {
+                    throw ex;
+                }
+
+                Type type = typeof(T);
+
+                if (myConnection.State == System.Data.ConnectionState.Open)
+                {
+                    OdbcCommand DbCommand = myConnection.CreateCommand();
+                    DbCommand.CommandText = sql;
+                    OdbcDataReader DbReader = DbCommand.ExecuteReader();
+
+                    try
+                    {
+                        string step = "1";
+                        try
+                        {
+                            T obj = (T)Activator.CreateInstance(type);
+
+                            if (DbReader.Read())
+                            {
+                                obj.FromDBReader(DbReader);
+                            }
+
+                            return obj;
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception("(" + step + ") " + ex.Message);
+                        }
+                    }
+                    finally
+                    {
+                        DbReader.Close();
+                        DbCommand.Dispose();
+                        myConnection.Close();
+                    }
+                }
+                else
+                {
+                    throw new Exception("Não foi possível abrir conexão");
+                }
             }
         }
 
@@ -1142,224 +1858,7 @@ namespace B1Base.Controller
                 throw new Exception(sqlScript + " - " + e.Message);
             }
         }
-
-        public T ExecuteSqlForObjectODBC<T>(string server, string dbUserName, string password, string companyDB, string sqlScript, params string[] variables)
-        {
-            if (DBServerType == null)
-                DBServerType = "HANA";
-
-            using (OdbcConnection myConnection = new OdbcConnection())
-            {
-                if (server.Contains("@"))
-                {
-                    server = server.Split('@')[1];
-                }
-
-                string myConnectionString;
-                myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);
-                myConnection.ConnectionString = myConnectionString;
-
-                try
-                {
-                    myConnection.Open();
-                }
-                catch (System.Data.Odbc.OdbcException ex)
-                {
-                    throw ex;
-                }
-
-                string sql = GetSQL(sqlScript, variables);
-
-                LoggedSql = sql;
-
-                Type type = typeof(T);
-
-                if (myConnection.State == System.Data.ConnectionState.Open)
-                {
-                    OdbcCommand DbCommand = myConnection.CreateCommand();
-                    DbCommand.CommandText = sql;
-                    OdbcDataReader DbReader = DbCommand.ExecuteReader();
-
-                    try
-                    {
-                        if (DbReader.Read())
-                        {
-                            if (!isNotCoreType(type))
-                            {
-                                object obj = DbReader[0];
-
-                                if (type == typeof(bool))
-                                {
-                                    if (obj.GetType() != typeof(Int32))
-                                    {
-                                        String errMsg = String.Format("Object of type {0}, needs to be integer for SQL object of type {1}", obj.GetType(), type);
-                                        throw new ArgumentException(errMsg);
-                                    }
-
-                                    return (T)((Convert.ToInt32(obj) != 0) as object);
-                                }
-                                else
-                                {
-                                    if (obj.GetType() != type)
-                                    {
-                                        String errMsg = String.Format("Object of type {0}. SQL object type is {1}", obj.GetType(), type);
-                                        throw new ArgumentException(errMsg);
-                                    }
-                                    return (T)obj;
-                                }
-                            }
-                            else
-                            {
-                                var ret = PrepareObject<T>(DbReader);
-                                return ret;
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        DbReader.Close();
-                        DbCommand.Dispose();
-                        myConnection.Close();
-                    }
-
-                    return default(T);
-                }
-                else
-                {
-                    throw new Exception("Não foi possível abrir conexão");
-                }
-            }
-        }
-
-        public List<T> ExecuteSqlForListODBC<T>(string server, string dbUserName, string password, string companyDB, string sqlScript, params string[] variables)
-        {
-            if (DBServerType == string.Empty)
-                DBServerType = "HANA";
-
-            string sql = GetSQL(sqlScript, variables);
-
-            LoggedSql = sql;
-
-            var lst = new List<T>();
-            Type type = typeof(T);
-
-            using (OdbcConnection myConnection = new OdbcConnection())
-            {
-                if (server.Contains("@"))
-                {
-                    server = server.Split('@')[1];
-                }
-
-                string myConnectionString;
-                myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);
-                myConnection.ConnectionString = myConnectionString;
-
-                try
-                {
-                    myConnection.Open();
-                }
-                catch (System.Data.Odbc.OdbcException ex)
-                {
-                    throw ex;
-                }
-
-                if (myConnection.State == System.Data.ConnectionState.Open)
-                {
-                    OdbcCommand DbCommand = myConnection.CreateCommand();
-                    DbCommand.CommandText = sql;
-                    OdbcDataReader DbReader = DbCommand.ExecuteReader();
-
-                    try
-                    {
-                        while (DbReader.Read())
-                        {
-                            T obj;
-                            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
-                            {
-                                obj = (T)Activator.CreateInstance(type, new[] { DbReader[0].ToString(), DbReader[1].ToString() });
-                            }
-                            else if (isNotCoreType(type))
-                                obj = PrepareObject<T>(DbReader);
-                            else
-                            {
-                                if (DbReader[0].GetType() != type)
-                                {
-                                    String errMsg = String.Format("Object of type {0}. SQL object type is {1}", DbReader[0].GetType(), type);
-                                    throw new Exception(errMsg);
-                                }
-                                obj = (T)DbReader[0];
-                            }
-                            lst.Add(obj);
-                        }
-                    }
-                    finally
-                    {
-                        DbReader.Close();
-                        DbCommand.Dispose();
-                        myConnection.Close();
-                    }
-
-                    return lst;
-                }
-                else
-                {
-                    throw new Exception("Não foi possível abrir conexão");
-                }
-            }
-        }
-
-        public void ExecuteStatementODBC(string server, string dbUserName, string password, string companyDB, string sqlScript, params string[] variables)
-        {
-            if (DBServerType == null)
-                DBServerType = "HANA";
-
-            string sql = GetSQL(sqlScript, variables);
-
-            LoggedSql = sql;
-
-            using (OdbcConnection myConnection = new OdbcConnection())
-            {
-                if (server.Contains("@"))
-                {
-                    server = server.Split('@')[1];
-                }
-
-                string myConnectionString;
-                myConnectionString = string.Format("DSN=HANA32;SERVERNODE={0};UID={1};PWD={2};DATABASENAME={3};CS={4}", server, dbUserName, password, "NDB", companyDB);
-                myConnection.ConnectionString = myConnectionString;
-
-                try
-                {
-                    myConnection.Open();
-                }
-                catch (System.Data.Odbc.OdbcException ex)
-                {
-                    throw ex;
-                }
-
-                if (myConnection.State == System.Data.ConnectionState.Open)
-                {
-                    OdbcCommand DbCommand = myConnection.CreateCommand();
-                    DbCommand.CommandText = sql;
-                    
-                    try
-                    {
-                        DbCommand.ExecuteNonQuery();
-                    }
-                    finally
-                    {
-                        DbCommand.Dispose();
-                        myConnection.Close();
-                    }
-
-                }
-                else
-                {
-                    throw new Exception("Não foi possível abrir conexão");
-                }
-            }
-        }
-
+        
         public string GetSQL(string sqlScript, params string[] variables)
         {            
             using (var stream = new MemoryStream(File.ReadAllBytes(AddOn.Instance.CurrentDirectory + "//SQL//" + DBServerType + "//" + sqlScript + ".sql")))

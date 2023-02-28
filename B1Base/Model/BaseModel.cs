@@ -1,6 +1,7 @@
 ﻿using SAPbobsCOM;
 using System;
 using System.Collections.Generic;
+using System.Data.Odbc;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,6 +51,11 @@ namespace B1Base.Model
         public virtual void FromRecordSet(Recordset recordSet)
         {
             
+        }
+
+        public virtual void FromDBReader(OdbcDataReader dbReader)
+        {
+
         }
 
         public class NonDB : Attribute

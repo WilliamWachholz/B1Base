@@ -100,7 +100,7 @@ namespace B1Base.DAO
 
             if (model.Code > 0)
             {
-                string update = @"update @""" + TableName + @""" set ";
+                string update = @"update ""@" + TableName + @""" set ";
 
                 var props = type.GetProperties().Where(r => r.Name != "Changed" && r.Name != "Code");
 
@@ -125,7 +125,17 @@ namespace B1Base.DAO
                         }
                         else
                         {
-                            update += @"""U_" + prop.Name + @""" = " + "cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)" + ",";
+                            if (prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) != null)
+                            {
+                                if ((prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType).Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
+                                {
+                                    update += @"""U_" + prop.Name + @""" = " + Convert.ToDateTime(prop.GetValue(model)).ToString("hhMM") + ",";
+                                }
+                            }
+                            else
+                            {
+                                update += @"""U_" + prop.Name + @""" = " + "cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)" + ",";
+                            }
                         }
                     }
                     else if (prop.PropertyType == typeof(Int32))
@@ -155,9 +165,9 @@ namespace B1Base.DAO
                     else if (prop.PropertyType == typeof(string))
                     {
                         if (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) != null)
-                            update += @"""U_" + prop.Name + @""" = " + "cast('" + prop.GetValue(model) + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))" + ", ";
+                            update += @"""U_" + prop.Name + @""" = " + "cast('" + prop.GetValue(model).ToString().Replace("'", "''") + "' as varchar(" + (prop.GetCustomAttribute(typeof(Model.BaseModel.Size)) as Model.BaseModel.Size).Value.ToString() + "))" + ", ";
                         else
-                            update += @"""U_" + prop.Name + @""" = " + "cast('" + prop.GetValue(model).ToString() + "' as nvarchar)" + ", ";
+                            update += @"""U_" + prop.Name + @""" = " + "cast('" + prop.GetValue(model).ToString().Replace("'", "''") + "' as nvarchar)" + ", ";
                     }
                 }
 
@@ -183,31 +193,28 @@ namespace B1Base.DAO
 
                 insert = insert.Substring(0, insert.Length - 2) + ")";
 
-                insert += " values (";
+                insert += " values (";                               
 
+                //Type seqDAOType = Type.GetType(type.AssemblyQualifiedName.Replace("Model", "DAO").Replace(type.Name.Replace("Model", "DAO"), "ConfigSeqDAO"));
 
-                if (model.Code == 0)
-                {
-                    Type seqDAOType = Type.GetType(type.AssemblyQualifiedName.Replace("Model", "DAO").Replace(type.Name.Replace("Model", "DAO"), "ConfigSeqDAO"));
+                //if (seqDAOType == null)
+                //{
+                //    model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, new ConfigSeqDAO().TableName);
+                //}
+                //else
+                //{
+                //    var dao = (DAO.ConfigSeqDAO)Activator.CreateInstance(seqDAOType);
 
-                    if (seqDAOType == null)
-                        model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, new ConfigSeqDAO().TableName);
-                    else
-                    {
-                        var dao = (DAO.ConfigSeqDAO)Activator.CreateInstance(seqDAOType);
+                //    model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, dao.TableName);
+                //}                
 
-                        model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, dao.TableName);
-                    }
+                //insert += string.Format(" {0}, ", model.Code);
+                //insert += string.Format(" {0}, ", model.Code);
+                //insert += string.Format(" {0}, ", model.Code);
 
-                }
-
-                insert += string.Format(" {0}, ", model.Code);
-                insert += string.Format(" {0}, ", model.Code);
-                insert += string.Format(" {0}, ", model.Code);
-
-                //insert += @"coalesce((select max(""U_Code"") from ""@" + TableName + @"""), 0) + 1, ";
-                //insert += @"coalesce((select max(""U_Code"") from ""@" + TableName + @"""), 0) + 1, ";
-                //insert += @"coalesce((select max(""U_Code"") from ""@" + TableName + @"""), 0) + 1, ";
+                insert += @"coalesce((select max(""U_Code"") from ""@" + TableName + @"""), 0) + 1, ";
+                insert += @"coalesce((select max(""U_Code"") from ""@" + TableName + @"""), 0) + 1, ";
+                insert += @"coalesce((select max(""U_Code"") from ""@" + TableName + @"""), 0) + 1, ";
 
                 foreach (var prop in props)
                 {
@@ -223,14 +230,24 @@ namespace B1Base.DAO
                     {
                         if (Convert.ToDateTime(prop.GetValue(model)) == DateTime.MinValue || Convert.ToDateTime(prop.GetValue(model)) == new DateTime(1899, 12, 30))
                         {
-                            if (Controller.ConnectionController.Instance.DBServerType == "HANA")
+                            if (Controller.ConnectionController.Instance.DBServerType == "HANA")                            
                                 insert += "to_date(null)" + ", ";
                             else
                                 insert += "cast(null as date)" + ", ";
                         }
                         else
                         {
-                            insert += "cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)" + ",";
+                            if (prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) != null)
+                            {
+                                if ((prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType).Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
+                                {
+                                    insert += Convert.ToDateTime(prop.GetValue(model)).ToString("hhMM");
+                                }
+                            }
+                            else
+                            {
+                                insert += "cast ('" + Convert.ToDateTime(prop.GetValue(model)).ToString("yyyy-MM-dd") + "' as date)" + ",";
+                            }
                         }
                     }
                     else if (prop.PropertyType == typeof(Int32))
@@ -274,94 +291,71 @@ namespace B1Base.DAO
 
         public void Save(T model, bool retry = false)
         {
-            Type type = typeof(T);
-
-            var props = type.GetProperties().Where(r => r.Name != "Changed" && r.Name != "Code");
-
-            UserTable userTable = (UserTable)Controller.ConnectionController.Instance.Company.UserTables.Item(TableName);
-            try
+            if (Controller.ConnectionController.Instance.ODBCConnection)
             {
-                if (userTable.GetByKey(model.Code.ToString()))
+                SaveViaInsert(model);
+            }
+            else
+            {
+                Type type = typeof(T);
+
+                var props = type.GetProperties().Where(r => r.Name != "Changed" && r.Name != "Code");
+
+                UserTable userTable = (UserTable)Controller.ConnectionController.Instance.Company.UserTables.Item(TableName);
+                try
                 {
-                    foreach (var prop in props)
+                    if (userTable.GetByKey(model.Code.ToString()))
                     {
-                        Model.BaseModel.NonDB nonDB = prop.GetCustomAttribute(typeof(Model.BaseModel.NonDB)) as Model.BaseModel.NonDB;
-
-                        if (nonDB == null)
+                        foreach (var prop in props)
                         {
-                            if (prop.PropertyType == typeof(Boolean))
+                            Model.BaseModel.NonDB nonDB = prop.GetCustomAttribute(typeof(Model.BaseModel.NonDB)) as Model.BaseModel.NonDB;
+
+                            if (nonDB == null)
                             {
-                                userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (bool)prop.GetValue(model) ? "Y" : "N";
-                            }
-                            else if (prop.PropertyType.IsEnum)
-                            {
-                                userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (int)prop.GetValue(model);
-                            }
-                            else
-                            {
-                                userTable.UserFields.Fields.Item("U_" + prop.Name).Value = prop.GetValue(model);
+                                if (prop.PropertyType == typeof(Boolean))
+                                {
+                                    userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (bool)prop.GetValue(model) ? "Y" : "N";
+                                }
+                                else if (prop.PropertyType.IsEnum)
+                                {
+                                    userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (int)prop.GetValue(model);
+                                }
+                                else
+                                {
+                                    userTable.UserFields.Fields.Item("U_" + prop.Name).Value = prop.GetValue(model);
+                                }
                             }
                         }
-                    }
 
-                    userTable.Update();
+                        userTable.Update();
 
-                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
-                }
-                else
-                {                    
-                    foreach (var prop in props)
-                    {
-                        Model.BaseModel.NonDB nonDB = prop.GetCustomAttribute(typeof(Model.BaseModel.NonDB)) as Model.BaseModel.NonDB;
-
-                        if (nonDB == null)
-                        {
-                            if (prop.PropertyType == typeof(Boolean))
-                            {
-                                userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (bool)prop.GetValue(model) ? "Y" : "N";
-                            }
-                            else if (prop.PropertyType.IsEnum)
-                            {
-                                userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (int)prop.GetValue(model);
-                            }
-                            else
-                            {
-                                userTable.UserFields.Fields.Item("U_" + prop.Name).Value = prop.GetValue(model);
-                            }
-                        }
-                    }
-
-                    if (model.Code == 0)
-                    {
-                        Type seqDAOType = Type.GetType(type.AssemblyQualifiedName.Replace("Model", "DAO").Replace(type.Name.Replace("Model", "DAO"), "ConfigSeqDAO"));
-
-                        if (seqDAOType == null)
-                            model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, new ConfigSeqDAO().TableName);
-                        else
-                        {
-                            var dao = (DAO.ConfigSeqDAO)Activator.CreateInstance(seqDAOType);
-
-                            model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, dao.TableName);
-                        }
-
-                    }
-
-                    userTable.UserFields.Fields.Item("U_Code").Value = model.Code;
-                    userTable.Code = model.Code.ToString();
-                    userTable.Name = model.Code.ToString();
-
-                    userTable.Add();
-
-                    try
-                    {
                         Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
                     }
-                    catch
+                    else
                     {
-                        if (retry)
+                        foreach (var prop in props)
                         {
-                            userTable.Add();
+                            Model.BaseModel.NonDB nonDB = prop.GetCustomAttribute(typeof(Model.BaseModel.NonDB)) as Model.BaseModel.NonDB;
 
+                            if (nonDB == null)
+                            {
+                                if (prop.PropertyType == typeof(Boolean))
+                                {
+                                    userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (bool)prop.GetValue(model) ? "Y" : "N";
+                                }
+                                else if (prop.PropertyType.IsEnum)
+                                {
+                                    userTable.UserFields.Fields.Item("U_" + prop.Name).Value = (int)prop.GetValue(model);
+                                }
+                                else
+                                {
+                                    userTable.UserFields.Fields.Item("U_" + prop.Name).Value = prop.GetValue(model);
+                                }
+                            }
+                        }
+
+                        if (model.Code == 0)
+                        {
                             Type seqDAOType = Type.GetType(type.AssemblyQualifiedName.Replace("Model", "DAO").Replace(type.Name.Replace("Model", "DAO"), "ConfigSeqDAO"));
 
                             if (seqDAOType == null)
@@ -373,36 +367,73 @@ namespace B1Base.DAO
                                 model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, dao.TableName);
                             }
 
+                        }
+
+                        userTable.UserFields.Fields.Item("U_Code").Value = model.Code;
+                        userTable.Code = model.Code.ToString();
+                        userTable.Name = model.Code.ToString();
+
+                        userTable.Add();
+
+                        try
+                        {
                             Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                        }
+                        catch
+                        {
+                            if (retry)
+                            {
+                                userTable.Add();
+
+                                Type seqDAOType = Type.GetType(type.AssemblyQualifiedName.Replace("Model", "DAO").Replace(type.Name.Replace("Model", "DAO"), "ConfigSeqDAO"));
+
+                                if (seqDAOType == null)
+                                    model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, new ConfigSeqDAO().TableName);
+                                else
+                                {
+                                    var dao = (DAO.ConfigSeqDAO)Activator.CreateInstance(seqDAOType);
+
+                                    model.Code = Controller.ConnectionController.Instance.ExecuteSqlForObject<int>("GetLastCode", TableName, dao.TableName);
+                                }
+
+                                Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                            }
                         }
                     }
                 }
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(userTable);
-                GC.Collect();
+                finally
+                {
+                    Marshal.ReleaseComObject(userTable);
+                    GC.Collect();
+                }
             }
         }
 
         public void Delete(T model)
         {
-            Type type = typeof(T);
-
-            UserTable userTable = (UserTable)Controller.ConnectionController.Instance.Company.UserTables.Item(TableName);
-            try
+            if (Controller.ConnectionController.Instance.ODBCConnection)
             {
-                if (userTable.GetByKey(model.Code.ToString()))
-                {
-                    userTable.Remove();
-                }
-
-                Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                Controller.ConnectionController.Instance.ExecuteStatement("DELETE FROM " + TableName + @" WHERE ""U_Code"" " + model.Code.ToString());
             }
-            finally
+            else
             {
-                Marshal.ReleaseComObject(userTable);
-                GC.Collect();
+                Type type = typeof(T);
+
+                UserTable userTable = (UserTable)Controller.ConnectionController.Instance.Company.UserTables.Item(TableName);
+                try
+                {
+                    if (userTable.GetByKey(model.Code.ToString()))
+                    {
+                        userTable.Remove();
+                    }
+
+                    Controller.ConnectionController.Instance.VerifyBussinesObjectSuccess();
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(userTable);
+                    GC.Collect();
+                }
             }
         }
 

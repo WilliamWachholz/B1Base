@@ -255,6 +255,9 @@
     <Content Include="SQL\HANA\GetMenuIsEnabled.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="SQL\HANA\GetModel.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="SQL\HANA\GetModelExists.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
