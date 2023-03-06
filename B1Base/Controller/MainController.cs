@@ -166,8 +166,11 @@ namespace B1Base.Controller
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixRowClick;
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleMatrixSort;            
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleKeyDown;
-            Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormClose;
+            
             Controller.ConnectionController.Instance.Application.ItemEvent += HandleButtonPress;
+
+            Controller.ConnectionController.Instance.Application.ItemEvent += HandleFormClose;
+
             Controller.ConnectionController.Instance.Application.FormDataEvent += HandleFormData;            
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuInsert;
             Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuSaveAsDraft;
@@ -488,16 +491,16 @@ namespace B1Base.Controller
                             {
                                 if (view.ConfirmationBoxLoad(text1 + " " + text2))
                                 {
+                                    m_NextMessage = string.Empty;
                                     form.Items.Item("1").Click(BoCellClickType.ct_Regular);
                                 }
                             }
 
                             if (m_NextMessage.Trim() == (text1 + " " + text2).Trim())
                             {
+                                m_NextMessage = string.Empty;
                                 form.Items.Item("1").Click(BoCellClickType.ct_Regular);
                             }
-
-                            m_NextMessage = string.Empty;
                         }
                         catch { }
 
@@ -765,6 +768,25 @@ namespace B1Base.Controller
         private void HandleButtonClick(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
+
+            if (pVal.EventType == BoEventTypes.et_CLICK && pVal.BeforeAction == true)
+            {
+                try
+                {
+                    string formId = pVal.FormUID;
+                    string formType = pVal.FormTypeEx;
+
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
+                            view.ButtonBeforeClick(pVal.ItemUID);                    
+                }
+                catch (Exception e)
+                {
+                    if (LogIsActive)
+                    {
+                        ConnectionController.Instance.Application.StatusBar.SetText("[" + AddOnID + "]" + " 187 - " + e.Message);
+                    }
+                }
+            }
 
             if (pVal.EventType == BoEventTypes.et_CLICK && pVal.BeforeAction == false)
             {                

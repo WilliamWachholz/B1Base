@@ -303,10 +303,12 @@ namespace B1Base.View
             m_timerFormClose.Enabled = true;
         }
 
+        protected virtual Dictionary<string, ButtonClickEventHandler> ButtonClickEvents { get { return new Dictionary<string, ButtonClickEventHandler>(); } }
+
         /// <summary>
         /// Não atribuir a esse evento o botão OK (uid=1). Para esses casos, usar as sobrecargas correspondentes (FindFormData, GotFormData, AddFormData, UpdateFormData e DeleteFormData)
         /// </summary>
-        protected virtual Dictionary<string, ButtonClickEventHandler> ButtonClickEvents { get { return new Dictionary<string, ButtonClickEventHandler>(); } }
+        protected virtual Dictionary<string, ButtonClickEventHandler> ButtonBeforeClickEvents { get { return new Dictionary<string, ButtonClickEventHandler>(); } }
 
         protected virtual Dictionary<string, ButtonComboClickEventHandler> ButtonComboClickEvents { get { return new Dictionary<string, ButtonComboClickEventHandler>(); } }
 
@@ -2583,6 +2585,14 @@ namespace B1Base.View
                 m_updateFlag = false;
 
                 AfterUpdateFormData();
+            }
+        }
+
+        public void ButtonBeforeClick(string button)
+        {
+            if (ButtonBeforeClickEvents.ContainsKey(button))
+            {
+                ButtonBeforeClickEvents[button]();
             }
         }
 
