@@ -683,6 +683,23 @@ namespace B1Base.View
                 matrix.DeleteRow(1);
         }
 
+        protected void LoadCombo(Grid grid, string column, string sqlScript, params string[] variables)
+        {
+            ComboBoxColumn combo = (ComboBoxColumn)grid.Columns.Item(column);
+
+            for (int value = combo.ValidValues.Count - 1; value >= 0; value--)
+            {
+                combo.ValidValues.Remove(value, BoSearchKey.psk_Index);
+            }
+
+            List<KeyValuePair<dynamic, string>> validValues = Controller.ConnectionController.Instance.ExecuteSqlForList<KeyValuePair<dynamic, string>>(sqlScript, variables);
+
+            foreach (KeyValuePair<dynamic, string> validValue in validValues)
+            {
+                combo.ValidValues.Add(validValue.Key.ToString(), validValue.Value);
+            }
+        }
+
         protected void LoadCombo(ComboBox combo, string sqlScript, params string[] variables)
         {
             for (int value = combo.ValidValues.Count - 1; value >= 0; value--)
