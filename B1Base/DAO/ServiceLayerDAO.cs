@@ -29,7 +29,10 @@ namespace B1Base.DAO
         public void Login()
         {
             Model.LoginEntity loginEntity = new Model.LoginEntity();
-            loginEntity.CompanyDB = "SBOBLUTRADE";
+            if (Controller.ConnectionController.Instance.ODBCConnection)
+                loginEntity.CompanyDB = B1Base.AddOn.Instance.ConnectionController.ODBCCompanyDB;
+            else
+                loginEntity.CompanyDB = B1Base.AddOn.Instance.ConnectionController.Company.CompanyDB;
             loginEntity.UserName = "manager";
             loginEntity.Password = "Sos1.";
 
@@ -91,11 +94,54 @@ namespace B1Base.DAO
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             { streamWriter.Write(data); }
 
-            using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+            try
             {
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                 {
-                    result = streamReader.ReadToEnd();
+                    if (httpResponse.StatusCode == (HttpStatusCode)204)
+                    {
+                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            result = streamReader.ReadToEnd();
+                        }
+                    }
+                    else
+                    {
+                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            string resultContent = streamReader.ReadToEnd();
+
+                            string messageJson = "";
+
+                            dynamic jobj = JObject.Parse(resultContent);
+
+                            messageJson = jobj.error.message.value;
+
+                            throw new Exception(messageJson);
+                        }
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                using (WebResponse response = e.Response)
+                {
+                    using (var httpResponse = (HttpWebResponse)response)
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        using (var reader = new StreamReader(stream))
+                        {
+                            string resultContent = reader.ReadToEnd();
+
+                            string messageJson = "";
+
+                            dynamic jobj = JObject.Parse(resultContent);
+
+                            messageJson = jobj.error.message.value;
+
+                            throw new Exception(messageJson);
+                        }
+                    }
                 }
             }
 
@@ -154,11 +200,54 @@ namespace B1Base.DAO
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             { streamWriter.Write(data); }
 
-            using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+            try
             {
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                 {
-                    result = streamReader.ReadToEnd();
+                    if (httpResponse.StatusCode == (HttpStatusCode)204)
+                    {
+                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            result = streamReader.ReadToEnd();
+                        }
+                    }
+                    else
+                    {
+                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            string resultContent = streamReader.ReadToEnd();
+
+                            string messageJson = "";
+
+                            dynamic jobj = JObject.Parse(resultContent);
+
+                            messageJson = jobj.error.message.value;
+
+                            throw new Exception(messageJson);
+                        }
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                using (WebResponse response = e.Response)
+                {
+                    using (var httpResponse = (HttpWebResponse)response)
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        using (var reader = new StreamReader(stream))
+                        {
+                            string resultContent = reader.ReadToEnd();
+
+                            string messageJson = "";
+
+                            dynamic jobj = JObject.Parse(resultContent);
+
+                            messageJson = jobj.error.message.value;
+
+                            throw new Exception(messageJson);
+                        }
+                    }
                 }
             }
 
@@ -188,11 +277,54 @@ namespace B1Base.DAO
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             { streamWriter.Write(data); }
 
-            using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+            try
             {
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                 {
-                    result = streamReader.ReadToEnd();
+                    if (httpResponse.StatusCode == (HttpStatusCode)204)
+                    {
+                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            result = streamReader.ReadToEnd();
+                        }
+                    }
+                    else
+                    {
+                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            string resultContent = streamReader.ReadToEnd();
+
+                            string messageJson = "";
+
+                            dynamic jobj = JObject.Parse(resultContent);
+
+                            messageJson = jobj.error.message.value;
+
+                            throw new Exception(messageJson);
+                        }
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                using (WebResponse response = e.Response)
+                {
+                    using (var httpResponse = (HttpWebResponse)response)
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        using (var reader = new StreamReader(stream))
+                        {
+                            string resultContent = reader.ReadToEnd();
+
+                            string messageJson = "";
+
+                            dynamic jobj = JObject.Parse(resultContent);
+
+                            messageJson = jobj.error.message.value;
+
+                            throw new Exception(messageJson);
+                        }
+                    }
                 }
             }
 

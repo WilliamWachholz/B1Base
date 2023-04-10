@@ -129,7 +129,7 @@ namespace B1Base.DAO
                             {
                                 if ((prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType).Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
                                 {
-                                    update += @"""U_" + prop.Name + @""" = " + Convert.ToDateTime(prop.GetValue(model)).ToString("hhMM") + ",";
+                                    update += @"""U_" + prop.Name + @""" = " + Convert.ToDateTime(prop.GetValue(model)).ToString("HHmm") + ",";
                                 }
                             }
                             else
@@ -245,7 +245,7 @@ namespace B1Base.DAO
                             {
                                 if ((prop.GetCustomAttribute(typeof(Model.BaseModel.SpecificType)) as Model.BaseModel.SpecificType).Value == Model.BaseModel.SpecificType.SpecificTypeEnum.Time)
                                 {
-                                    insert += Convert.ToDateTime(prop.GetValue(model)).ToString("hhMM");
+                                    insert += Convert.ToDateTime(prop.GetValue(model)).ToString("HHmm");
                                 }
                             }
                             else

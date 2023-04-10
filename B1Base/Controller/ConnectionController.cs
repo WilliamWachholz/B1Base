@@ -273,15 +273,15 @@ namespace B1Base.Controller
 
         public bool ODBCConnection = false;
 
-        protected string ODBCServer = string.Empty;
+        public string ODBCServer = string.Empty;
 
-        protected string ODBCCompanyDB = string.Empty;
+        public string ODBCCompanyDB = string.Empty;
 
-        protected string ODBCDbUserName = string.Empty;        
+        public string ODBCDbUserName = string.Empty;
 
-        protected string ODBCDbPassword = string.Empty;
+        public string ODBCDbPassword = string.Empty;
 
-        protected int ODBCUser = 0;
+        public int ODBCUser = 0;
 
         public void Initialize(string addOnID, string server, string companyDB, string userName, string password, string licenseServer, string dbUserName, string dbPassword, string dbServerType, string sldServer)
         {

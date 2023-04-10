@@ -2829,7 +2829,11 @@ namespace B1Base.View
                                 try
                                 {
                                     if (matrixItem.Columns.Item(0).Description == "Pos" || matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
-                                        ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
+                                    {
+                                        ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String =
+                                            matrixItem.RowCount == 1 ? "1" :
+                                            (Convert.ToInt32(((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount - 1).Specific).String) + 1).ToString();
+                                    }
                                 }
                                 catch { }
                             }
@@ -3047,7 +3051,11 @@ namespace B1Base.View
                         try
                         {
                             if (matrixItem.Columns.Item(0).Description == "Pos" || matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
-                                ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
+                            {
+                                ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String =
+                                    matrixItem.RowCount == 1 ? "1" :
+                                    (Convert.ToInt32(((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount - 1).Specific).String) + 1).ToString();
+                            }
                         }
                         catch { }
 
@@ -3610,7 +3618,11 @@ namespace B1Base.View
                             try
                             {
                                 if (matrixItem.Columns.Item(0).Description == "Pos" || matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
-                                    ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
+                                {
+                                    ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String =
+                                        matrixItem.RowCount == 1 ? "1" :
+                                        (Convert.ToInt32(((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount - 1).Specific).String) + 1).ToString();
+                                }
                             }
                             catch { }
                         }
@@ -3694,7 +3706,11 @@ namespace B1Base.View
                         try
                         {
                             if (matrixItem.Columns.Item(0).Description == "Pos" || matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
-                                ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String = matrixItem.RowCount.ToString();
+                            {
+                                ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String =
+                                    matrixItem.RowCount == 1 ? "1" :
+                                    (Convert.ToInt32(((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount - 1).Specific).String) + 1).ToString();
+                            }
                         }
                         catch { }
                     }

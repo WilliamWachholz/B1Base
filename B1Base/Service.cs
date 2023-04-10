@@ -33,7 +33,7 @@ namespace B1Base
             try
             {
                 
-                if (Environment.GetCommandLineArgs().GetValue(1).ToString().Trim() == "DEV")
+                if (Environment.GetCommandLineArgs().Count() > 1 && Environment.GetCommandLineArgs().GetValue(1).ToString().Trim() == "DEV")
                 {
                     try
                     {
