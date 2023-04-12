@@ -281,27 +281,9 @@ namespace B1Base.DAO
             {
                 using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                 {
-                    if (httpResponse.StatusCode == (HttpStatusCode)204)
+                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
                     {
-                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-                        {
-                            result = streamReader.ReadToEnd();
-                        }
-                    }
-                    else
-                    {
-                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-                        {
-                            string resultContent = streamReader.ReadToEnd();
-
-                            string messageJson = "";
-
-                            dynamic jobj = JObject.Parse(resultContent);
-
-                            messageJson = jobj.error.message.value;
-
-                            throw new Exception(messageJson);
-                        }
+                        result = streamReader.ReadToEnd();
                     }
                 }
             }
@@ -318,15 +300,20 @@ namespace B1Base.DAO
 
                             string messageJson = "";
 
-                            dynamic jobj = JObject.Parse(resultContent);
+                            try
+                            {
+                                dynamic jobj = JObject.Parse(resultContent);
 
-                            messageJson = jobj.error.message.value;
-
-                            throw new Exception(messageJson);
+                                messageJson = jobj.error.message.value;
+                            }
+                            catch
+                            {
+                                throw new Exception(resultContent);
+                            }
                         }
                     }
                 }
-            }
+            }        
 
             return result;
         }

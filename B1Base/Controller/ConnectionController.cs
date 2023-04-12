@@ -845,36 +845,39 @@ namespace B1Base.Controller
                             {
                                 object obj = DbReader[0];
 
-                                if (type == typeof(bool))
+                                if (obj != DBNull.Value)
                                 {
-                                    if (obj.GetType() != typeof(Int32))
+                                    if (type == typeof(bool))
                                     {
-                                        String errMsg = String.Format("Object of type {0}, needs to be integer for SQL object of type {1}", obj.GetType(), type);
-                                        throw new ArgumentException(errMsg);
-                                    }
+                                        if (obj.GetType() != typeof(Int32))
+                                        {
+                                            String errMsg = String.Format("Object of type {0}, needs to be integer for SQL object of type {1}", obj.GetType(), type);
+                                            throw new ArgumentException(errMsg);
+                                        }
 
-                                    return (T)((Convert.ToInt32(obj) != 0) as object);
-                                }
-                                else if (type == typeof(double))
-                                {
-                                    return (T)(Convert.ToDouble(obj) as object);
-                                }
-                                else if (type == typeof(Int32))
-                                {
-                                    return (T)(Convert.ToInt32(obj) as object);
-                                }
-                                else if (type == typeof(Int16))
-                                {
-                                    return (T)(Convert.ToInt16(obj) as object);
-                                }
-                                else
-                                {
-                                    if (obj.GetType() != type)
-                                    {
-                                        String errMsg = String.Format("Object of type {0}. SQL object type is {1}", obj.GetType(), type);
-                                        throw new ArgumentException(errMsg);
+                                        return (T)((Convert.ToInt32(obj) != 0) as object);
                                     }
-                                    return (T)obj;
+                                    else if (type == typeof(double))
+                                    {
+                                        return (T)(Convert.ToDouble(obj) as object);
+                                    }
+                                    else if (type == typeof(Int32))
+                                    {
+                                        return (T)(Convert.ToInt32(obj) as object);
+                                    }
+                                    else if (type == typeof(Int16))
+                                    {
+                                        return (T)(Convert.ToInt16(obj) as object);
+                                    }
+                                    else
+                                    {
+                                        if (obj.GetType() != type)
+                                        {
+                                            String errMsg = String.Format("Object of type {0}. SQL object type is {1}", obj.GetType(), type);
+                                            throw new ArgumentException(errMsg);
+                                        }
+                                        return (T)obj;
+                                    }
                                 }
                             }
                             else
@@ -1051,6 +1054,8 @@ namespace B1Base.Controller
                                 }
                                 else
                                 {
+                                    step = "4";
+
                                     var ret = PrepareObject<T>(DbReader);
                                     return ret;
                                 }
