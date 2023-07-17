@@ -62,7 +62,7 @@ namespace B1Base.Controller
 
         public bool LogIsActive { get; set; }        
 
-        private string LastStatusBarMsg { get; set; }
+        public string LastStatusBarMsg { get; private set; }
 
         private bool SuppressChoose { get; set; }
 
@@ -399,6 +399,11 @@ namespace B1Base.Controller
             m_NextMessage = message;
         }
 
+        public void ClearNextMessage()
+        {
+            m_NextMessage = string.Empty;
+        }
+
         public void InvisibleNextForm(string formType)
         {
             m_NextInvisibleGuy = formType;
@@ -418,7 +423,7 @@ namespace B1Base.Controller
                 {
 
                     if (SupressDetails && pVal.FormType == 1)
-                    {
+                    {                        
                         ConnectionController.Instance.Application.Forms.Item(pVal.FormUID).Close();
                         SupressDetails = false;
                     }

@@ -35,15 +35,28 @@ namespace B1Base.Controller
         {
             Type modelType = typeof(T);
 
-            Type daoType = Type.GetType(modelType.AssemblyQualifiedName.Replace("Model", "DAO"));
+            if (Controller.ConnectionController.Instance.ODBCConnection)
+            {
+                var model = (T)Activator.CreateInstance(modelType);
 
-            if (daoType == null)
-                return m_ConfigDAO.Get(1);
+                List<string> fieldList = Controller.ConnectionController.Instance.ExecuteSqlForList<string>("GetListField", m_ConfigDAO.TableName);
+
+                string fields = string.Join(",", fieldList.ToArray());
+
+                return Controller.ConnectionController.Instance.ExecuteSqlForObject<T>("GetModel", m_ConfigDAO.TableName, fields, 1.ToString());
+            }
             else
             {
-                var dao = (DAO.BaseDAO<T>)Activator.CreateInstance(daoType);
+                Type daoType = Type.GetType(modelType.AssemblyQualifiedName.Replace("Model", "DAO"));
 
-                return dao.Get(1);
+                if (daoType == null)
+                    return m_ConfigDAO.Get(1);
+                else
+                {
+                    var dao = (DAO.BaseDAO<T>)Activator.CreateInstance(daoType);
+
+                    return dao.Get(1);
+                }
             }
         }        
 

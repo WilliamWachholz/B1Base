@@ -263,7 +263,7 @@ namespace B1Base.Controller
             this.ODBCDbUserName = dbUserName;
             this.ODBCDbPassword = dbPassword;
             ODBCUser = ExecuteSqlForDirectObject<int>("SELECT USERID FROM OUSR WHERE USER_CODE = '" + userName + "'");
-            this.DBServerType = "HANA";
+            this.DBServerType = "HANA";            
         }
 
         public void FinalizeODBC()
@@ -384,7 +384,7 @@ namespace B1Base.Controller
             CreateMetadata(table, field, fieldType, 10, null, "", fieldTitle);
         }
 
-        public void CreateMetadata(string table, string field, FieldTypeEnum fieldType, int size = 10, Dictionary<string, string> validValues = null, string defaultValue = "", string fieldTitle = "", string linkedTable = "")
+        public void CreateMetadata(string table, string field, FieldTypeEnum fieldType, int size = 10, Dictionary<string, string> validValues = null, string defaultValue = "", string fieldTitle = "", string linkedTable = "", string linkedObject = "", bool createObject = false, string objectFields = "")
         {
             int tableExists = ExecuteSqlForObject<int>("GetTableExists", table);
 
@@ -397,8 +397,12 @@ namespace B1Base.Controller
                 {
                     userTable.TableName = table;
                     userTable.TableDescription = table;
-                    userTable.TableType = BoUTBTableType.bott_NoObject;
-                    
+
+                    if (createObject)
+                        userTable.TableType = BoUTBTableType.bott_MasterData;
+                    else
+                       userTable.TableType = BoUTBTableType.bott_NoObject;
+
                     userTable.Add();
 
                     VerifyBussinesObjectSuccess();
@@ -444,6 +448,11 @@ namespace B1Base.Controller
                                 userField.LinkedSystemObject = UDFLinkedSystemObjectTypesEnum.ulItems;
                                 break;
                         }                        
+                    }
+
+                    if (linkedObject != "")
+                    {
+                        userField.LinkedUDO = linkedObject;
                     }
 
                     switch (fieldType)
@@ -551,6 +560,65 @@ namespace B1Base.Controller
                 {
                     Marshal.ReleaseComObject(userField);
                     GC.Collect();
+                }
+            }
+            
+            if (createObject)
+            {
+                bool objectExists = B1Base.Controller.ConnectionController.Instance.ExecuteSqlForDirectObject<int>(@"select count(*) from OUDO where ""Code"" = '" + table + "'") > 0;
+
+                if (!objectExists)
+                {
+                    UserObjectsMD userObject = (UserObjectsMD)Company.GetBusinessObject(BoObjectTypes.oUserObjectsMD);
+                    try
+                    {
+                        userObject.ObjectType = BoUDOObjType.boud_MasterData;
+                        userObject.TableName = table;
+                        userObject.Code = table;
+                        userObject.Name = table;
+
+                        userObject.CanDelete = BoYesNoEnum.tNO;
+                        userObject.CanFind = BoYesNoEnum.tYES;
+
+                        userObject.CanCreateDefaultForm = BoYesNoEnum.tYES;
+
+                        string[] objectFieldsArray = objectFields.Split(',');
+
+                        if (objectFieldsArray.Count() > 0)
+                        {
+                            userObject.FormColumns.Add();
+                            userObject.FormColumns.SetCurrentLine(0);
+                            userObject.FormColumns.FormColumnAlias = "Code";
+                        }
+
+                        int objFieldPos = 0;
+
+                        foreach (string objectField in objectFieldsArray)
+                        {
+                            userObject.FindColumns.Add();
+                            userObject.FindColumns.SetCurrentLine(objFieldPos);
+                            userObject.FindColumns.ColumnAlias = "U_" + objectField;
+
+                            userObject.FormColumns.Add();
+                            userObject.FormColumns.SetCurrentLine(objFieldPos + 1);
+                            userObject.FormColumns.FormColumnAlias = "U_" + objectField;
+
+                            objFieldPos++;
+                        }
+
+                        userObject.Add();
+
+                        VerifyBussinesObjectSuccess();
+                    }
+                    catch (Exception e)
+                    {
+                        Application.StatusBar.SetText("Erro ao criar objeto: " + e.Message, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+                    }
+                    finally
+                    {
+                        Marshal.ReleaseComObject(userObject);
+                        GC.Collect();
+                    }
                 }
             }
         }
