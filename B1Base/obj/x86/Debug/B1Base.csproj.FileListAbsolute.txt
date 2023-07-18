@@ -209,3 +209,4 @@ C:\Desenv\SAP\B1Base\B1Base\obj\x86\Debug\B1Base.pdb
 C:\Desenv\SAP\B1Base\B1Base\bin\x86\Debug\Newtonsoft.Json.dll
 C:\Desenv\SAP\B1Base\B1Base\bin\x86\Debug\Newtonsoft.Json.xml
 C:\Desenv\SAP\B1Base\B1Base\bin\x86\Debug\SQL\HANA\GetModel.sql
+C:\Desenv\SAP\B1Base\B1Base\obj\x86\Debug\B1Base.csprojAssemblyReference.cache
