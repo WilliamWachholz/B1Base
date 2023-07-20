@@ -423,7 +423,7 @@ namespace B1Base.DAO
         {
             if (Controller.ConnectionController.Instance.ODBCConnection)
             {
-                Controller.ConnectionController.Instance.ExecuteStatement("DELETE FROM " + TableName + @" WHERE ""U_Code"" " + model.Code.ToString());
+                Controller.ConnectionController.Instance.ExecuteStatementDirect(@"DELETE FROM ""@" + TableName + @""" WHERE ""U_Code"" = " + model.Code.ToString());
             }
             else
             {
