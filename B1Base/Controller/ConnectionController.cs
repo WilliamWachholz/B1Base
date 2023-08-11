@@ -123,7 +123,7 @@ namespace B1Base.Controller
             {
                 if (_ServiceLayerURL == null)
                 {
-                    _ServiceLayerURL = ExecuteSqlForDirectObject<string>(@"SELECT ""ACCESSURL"" FROM ""SLDDATA"".""B1SERVICELAYERS"" LIMIT 1");
+                    _ServiceLayerURL = ExecuteSqlForDirectObject<string>(@"SELECT ""ACCESSURL"" FROM ""SLDDATA"".""B1SERVICELAYERS"" ORDER BY ""ID"" DESC LIMIT 1");
                 }
 
                 return _ServiceLayerURL;
@@ -364,19 +364,19 @@ namespace B1Base.Controller
             GC.Collect();
         }
 
-        public void CreateMetadata<T>() where T : Model.BaseModel
+        public void CreateMetadata<T>(bool createObject = false) where T : Model.BaseModel
         {
             List<FieldMetadata> listFieldMetadata = PrepareObject<T>();
 
             foreach (FieldMetadata fieldMetadata in listFieldMetadata)
             {
-                CreateMetadata(fieldMetadata);
+                CreateMetadata(fieldMetadata, createObject, string.Join(",", listFieldMetadata.Where(r => r.ObjectField).Select(r => r.Field).ToArray()));
             }
         }        
 
-        public void CreateMetadata(FieldMetadata fieldMetadata)
+        public void CreateMetadata(FieldMetadata fieldMetadata, bool createObject = false, string objectFields = "")
         {
-            CreateMetadata(fieldMetadata.Table, fieldMetadata.Field, fieldMetadata.FieldType, fieldMetadata.Size);
+            CreateMetadata(fieldMetadata.Table, fieldMetadata.Field, fieldMetadata.FieldType, fieldMetadata.Size, null, "", "", "", "", createObject, objectFields);
         }
 
         public void CreateMetadata(string table, string field, FieldTypeEnum fieldType, string fieldTitle)
@@ -2030,6 +2030,10 @@ namespace B1Base.Controller
                     fieldMetadata.Table = table;
                     fieldMetadata.Field = prop.Name;
 
+                    Model.BaseModel.ObjectField objectField = prop.GetCustomAttribute(typeof(Model.BaseModel.ObjectField)) as Model.BaseModel.ObjectField;
+
+                    fieldMetadata.ObjectField = objectField != null;
+
                     if (prop.PropertyType == typeof(Boolean))
                     {
                         fieldMetadata.FieldType = FieldTypeEnum.Alphanumeric;
@@ -2210,6 +2214,7 @@ namespace B1Base.Controller
         public int Size { get; set; }
         public Dictionary<string, string> ValidValues { get; set; }
         public string DefaultValue { get; set; }
+        public bool ObjectField { get; set; }
 
         public FieldMetadata()
         {
@@ -2219,6 +2224,7 @@ namespace B1Base.Controller
             Size = 1;
             ValidValues = new Dictionary<string, string>();
             DefaultValue = string.Empty;
+            ObjectField = false;
         }
     }
 

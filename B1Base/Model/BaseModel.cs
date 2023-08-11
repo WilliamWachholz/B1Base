@@ -11,6 +11,7 @@ namespace B1Base.Model
 {
     public class BaseModel : IFromRecordSet
     {
+        [ObjectField]
         public int Code { get; set; }
 
         public bool Changed { get; set; }
@@ -59,6 +60,11 @@ namespace B1Base.Model
         }
 
         public class NonDB : Attribute
+        {
+
+        }
+
+        public class ObjectField : Attribute
         {
 
         }
