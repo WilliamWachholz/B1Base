@@ -94,6 +94,8 @@ namespace B1Base.DAO
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             { streamWriter.Write(data); }
 
+            string httpStatus = "";
+
             try
             {
                 using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
@@ -113,11 +115,18 @@ namespace B1Base.DAO
 
                             string messageJson = "";
 
-                            dynamic jobj = JObject.Parse(resultContent);
+                            try
+                            {
+                                dynamic jobj = JObject.Parse(resultContent);
 
-                            messageJson = jobj.error.message.value;
+                                messageJson = jobj.error.message.value;
+                            }
+                            catch
+                            {
+                                messageJson = "Não foi possível obter a resposta do servidor";
+                            }
 
-                            throw new Exception(messageJson);
+                            throw new Exception(httpStatus + ": " + messageJson);
                         }
                     }
                 }
@@ -135,11 +144,18 @@ namespace B1Base.DAO
 
                             string messageJson = "";
 
-                            dynamic jobj = JObject.Parse(resultContent);
+                            try
+                            {
+                                dynamic jobj = JObject.Parse(resultContent);
 
-                            messageJson = jobj.error.message.value;
+                                messageJson = jobj.error.message.value;
+                            }
+                            catch
+                            {
+                                messageJson = "Não foi possível obter a resposta do servidor";
+                            }
 
-                            throw new Exception(messageJson);
+                            throw new Exception(httpStatus + ": " + messageJson);
                         }
                     }
                 }
@@ -200,11 +216,15 @@ namespace B1Base.DAO
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             { streamWriter.Write(data); }
 
+            string httpStatus = "";
+
             try
             {
                 using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                 {
-                    if (httpResponse.StatusCode == (HttpStatusCode)204)
+                    httpStatus = ((int)httpResponse.StatusCode).ToString();
+
+                    if (httpResponse.StatusCode == (HttpStatusCode)204 || httpResponse.StatusCode == (HttpStatusCode)201)
                     {
                         using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
                         {
@@ -219,11 +239,18 @@ namespace B1Base.DAO
 
                             string messageJson = "";
 
-                            dynamic jobj = JObject.Parse(resultContent);
+                            try
+                            {
+                                dynamic jobj = JObject.Parse(resultContent);
 
-                            messageJson = jobj.error.message.value;
+                                messageJson = jobj.error.message.value;
+                            }
+                            catch
+                            {
+                                messageJson = "Não foi possível obter a resposta do servidor";
+                            }
 
-                            throw new Exception(messageJson);
+                            throw new Exception(httpStatus + ": " + messageJson);
                         }
                     }
                 }
@@ -241,11 +268,18 @@ namespace B1Base.DAO
 
                             string messageJson = "";
 
-                            dynamic jobj = JObject.Parse(resultContent);
+                            try
+                            {
+                                dynamic jobj = JObject.Parse(resultContent);
 
-                            messageJson = jobj.error.message.value;
+                                messageJson = jobj.error.message.value;
+                            }
+                            catch
+                            {
+                                messageJson = "Não foi possível obter a resposta do servidor";
+                            }
 
-                            throw new Exception(messageJson);
+                            throw new Exception(httpStatus + ": " + messageJson);
                         }
                     }
                 }
