@@ -72,6 +72,36 @@ namespace B1Base.DAO
             SendPOST("Logout");
         }
 
+        public string SendGET(string entityName, string entityID)
+        {
+            string result = string.Empty;
+
+            string url = BaseUrl + entityName + "('" + entityID.ToString() + "')";
+
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Method = "GET";
+            httpWebRequest.KeepAlive = false;
+            httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
+            httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
+            httpWebRequest.Headers.Add("Cookie", Cookies);
+            httpWebRequest.Accept = "*/*";
+            httpWebRequest.ServicePoint.Expect100Continue = false;
+            httpWebRequest.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+            httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;
+
+            using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+            {
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    result = streamReader.ReadToEnd();
+                }
+            }
+
+            return result;
+        }
+
         public string SendPATCH(string url, string data)
         {
             string result = string.Empty;
@@ -162,6 +192,76 @@ namespace B1Base.DAO
             }
 
             return result;
+        }
+
+        public void SendPATCH(string json, string entityName, string entityID, bool replaceCollections = false)
+        {
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName + "('" + entityID.ToString() + "')");
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Method = "PATCH";
+            httpWebRequest.KeepAlive = false;
+            httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
+            httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
+            if (replaceCollections)
+            {
+                httpWebRequest.Headers.Add("B1S-ReplaceCollectionsOnPatch", "true");
+            }
+            httpWebRequest.Headers.Add("Cookie", Cookies);
+            httpWebRequest.Headers.Add("Prefer", "return-no-content");
+            httpWebRequest.Accept = "*/*";
+            httpWebRequest.ServicePoint.Expect100Continue = false;
+            httpWebRequest.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+            httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;
+
+            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                streamWriter.Write(json);
+            }
+
+            try
+            {
+                using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+                {
+                    if (httpResponse.StatusCode != (HttpStatusCode)204)
+                    {
+                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            string resultContent = streamReader.ReadToEnd();
+
+                            string messageJson = "";
+
+                            dynamic jobj = JObject.Parse(resultContent);
+
+                            messageJson = jobj.error.message.value;
+
+                            throw new Exception(messageJson);
+                        }
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                using (WebResponse response = e.Response)
+                {
+                    using (var httpResponse = (HttpWebResponse)response)
+                    {
+                        using (Stream data = response.GetResponseStream())
+                        using (var reader = new StreamReader(data))
+                        {
+                            string resultContent = reader.ReadToEnd();
+
+                            string messageJson = "";
+
+                            dynamic jobj = JObject.Parse(resultContent);
+
+                            messageJson = jobj.error.message.value;
+
+                            throw new Exception(messageJson);
+                        }
+                    }
+                }
+            }
         }
 
         public string SendPOST(string url)
