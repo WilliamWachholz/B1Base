@@ -91,6 +91,7 @@ namespace B1Base
             integratedServiceInstaller.Install(m_ServiceController.ServiceName, m_ServiceController.ServiceTitle, m_ServiceController.ServiceDescription,
                 System.ServiceProcess.ServiceAccount.LocalSystem,
                 System.ServiceProcess.ServiceStartMode.Automatic);
+
         }
 
         void Uninstall()

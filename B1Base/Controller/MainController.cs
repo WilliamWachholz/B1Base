@@ -936,7 +936,26 @@ namespace B1Base.Controller
                     }
                 }
             }
+        }
 
+        private void HandlePasteValidate(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
+        {
+            bubbleEvent = true;
+
+            if (pVal.EventType == BoEventTypes.et_VALIDATE && pVal.BeforeAction == false)
+            {
+                if (formUID.Contains("RW"))
+                {
+                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
+                    string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
+
+                    if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                    {
+                        foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
+                            view.MatrixPasteTableValidate(pVal.ItemUID, pVal.Row, pVal.ColUID);
+                    }
+                }
+            }
         }
 
         private void HandleFormValidate(string formUID, ref ItemEvent pVal, out bool bubbleEvent)
@@ -1515,13 +1534,23 @@ namespace B1Base.Controller
                         {
                             foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formId && r.FormType == formType).ToList())
                             {
-                                if (!view.ValidateFormData(out msg, true))
+                                if (!formId.Contains("F_"))
                                 {
-                                    AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
+                                    if (B1Base.AddOn.Instance.ConnectionController.Application.MessageBox("Deseja realmente remover esse registro?", 2, "Sim", "Não") == 2)
+                                    {
+                                        bubbleEvent = false;
+                                    }
+                                    else
+                                    {
+                                        if (!view.ValidateFormData(out msg, true))
+                                        {
+                                            AddOn.Instance.ConnectionController.Application.StatusBar.SetText(msg, BoMessageTime.bmt_Medium, BoStatusBarMessageType.smt_Error);
 
-                                    bubbleEvent = false;
+                                            bubbleEvent = false;
 
-                                    break;
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1715,9 +1744,12 @@ namespace B1Base.Controller
                         {
                             if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
                             {
-                                if (Controller.ConnectionController.Instance.Application.MessageBox("Dados não gravados serão perdidos. Continuar?", 1, "Sim", "Não") != 1)
+                                if (m_Views.First(r => r.FormUID == formId && r.FormType == formType).SAPForm.Mode != BoFormMode.fm_OK_MODE)
                                 {
-                                    bubbleEvent = false;
+                                    if (Controller.ConnectionController.Instance.Application.MessageBox("Dados não gravados serão perdidos. Continuar?", 1, "Sim", "Não") != 1)
+                                    {
+                                        bubbleEvent = false;
+                                    }
                                 }
                             }
                         }
@@ -1945,7 +1977,7 @@ namespace B1Base.Controller
                     Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFolderSelect;
                     Controller.ConnectionController.Instance.Application.ItemEvent -= HandleChooseFrom;
                     Controller.ConnectionController.Instance.Application.ItemEvent -= HandleButtonPress;
-                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFormValidate;
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFormValidate;                    
                     Controller.ConnectionController.Instance.Application.ItemEvent -= HandleFormResize;
                     Controller.ConnectionController.Instance.Application.ItemEvent -= HandleGridRowClick;
                     Controller.ConnectionController.Instance.Application.ItemEvent -= HandleMatrixRowClick;
@@ -1961,6 +1993,8 @@ namespace B1Base.Controller
                     Controller.ConnectionController.Instance.Application.MenuEvent -= HandleMenuRightClick;
                     Controller.ConnectionController.Instance.Application.StatusBarEvent -= HandleStatusBarMessage;
                     Controller.ConnectionController.Instance.Application.RightClickEvent -= HandleRightClick;
+
+                    Controller.ConnectionController.Instance.Application.ItemEvent += HandlePasteValidate;
                 }
                 else
                 {
@@ -1990,6 +2024,8 @@ namespace B1Base.Controller
                     Controller.ConnectionController.Instance.Application.MenuEvent += HandleMenuRightClick;
                     Controller.ConnectionController.Instance.Application.StatusBarEvent += HandleStatusBarMessage;
                     Controller.ConnectionController.Instance.Application.RightClickEvent += HandleRightClick;
+
+                    Controller.ConnectionController.Instance.Application.ItemEvent -= HandlePasteValidate;
 
                     string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
                     string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;

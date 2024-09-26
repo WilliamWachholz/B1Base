@@ -26,15 +26,15 @@ namespace B1Base.DAO
             get; set;
         }
 
-        public void Login()
+        public void Login(string userName, string password)
         {
             Model.LoginEntity loginEntity = new Model.LoginEntity();
             if (Controller.ConnectionController.Instance.ODBCConnection)
                 loginEntity.CompanyDB = B1Base.AddOn.Instance.ConnectionController.ODBCCompanyDB;
             else
                 loginEntity.CompanyDB = B1Base.AddOn.Instance.ConnectionController.Company.CompanyDB;
-            loginEntity.UserName = "manager";
-            loginEntity.Password = "Sos1.";
+            loginEntity.UserName = userName;
+            loginEntity.Password = password;
 
             string data = ConvertToJsonString(loginEntity);
 
@@ -547,6 +547,104 @@ namespace B1Base.DAO
             }
         }
 
+        public int PostJson(string json, string entityName, IContractResolver contractResolver = null)
+        {
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName);
+
+            httpWebRequest.ContentType = "application/json;odata=minimalmetadata;charset=utf8";
+            httpWebRequest.Method = "POST";
+            httpWebRequest.KeepAlive = false;
+            httpWebRequest.ServicePoint.Expect100Continue = false;
+            //httpWebRequest.AllowAutoRedirect = true;
+            httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+            httpWebRequest.Headers.Add("B1S-WCFCompatible", "true");
+            httpWebRequest.Headers.Add("B1S-MetadataWithoutSession", "true");
+            httpWebRequest.Headers.Add("Cookie", Cookies);
+            httpWebRequest.Headers.Add("Prefer", "return-no-content");
+            httpWebRequest.Accept = "application/json;odata=minimalmetadata";
+            httpWebRequest.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+            httpWebRequest.AutomaticDecompression = DecompressionMethods.GZip;
+            httpWebRequest.UserAgent = "b1base";
+            httpWebRequest.Timeout = 600000;
+
+            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                streamWriter.Write(json);
+                streamWriter.Flush();
+                streamWriter.Close();
+            }
+
+            try
+            {
+                using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+                {
+                    if (httpResponse.StatusCode == (HttpStatusCode)204)
+                    {
+                        string location = httpResponse.Headers.Get("Location");
+
+                        if (location == null)
+                            return 0;
+
+                        int id = Convert.ToInt32(location.Substring(location.IndexOf("(") + 1,
+                                location.IndexOf(")") - location.IndexOf("(") - 1));
+
+                        return id;
+                    }
+                    else
+                    {
+                        using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                        {
+                            string resultContent = streamReader.ReadToEnd();
+
+                            string messageJson = "";
+
+                            try
+                            {
+                                dynamic jobj = JObject.Parse(resultContent);
+
+                                messageJson = jobj.error.message.value;
+                            }
+                            catch
+                            {
+                                throw new Exception(resultContent);
+                            }
+
+                            throw new Exception(messageJson);
+                        }
+                    }
+                }
+            }
+            catch (WebException e)
+            {
+                using (WebResponse response = e.Response)
+                {
+                    using (var httpResponse = (HttpWebResponse)response)
+                    {
+                        using (Stream data = response.GetResponseStream())
+                        using (var reader = new StreamReader(data))
+                        {
+                            string resultContent = reader.ReadToEnd();
+
+                            string messageJson = "";
+
+                            try
+                            {
+                                dynamic jobj = JObject.Parse(resultContent);
+
+                                messageJson = jobj.error.message.value;
+                            }
+                            catch
+                            {
+                                throw new Exception(resultContent);
+                            }
+
+                            throw new Exception(messageJson);
+                        }
+                    }
+                }
+            }
+        }
+
         public string PostEntityString(object obj, string entityName, IContractResolver contractResolver = null)
         {
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(BaseUrl + entityName);
@@ -600,8 +698,6 @@ namespace B1Base.DAO
             }
             catch (WebException e)
             {
-                Controller.ConnectionController.Instance.Application.StatusBar.SetText(e.Message);
-
                 using (WebResponse response = e.Response)
                 {
                     using (var httpResponse = (HttpWebResponse)response)

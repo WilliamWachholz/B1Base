@@ -127,6 +127,7 @@ namespace B1Base.View
         public delegate void MatrixSortEventHandler(string column);
         public delegate bool MatrixCheckAllEventHandler();
         public delegate bool MatrixCanAddEventHandler(int row);
+        public delegate void MatrixPasteTableEventHandler(int row, string column);
         public delegate void EditValidateEventHandler(bool changed);
         public delegate void EditFocusEventHandler();
         public delegate void ColumnValidateEventHandler(int row, bool changed);
@@ -353,6 +354,8 @@ namespace B1Base.View
 
         protected virtual Dictionary<string, MatrixCanAddEventHandler> MatrixCanAddEvents { get { return new Dictionary<string, MatrixCanAddEventHandler>(); } }
 
+        protected virtual Dictionary<string, MatrixPasteTableEventHandler> MatrixPasteTableEvents { get { return new Dictionary<string, MatrixPasteTableEventHandler>(); } }
+
         protected virtual Dictionary<string, Tuple<string, CustomMenuEventHandler>> CustomMenuEvents { get { return new Dictionary<string, Tuple<string, CustomMenuEventHandler>>(); } }
 
         protected virtual Dictionary<string, FolderSelectEventHandler> FolderSelectEvents { get { return new Dictionary<string, FolderSelectEventHandler>(); } }
@@ -453,13 +456,13 @@ namespace B1Base.View
         /// <summary>
         /// Chama o SAPForm.Freeze(true) e não passa por nenhum evento de Validate dos compontens
         /// </summary>
-        protected void Freeze()
+        public void Freeze()
         {
             SAPForm.Freeze(true);
             Frozen = true;
         }
 
-        protected void Unfreeze()
+        public void Unfreeze()
         {
             SAPForm.Freeze(false);
             Frozen = false;
@@ -658,7 +661,7 @@ namespace B1Base.View
             return LoadComboXml("GetComboValues", table, codeField, nameField);
         }
 
-        protected void LoadCombo(Matrix matrix, string column, string sqlScript, params string[] variables)
+        public void LoadCombo(Matrix matrix, string column, string sqlScript, params string[] variables)
         {
             bool noRow = matrix.RowCount == 0;
 
@@ -683,7 +686,7 @@ namespace B1Base.View
                 matrix.DeleteRow(1);
         }
 
-        protected void LoadCombo(Grid grid, string column, string sqlScript, params string[] variables)
+        public void LoadCombo(Grid grid, string column, string sqlScript, params string[] variables)
         {
             ComboBoxColumn combo = (ComboBoxColumn)grid.Columns.Item(column);
 
@@ -700,7 +703,7 @@ namespace B1Base.View
             }
         }
 
-        protected void LoadCombo(ComboBox combo, string sqlScript, params string[] variables)
+        public void LoadCombo(ComboBox combo, string sqlScript, params string[] variables)
         {
             for (int value = combo.ValidValues.Count - 1; value >= 0; value--)
             {
@@ -715,17 +718,17 @@ namespace B1Base.View
             }
         }
 
-        protected void LoadCombo(string table, string codeField, string nameField, ComboBox combo)
+        public void LoadCombo(string table, string codeField, string nameField, ComboBox combo)
         {
             LoadCombo(combo, "GetComboValues", table, codeField, nameField);
         }
 
-        protected void LoadCombo(string table, string codeField, string nameField, Matrix matrix, string column)
+        public void LoadCombo(string table, string codeField, string nameField, Matrix matrix, string column)
         {
             LoadCombo(matrix, column, "GetComboValues", table, codeField, nameField);
         }
 
-        protected void LoadCombo<T>(ComboBox combo)
+        public void LoadCombo<T>(ComboBox combo)
         {
             var type = typeof(T);
             
@@ -737,7 +740,7 @@ namespace B1Base.View
             }
         }
 
-        protected void LoadCombo<T>(Matrix matrix, string column)
+        public void LoadCombo<T>(Matrix matrix, string column)
         {
             bool noRow = matrix.RowCount == 0;
 
@@ -3079,8 +3082,48 @@ namespace B1Base.View
             }
         }
 
+        public void MatrixPasteTableValidate(string matrix, int row, string column)
+        {
+            if (MatrixPasteTableEvents.ContainsKey(matrix) && !Frozen)
+            {
+                MatrixPasteTableEvents[matrix](row, column);
+
+                string key = string.Format("{0}.{1}", matrix, column);
+
+                if (MatrixCanAddEvents.ContainsKey(key) && !Frozen)
+                {
+                    Matrix matrixItem = (Matrix)SAPForm.Items.Item(matrix).Specific;
+
+                    if (row == matrixItem.RowCount)
+                    {
+                        if (MatrixCanAddEvents[key](row))
+                        {
+                            matrixItem.AddRow();
+                            matrixItem.ClearRowData(matrixItem.RowCount);
+
+                            try
+                            {
+                                if (matrixItem.Columns.Item(0).Description == "Pos" || matrixItem.Columns.Item(0).DataBind.Alias == "Pos")
+                                {
+                                    ((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount).Specific).String =
+                                        matrixItem.RowCount == 1 ? "1" :
+                                        (Convert.ToInt32(((EditText)matrixItem.Columns.Item(0).Cells.Item(matrixItem.RowCount - 1).Specific).String) + 1).ToString();
+                                }
+                            }
+                            catch { }
+                        }
+                    }
+                }
+            }            
+        }
+
         public void RightMenuClicked(string menu)
         {
+            if (menu == "1293" && SAPForm.UniqueID.Contains("F_") && SAPForm.Mode != BoFormMode.fm_FIND_MODE)
+            {
+                MatrixRowRemoveEvents[LastRightClickMatrix](LastRightClickRow);
+            }
+
             if (RightClickMenuEventEvents.ContainsKey(menu))
             {
                 RightClickMenuEventEvents[menu]();
@@ -3089,7 +3132,7 @@ namespace B1Base.View
 
         public void MenuRightClick(string menu)
         {
-            if (menu == "1283" && !SAPForm.UniqueID.Contains("F_"))
+            if (menu == "1283" && !SAPForm.UniqueID.Contains("F_") && SAPForm.Mode != BoFormMode.fm_FIND_MODE)
             {
                 string msg;
 
@@ -3263,40 +3306,43 @@ namespace B1Base.View
                     menu = menuItem.SubMenus;
                     menu.AddEx(creationPackage);
                 }
-            }
+            }            
 
             if (MatrixRowRemoveEvents.ContainsKey(item))
             {
-                string menuID = string.Format("MNUREM{0}{1}", SAPForm.TypeEx, SAPForm.UniqueID);
-
-                SAPbouiCOM.Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
-
-                string colTitle = matrix.Columns.Item(col).Title;
-                string firstCol = matrix.Columns.Item(0).UniqueID;
-
-                if (row > 0 && row <= matrix.RowCount && (col != firstCol || colTitle != "#" || colTitle != ""))
+                if (!(SAPForm.UniqueID.Contains("F_") && item == "38"))
                 {
-                    LastRightClickMatrix = item;
-                    LastRightClickRow = row;
-                    LastRightClickCol = col;
+                    string menuID = string.Format("MNUREM{0}{1}", SAPForm.TypeEx, SAPForm.UniqueID);
 
-                    MenuItem menuItem = null;
-                    Menus menu = null;
-                    MenuCreationParams creationPackage = null;
+                    SAPbouiCOM.Matrix matrix = (Matrix)SAPForm.Items.Item(item).Specific;
 
-                    creationPackage = ((MenuCreationParams)(Controller.ConnectionController.Instance.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
+                    string colTitle = matrix.Columns.Item(col).Title;
+                    string firstCol = matrix.Columns.Item(0).UniqueID;
 
-                    creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
-                    creationPackage.UniqueID = menuID;
-                    creationPackage.String = "Eliminar linha";
-                    creationPackage.Enabled = true;
-                    creationPackage.Position = pos;
+                    if (row > 0 && row <= matrix.RowCount && (col != firstCol || colTitle != "#" || colTitle != ""))
+                    {
+                        LastRightClickMatrix = item;
+                        LastRightClickRow = row;
+                        LastRightClickCol = col;
 
-                    pos++;
+                        MenuItem menuItem = null;
+                        Menus menu = null;
+                        MenuCreationParams creationPackage = null;
 
-                    menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
-                    menu = menuItem.SubMenus;
-                    menu.AddEx(creationPackage);
+                        creationPackage = ((MenuCreationParams)(Controller.ConnectionController.Instance.Application.CreateObject(BoCreatableObjectType.cot_MenuCreationParams)));
+
+                        creationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
+                        creationPackage.UniqueID = menuID;
+                        creationPackage.String = "Eliminar linha";
+                        creationPackage.Enabled = true;
+                        creationPackage.Position = pos;
+
+                        pos++;
+
+                        menuItem = Controller.ConnectionController.Instance.Application.Menus.Item("1280");
+                        menu = menuItem.SubMenus;
+                        menu.AddEx(creationPackage);
+                    }
                 }
             }
 
