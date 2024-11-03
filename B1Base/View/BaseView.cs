@@ -2809,11 +2809,25 @@ namespace B1Base.View
 
                             if (values.ContainsKey(alias) && matrixItem.Columns.Item(col).ChooseFromListUID == matrixItem.Columns.Item(column).ChooseFromListUID)
                             {
+                                Freeze();
                                 try
+                                {
+                                    DataTable dataTable = SAPForm.DataSources.DataTables.Item(editText.DataBind.TableName);
+                                    
+                                    matrixItem.FlushToDataSource();                                    
+
+                                    dataTable.SetValue(matrixItem.Columns.Item(col).Description, row - 1, values[alias]);
+
+                                    matrixItem.LoadFromDataSource();
+                                }
+                                catch (Exception ex)
                                 {
                                     editText.String = values[alias];
                                 }
-                                catch { }
+                                finally
+                                {
+                                    Unfreeze();
+                                }
                             }
                         }
                     }
@@ -2828,6 +2842,7 @@ namespace B1Base.View
                             {
                                 matrixItem.AddRow();
                                 matrixItem.ClearRowData(matrixItem.RowCount);
+                                matrixItem.FlushToDataSource();
 
                                 try
                                 {

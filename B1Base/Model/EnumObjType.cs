@@ -40,6 +40,7 @@ namespace B1Base.Model
         InternalReconciliation = 321,
         InvoiceReturnRequest = 234000031,
         Draft = 112,
-        StockTransfer = 67
+        StockTransfer = 67,
+        Picking = 156
     }
 }

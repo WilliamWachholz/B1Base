@@ -1279,7 +1279,7 @@ namespace B1Base.Controller
                                             }
                                             catch { }
                                         }
-
+                                        
                                         foreach (View.BaseView view in m_Views.Where(r => r.FormUID == formUID && r.FormType == formType).ToList())
                                             view.ColChooseFrom(pVal.ItemUID, pVal.Row + cfRow, pVal.ColUID, values);
                                     }

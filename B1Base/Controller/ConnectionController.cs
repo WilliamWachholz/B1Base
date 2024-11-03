@@ -577,7 +577,7 @@ namespace B1Base.Controller
                         userObject.Code = table;
                         userObject.Name = table;
 
-                        userObject.CanDelete = BoYesNoEnum.tNO;
+                        userObject.CanDelete = BoYesNoEnum.tYES;
                         userObject.CanFind = BoYesNoEnum.tYES;
 
                         userObject.CanCreateDefaultForm = BoYesNoEnum.tYES;
