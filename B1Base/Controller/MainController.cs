@@ -399,6 +399,11 @@ namespace B1Base.Controller
             m_NextMessage = message;
         }
 
+        public void DeclineNextMessage(string message)
+        {
+            m_NextMessage = message;
+        }
+
         public void ClearNextMessage()
         {
             m_NextMessage = string.Empty;
@@ -494,10 +499,16 @@ namespace B1Base.Controller
 
                             foreach (View.BaseView view in m_Views)
                             {
-                                if (view.ConfirmationBoxLoad(text1 + " " + text2))
+                                if (view.ConfirmationBoxLoad((text1 + " " + text2).Trim()))
                                 {
                                     m_NextMessage = string.Empty;
                                     form.Items.Item("1").Click(BoCellClickType.ct_Regular);
+                                }
+
+                                if (view.DeclineBoxLoad((text1 + " " + text2).Trim()))
+                                {
+                                    m_NextMessage = string.Empty;
+                                    form.Items.Item("2").Click(BoCellClickType.ct_Regular);
                                 }
                             }
 
@@ -1730,6 +1741,27 @@ namespace B1Base.Controller
         private void HandleMenuSearch(ref MenuEvent pVal, out bool bubbleEvent)
         {
             bubbleEvent = true;
+
+            if (pVal.MenuUID == "1281" || pVal.MenuUID == "1290" || pVal.MenuUID == "1289" || pVal.MenuUID == "1288" || pVal.MenuUID == "1291" || pVal.MenuUID == "1282")
+            {
+                if (pVal.BeforeAction)
+                {
+                    string formId = ConnectionController.Instance.Application.Forms.ActiveForm.UniqueID;
+                    string formType = ConnectionController.Instance.Application.Forms.ActiveForm.TypeEx;
+
+                    if (!formId.Contains("F_"))
+                    {
+                        if (m_Views.Any(r => r.FormUID == formId && r.FormType == formType))
+                        {
+                            if (m_Views.First(r => r.FormUID == formId && r.FormType == formType).SAPForm.Mode == BoFormMode.fm_OK_MODE)
+                            {
+                                ConfirmNextMessage("Dados não gravados serão perdidos. Continuar sem gravar?");
+                            }
+                        }
+                    }
+                }
+
+            }
 
             if (pVal.MenuUID == "1281")
             {

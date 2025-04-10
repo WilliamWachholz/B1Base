@@ -144,6 +144,7 @@ namespace B1Base.View
         public delegate void SuppressActionEventHandler(BoEventTypes action, out bool supressed);
         public delegate bool SupressMatrixDetailsEventHandler();
         public delegate bool ConfirmMessageBoxEventHandler();
+        public delegate bool DeclineMessageBoxEventHandler();
         public delegate void MenuPasteEventHandler();
         
         public string LastEditValue { get; private set; }
@@ -391,6 +392,8 @@ namespace B1Base.View
         protected virtual Dictionary<string, SupressMatrixDetailsEventHandler> SupressMatrixDetailsEvents { get { return new Dictionary<string, SupressMatrixDetailsEventHandler>(); } }
 
         protected virtual Dictionary<string, ConfirmMessageBoxEventHandler> ConfirmMessageBoxEvents { get { return new Dictionary<string, ConfirmMessageBoxEventHandler>(); } }
+
+        protected virtual Dictionary<string, DeclineMessageBoxEventHandler> DeclineMessageBoxEvents { get { return new Dictionary<string, DeclineMessageBoxEventHandler>(); } }
 
         protected virtual Dictionary<string, MenuPasteEventHandler> MenuPasteEvents { get { return new Dictionary<string, MenuPasteEventHandler>(); } }
 
@@ -3932,6 +3935,18 @@ namespace B1Base.View
 
             return result;
         }
+
+
+        public bool DeclineBoxLoad(string message)
+        {
+            bool result = false;
+
+            if (DeclineMessageBoxEvents.ContainsKey(message))
+                result = DeclineMessageBoxEvents[message]();
+
+            return result;
+        }
+
 
         public void MenuPaste()
         {

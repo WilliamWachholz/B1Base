@@ -224,7 +224,7 @@ namespace B1Base.DAO
                 {
                     if (prop.PropertyType == typeof(Boolean))
                     {
-                        insert += (bool)prop.GetValue(model) ? "'Y'" : "'N'" + ", ";
+                        insert += ((bool)prop.GetValue(model) ? "'Y'" : "'N'") + ", ";
                     }
                     else if (prop.PropertyType.IsEnum)
                     {
